@@ -1,7 +1,7 @@
-import { View } from "@tarojs/components"
+import { View } from "@tarojs/components";
 
-import "./index.scss"
+import "./index.scss";
 
 export default function ProgressBar() {
-  return <View className="progress-bar">{/* M5 开发时填充 */}</View>
+  return <View className="progress-bar">{/* M5 开发时填充 */}</View>;
 }

@@ -1,13 +1,13 @@
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
-import { Text, View } from "@tarojs/components"
+import { Text, View } from "@tarojs/components";
 
-import "./index.scss"
+import "./index.scss";
 
 interface AppBarProps {
-  title: string
-  caption?: string
-  right?: ReactNode
+  title: string;
+  caption?: string;
+  right?: ReactNode;
 }
 
 export default function AppBar({ title, caption, right }: AppBarProps) {
@@ -19,5 +19,5 @@ export default function AppBar({ title, caption, right }: AppBarProps) {
       </View>
       {right ? <View className="appbar__right">{right}</View> : null}
     </View>
-  )
+  );
 }

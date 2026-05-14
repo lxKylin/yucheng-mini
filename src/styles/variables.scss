@@ -1,49 +1,62 @@
-$bg: #f3fbfc;
-$bg-warm: #fff8ec;
-$card: #ffffff;
-$phone: #f7fbfc;
+$board-width: 750px;
+$board-height: 1624px;
+$safe-side: 32px;
+$safe-bottom: 44px;
 
-$ink: #12333d;
-$ink-strong: #0b2229;
-$muted: #667e87;
-$quiet: #8aa0a7;
+$bg: #edf7f4;
+$bg-deep: #dbeee9;
+$bg-warm: #fff1de;
+$paper: #f8fcfa;
+$card: rgba(255, 255, 255, 0.94);
+$phone: #f7fcfa;
+$surface-soft: #eff5f3;
+$surface-raised: rgba(255, 255, 255, 0.96);
 
-$line: #d8ebef;
-$line-soft: #eaf4f6;
+$ink: #163731;
+$ink-strong: #0f2622;
+$muted: #617c74;
+$quiet: #85a099;
 
-$primary: #0c839a;
-$primary-deep: #0d6478;
-$primary-soft: #dff6fb;
+$line: rgba(23, 76, 65, 0.1);
+$line-strong: rgba(23, 76, 65, 0.18);
+$line-soft: rgba(23, 76, 65, 0.08);
 
-$success: #18845d;
-$success-soft: #e4f8ef;
-$warning: #b26412;
-$warning-soft: #fff4df;
-$danger: #c94040;
-$danger-soft: #fff0f0;
-$violet: #6268c9;
-$violet-soft: #f0f1ff;
+$primary: #157a66;
+$primary-deep: #0c5b4b;
+$primary-soft: #d8f1e8;
 
-$radius: 8px;
-$radius-lg: 16px;
+$success: #1f8657;
+$success-soft: #e4f7ed;
+$warning: #b86c1e;
+$warning-soft: #fff1de;
+$danger: #ca4e41;
+$danger-soft: #ffeae6;
+$violet: #5f67b8;
+$violet-soft: #ebedff;
+
+$radius: 24px;
+$radius-lg: 28px;
+$radius-strong: 44px;
+$radius-card: 28px;
 $radius-pill: 999px;
 
-$surface-soft: #f2f7f8;
-$track: #ecf3f5;
+$track: #e8efec;
 
-$shadow: 0 24px 54px rgba(16, 74, 91, 0.16);
-$shadow-soft: 0 10px 26px rgba(16, 74, 91, 0.1);
+$shadow: 0 40px 100px rgba(16, 59, 50, 0.16);
+$shadow-soft: 0 18px 40px rgba(16, 59, 50, 0.08);
+$shadow-canvas: 0 40px 100px rgba(16, 59, 50, 0.16);
+$shadow-card: 0 18px 40px rgba(16, 59, 50, 0.08);
 
-$duration: 210ms;
+$duration: 220ms;
 
-$text-xs: 12px;
-$text-sm: 13px;
-$text-base: 14px;
-$text-md: 15px;
-$text-lg: 17px;
-$text-xl: 22px;
-$text-2xl: 24px;
-$text-hero: 44px;
+$text-xs: 18px;
+$text-sm: 20px;
+$text-base: 22px;
+$text-md: 24px;
+$text-lg: 28px;
+$text-xl: 30px;
+$text-2xl: 42px;
+$text-hero: 76px;
 
 $spacing-1: 4px;
 $spacing-2: 8px;
@@ -51,3 +64,6 @@ $spacing-3: 12px;
 $spacing-4: 16px;
 $spacing-5: 18px;
 $spacing-6: 24px;
+$spacing-7: 30px;
+$spacing-8: 32px;
+$spacing-9: 44px;
