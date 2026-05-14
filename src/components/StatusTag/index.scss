@@ -1,5 +1,34 @@
 @use "@/styles/variables" as *;
 
 .status-tag {
-  padding: $spacing-2 $spacing-3;
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 16px !important;
+  border-radius: $radius-pill !important;
+  border: none !important;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+
+  &--danger {
+    color: $danger !important;
+    background: $danger-soft !important;
+  }
+
+  &--warning {
+    color: $warning !important;
+    background: $warning-soft !important;
+  }
+
+  &--good {
+    color: $success !important;
+    background: $success-soft !important;
+  }
+
+  &--paused {
+    color: $violet !important;
+    background: $violet-soft !important;
+  }
 }

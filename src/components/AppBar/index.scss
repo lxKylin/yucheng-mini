@@ -1,33 +1,37 @@
 @use "@/styles/variables" as *;
 
 .appbar {
-  min-height: 58px;
+  min-height: 74px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: $spacing-3;
-  padding-bottom: $spacing-2;
+  gap: $spacing-4;
+  padding: $spacing-2 0 $spacing-3;
 
   &__main {
     flex: 1;
+    min-width: 0;
   }
 
   &__title {
     color: $ink-strong;
-    font-size: $text-2xl;
-    line-height: 1.16;
+    font-size: 48px;
+    line-height: 1.08;
     font-weight: 920;
+    letter-spacing: -0.02em;
   }
 
   &__caption {
     display: block;
-    margin-top: 2px;
+    margin-top: 8px;
     color: $muted;
-    font-size: $text-xs;
+    font-size: $text-sm;
     font-weight: 700;
+    line-height: 1.5;
   }
 
   &__right {
     flex: 0 0 auto;
+    padding-top: 2px;
   }
 }

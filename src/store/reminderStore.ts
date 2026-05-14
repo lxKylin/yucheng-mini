@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
 import type { Reminder, DerivedReminder } from "@/types";
 import {
   DEFAULT_REMIND_TIME,
@@ -8,6 +8,86 @@ import {
 } from "@/constants";
 import { loadReminders, saveReminders } from "@/utils/storage";
 import { derive, deriveAll, today } from "@/utils/dateUtils";
+
+const MOCK_TIMESTAMP = "2026-05-14T09:00:00.000Z";
+
+const MOCK_REMINDERS: Reminder[] = [
+  {
+    id: "mock-danger-overdue",
+    name: "洛拉替尼",
+    spec: "100mg",
+    lastDate: "2026-04-13",
+    interval: 30,
+    before: 3,
+    time: "09:00",
+    status: "active",
+    note: "今天优先处理复诊开药，避免断药。",
+    history: ["2026-04-13", "2026-03-14", "2026-02-12"],
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP,
+  },
+  {
+    id: "mock-danger-today",
+    name: "瑞舒伐他汀",
+    spec: "10mg",
+    lastDate: "2026-05-07",
+    interval: 28,
+    before: 7,
+    time: "09:00",
+    status: "active",
+    note: "适合验证今天到期与已开药按钮刷新。",
+    history: ["2026-05-07", "2026-04-30", "2026-04-23"],
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP,
+  },
+  {
+    id: "mock-warning",
+    name: "地舒单抗",
+    spec: "120mg",
+    lastDate: "2026-04-22",
+    interval: 28,
+    before: 7,
+    time: "08:30",
+    status: "active",
+    note: "用于验证 7 天内提醒与时间线日期展示。",
+    history: ["2026-04-22", "2026-03-23"],
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP,
+  },
+  {
+    id: "mock-good",
+    name: "维生素D3",
+    spec: "400IU",
+    lastDate: "2026-05-10",
+    interval: 30,
+    before: 3,
+    time: "10:00",
+    status: "active",
+    note: "用于验证普通 good 状态不会挤掉更紧急卡片。",
+    history: ["2026-05-10", "2026-04-10"],
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP,
+  },
+  {
+    id: "mock-paused",
+    name: "优甲乐",
+    spec: "50ug",
+    lastDate: "2026-05-01",
+    interval: 45,
+    before: 7,
+    time: "08:30",
+    status: "paused",
+    note: "用于验证 paused 标签颜色和首页过滤。",
+    history: ["2026-05-01", "2026-03-17"],
+    createdAt: MOCK_TIMESTAMP,
+    updatedAt: MOCK_TIMESTAMP,
+  },
+];
+
+const initialReminders = (() => {
+  const loadedReminders = loadReminders();
+  return loadedReminders.length > 0 ? loadedReminders : MOCK_REMINDERS;
+})();
 
 /** 生成唯一 ID（小程序环境不使用 crypto） */
 function genId(): string {
@@ -35,8 +115,8 @@ interface ReminderStore {
   getById: (id: string) => DerivedReminder | null;
 }
 
-export const useReminderStore = create<ReminderStore>((set, get) => ({
-  reminders: loadReminders(),
+export const reminderStore = createStore<ReminderStore>((set, get) => ({
+  reminders: initialReminders,
 
   addReminder(payload) {
     const now = new Date().toISOString();

@@ -40,7 +40,9 @@ export function addDays(dateStr: string, days: number): string {
  */
 export function diffDays(from: string, to: string): number {
   const msPerDay = 86400000;
-  return Math.round((parseDate(to).getTime() - parseDate(from).getTime()) / msPerDay);
+  return Math.round(
+    (parseDate(to).getTime() - parseDate(from).getTime()) / msPerDay,
+  );
 }
 
 // ─── 业务计算 ─────────────────────────────────────────────────────
@@ -60,7 +62,11 @@ export function calcRemindDate(nextDate: string, before: number): string {
  * 逻辑：从 lastDate 到 nextDate 为一个周期，当前在周期内的位置
  * 逾期时进度为 100，不超过 100
  */
-function calcProgress(lastDate: string, nextDate: string, todayStr: string): number {
+function calcProgress(
+  lastDate: string,
+  nextDate: string,
+  todayStr: string,
+): number {
   const total = diffDays(lastDate, nextDate);
   if (total <= 0) return 100;
   const elapsed = diffDays(lastDate, todayStr);
@@ -74,7 +80,10 @@ function calcProgress(lastDate: string, nextDate: string, todayStr: string): num
  * good：7 天以上
  * paused：已暂停
  */
-function calcLevel(daysLeft: number, status: Reminder["status"]): ReminderLevel {
+function calcLevel(
+  daysLeft: number,
+  status: Reminder["status"],
+): ReminderLevel {
   if (status === "paused") return "paused";
   if (daysLeft <= 0) return "danger";
   if (daysLeft <= 7) return "warning";
@@ -123,7 +132,8 @@ export function deriveAll(reminders: Reminder[]): DerivedReminder[] {
     .filter((r) => r.status !== "deleted")
     .map(derive)
     .sort((a, b) => {
-      const levelDiff = (LEVEL_ORDER[a.level] ?? 99) - (LEVEL_ORDER[b.level] ?? 99);
+      const levelDiff =
+        (LEVEL_ORDER[a.level] ?? 99) - (LEVEL_ORDER[b.level] ?? 99);
       if (levelDiff !== 0) return levelDiff;
       return a.nextDate.localeCompare(b.nextDate);
     });
