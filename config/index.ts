@@ -1,3 +1,5 @@
+import path from "path";
+
 import { defineConfig, type UserConfigExport } from "@tarojs/cli";
 import { createStyleImportPlugin } from "vite-plugin-style-import";
 
@@ -18,6 +20,9 @@ export default defineConfig<"vite">(async (merge) => {
     },
     sourceRoot: "src",
     outputRoot: "dist",
+    alias: {
+      "@": path.resolve(__dirname, "..", "src"),
+    },
     plugins: ["@tarojs/plugin-generator"],
     defineConstants: {},
     copy: {

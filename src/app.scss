@@ -1,0 +1,144 @@
+@use "@/styles/variables" as *;
+
+page {
+  min-height: 100vh;
+  background: $bg;
+  color: $ink;
+  font-size: $text-base;
+  line-height: 1.5;
+  box-sizing: border-box;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.card {
+  padding: $spacing-3;
+  border-radius: $radius;
+  background: $card;
+  border: 1px solid rgba(216, 235, 239, 0.86);
+  box-shadow: 0 8px 20px rgba(16, 74, 91, 0.07);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: $radius-pill;
+  font-size: $text-xs;
+  font-weight: 900;
+  white-space: nowrap;
+
+  &--danger {
+    color: $danger;
+    background: $danger-soft;
+  }
+
+  &--warning {
+    color: $warning;
+    background: $warning-soft;
+  }
+
+  &--good {
+    color: $success;
+    background: $success-soft;
+  }
+
+  &--paused {
+    color: $violet;
+    background: $violet-soft;
+  }
+}
+
+.button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 $spacing-3;
+  border-radius: $radius;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+
+  &--primary {
+    color: $card;
+    background: $primary;
+  }
+
+  &--soft {
+    color: $primary-deep;
+    background: $primary-soft;
+  }
+
+  &--danger {
+    color: $card;
+    background: $danger;
+  }
+
+  &--success {
+    color: $card;
+    background: $success;
+  }
+
+  &--ghost {
+    color: $ink;
+    background: $surface-soft;
+  }
+}
+
+.progress {
+  height: 8px;
+  overflow: hidden;
+  border-radius: $radius-pill;
+  background: $track;
+
+  &__bar {
+    height: 100%;
+    border-radius: inherit;
+    background: $primary;
+    transition: width $duration ease-out;
+  }
+
+  &--danger .progress__bar {
+    background: $danger;
+  }
+
+  &--warning .progress__bar {
+    background: $warning;
+  }
+
+  &--good .progress__bar {
+    background: $success;
+  }
+}
+
+.metric {
+  min-height: 68px;
+  padding: 10px;
+  border-radius: $radius;
+  background: $card;
+  border: 1px solid $line-soft;
+  box-shadow: 0 8px 18px rgba(16, 74, 91, 0.06);
+
+  &__value {
+    display: block;
+    color: $ink-strong;
+    font-size: $text-xl;
+    line-height: 1.15;
+  }
+
+  &__label {
+    display: block;
+    margin-top: 4px;
+    color: $muted;
+    font-size: $text-xs;
+    font-weight: 750;
+  }
+}
