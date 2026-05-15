@@ -1,20 +1,15 @@
 export default defineAppConfig({
-  pages: [
-    "pages/home/index",
-    "pages/list/index",
-    "pages/messages/index",
-    "pages/profile/index",
-  ],
+  pages: ["pages/home/index", "pages/list/index", "pages/profile/index"],
   window: {
     backgroundTextStyle: "light",
-    navigationBarBackgroundColor: "#f3fbfc",
+    navigationBarBackgroundColor: "#f8fcfa",
     navigationBarTitleText: "愈程记",
     navigationBarTextStyle: "black",
   },
   tabBar: {
     custom: false,
     color: "#8aa0a7",
-    selectedColor: "#0c839a",
+    selectedColor: "#157a66",
     backgroundColor: "#ffffff",
     borderStyle: "white",
     list: [
@@ -26,15 +21,9 @@ export default defineAppConfig({
       },
       {
         pagePath: "pages/list/index",
-        text: "提醒列表",
+        text: "列表",
         iconPath: "assets/tabbar/list.png",
         selectedIconPath: "assets/tabbar/list-active.png",
-      },
-      {
-        pagePath: "pages/messages/index",
-        text: "提醒中心",
-        iconPath: "assets/tabbar/bell.png",
-        selectedIconPath: "assets/tabbar/bell-active.png",
       },
       {
         pagePath: "pages/profile/index",
