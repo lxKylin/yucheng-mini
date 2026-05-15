@@ -46,7 +46,7 @@
     display: flex;
     align-items: center;
     gap: $spacing-2;
-    min-height: 52px;
+    min-height: 60px;
     padding: 0 $spacing-4;
     border: 1px solid $line-strong;
     border-radius: $radius;
@@ -91,14 +91,25 @@
     border-radius: $radius;
     box-sizing: border-box;
     display: block;
-    color: $ink;
     background: #fff;
+  }
+
+  &__textarea-inner {
+    width: 100%;
+    color: $ink;
     font-size: $text-md;
     line-height: 1.6;
+    background: transparent;
+
+    // 覆盖 taroify 默认的内边距/边框
+    .taroify-textarea {
+      padding: 0;
+      background: transparent;
+    }
   }
 
   &__picker {
-    min-height: 52px;
+    min-height: 60px;
     padding: 0 $spacing-4;
     border: 1px solid $line-strong;
     border-radius: $radius;

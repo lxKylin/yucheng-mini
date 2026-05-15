@@ -281,14 +281,16 @@ export default function ReminderForm({
 
       <View className="reminder-form__field">
         <Text className="reminder-form__label">备注</Text>
-        <Textarea
-          className="reminder-form__textarea"
-          value={values.note}
-          placeholder="医院、复诊事项、注意事项"
-          autoHeight
-          maxlength={200}
-          onChange={(e: TextareaEvent) => setField("note", e.detail.value)}
-        />
+        <View className="reminder-form__textarea">
+          <Textarea
+            className="reminder-form__textarea-inner"
+            value={values.note}
+            placeholder="医院、复诊事项、注意事项"
+            autoHeight
+            maxlength={200}
+            onChange={(e: TextareaEvent) => setField("note", e.detail.value)}
+          />
+        </View>
       </View>
 
       <View className="reminder-form__calc">

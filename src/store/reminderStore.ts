@@ -7,6 +7,12 @@ import {
   HISTORY_MAX,
 } from "@/constants";
 import { loadReminders, saveReminders } from "@/utils/storage";
+import {
+  fetchReminders,
+  addReminderToCloud,
+  updateReminderInCloud,
+  deleteReminderInCloud,
+} from "@/services/reminder";
 import { derive, deriveAll, today } from "@/utils/dateUtils";
 
 const MOCK_TIMESTAMP = "2026-05-14T09:00:00.000Z";
@@ -113,6 +119,9 @@ interface ReminderStore {
   // ─── 查询（返回派生数据） ────────────────────────────────────────
   getDerivedList: () => DerivedReminder[];
   getById: (id: string) => DerivedReminder | null;
+
+  /** 从云数据库拉取最新数据，覆盖本地缓存；云端为空时不覆盖 */
+  loadFromCloud: () => Promise<void>;
 }
 
 export const reminderStore = createStore<ReminderStore>((set, get) => ({
@@ -138,6 +147,10 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
       saveReminders(next);
       return { reminders: next };
     });
+    // 异步同步到云端，不阻塞
+    addReminderToCloud(newItem).catch((err) =>
+      console.error("[store] addReminder 云端同步失败：", err),
+    );
   },
 
   updateReminder(id, payload) {
@@ -150,6 +163,12 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
       saveReminders(next);
       return { reminders: next };
     });
+    updateReminderInCloud(id, {
+      ...payload,
+      updatedAt: new Date().toISOString(),
+    }).catch((err) =>
+      console.error("[store] updateReminder 云端同步失败：", err),
+    );
   },
 
   deleteReminder(id) {
@@ -167,6 +186,9 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
       saveReminders(next);
       return { reminders: next };
     });
+    deleteReminderInCloud(id).catch((err) =>
+      console.error("[store] deleteReminder 云端同步失败：", err),
+    );
   },
 
   markDone(id, date) {
@@ -185,6 +207,14 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
       saveReminders(next);
       return { reminders: next };
     });
+    updateReminderInCloud(id, {
+      lastDate: doneDate,
+      history: [
+        doneDate,
+        ...(get().reminders.find((r) => r.id === id)?.history ?? []),
+      ].slice(0, HISTORY_MAX),
+      updatedAt: new Date().toISOString(),
+    }).catch((err) => console.error("[store] markDone 云端同步失败：", err));
   },
 
   togglePause(id) {
@@ -197,6 +227,12 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
       saveReminders(next);
       return { reminders: next };
     });
+    const updatedStatus =
+      get().reminders.find((r) => r.id === id)?.status ?? "active";
+    updateReminderInCloud(id, {
+      status: updatedStatus,
+      updatedAt: new Date().toISOString(),
+    }).catch((err) => console.error("[store] togglePause 云端同步失败：", err));
   },
 
   getDerivedList() {
@@ -208,5 +244,12 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
       (r) => r.id === id && r.status !== "deleted",
     );
     return r ? derive(r) : null;
+  },
+
+  async loadFromCloud() {
+    const cloudList = await fetchReminders();
+    if (cloudList.length === 0) return; // 云端为空时不覆盖本地数据（兼容离线首次启动）
+    set({ reminders: cloudList });
+    saveReminders(cloudList);
   },
 }));

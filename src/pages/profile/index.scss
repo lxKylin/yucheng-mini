@@ -55,6 +55,11 @@
     font-size: $text-xl;
     font-weight: 900;
     line-height: 1.2;
+    // Input resets
+    padding: 0;
+    background: transparent;
+    border: none;
+    width: 100%;
   }
 
   &__user-meta {
@@ -280,5 +285,54 @@
     color: $muted;
     font-size: $text-sm;
     line-height: 1.6;
+  }
+
+  &__avatar-btn {
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    line-height: 1;
+    flex-shrink: 0;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  &__avatar-img {
+    width: 92px;
+    height: 92px;
+    border-radius: 32px;
+    display: block;
+  }
+
+  &__name-placeholder {
+    color: $muted;
+    font-size: $text-xl;
+    font-weight: 400;
+  }
+
+  &__avatar-placeholder {
+    width: 92px;
+    height: 92px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  &__avatar-placeholder-icon {
+    font-size: 44px;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1;
+  }
+
+  &__avatar-placeholder-hint {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1;
+    white-space: nowrap;
   }
 }

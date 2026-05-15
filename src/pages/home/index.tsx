@@ -164,7 +164,7 @@ export default function Home() {
       </View>
 
       <View className="home-subhead">
-        <Text className="home-subhead__title">最近待开药提醒</Text>
+        <Text className="home-subhead__title">最近提醒</Text>
         <View className="home-subhead__action" onClick={handleViewAll}>
           <Text>查看全部</Text>
         </View>

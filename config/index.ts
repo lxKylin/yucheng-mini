@@ -24,7 +24,11 @@ export default defineConfig<"vite">(async (merge) => {
       "@": path.resolve(__dirname, "..", "src"),
     },
     plugins: ["@tarojs/plugin-generator"],
-    defineConstants: {},
+    defineConstants: {
+      "process.env.ENV_CLOUD_ID": JSON.stringify(
+        process.env.ENV_CLOUD_ID ?? "",
+      ),
+    },
     copy: {
       patterns: [],
       options: {},
