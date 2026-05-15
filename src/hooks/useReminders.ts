@@ -57,3 +57,23 @@ export function useReminderActions() {
     [state],
   );
 }
+
+/** 获取"我的"页面所需的统计数据 */
+export function useProfileStats() {
+  const reminders = useReminderStore().reminders;
+
+  return useMemo(() => {
+    const activeList = reminders.filter((r) => r.status === "active");
+    const historyTotal = reminders.reduce(
+      (sum, r) => sum + r.history.length,
+      0,
+    );
+
+    return {
+      activeCount: activeList.length,
+      historyTotal,
+      total: reminders.filter((r) => r.status !== "deleted").length,
+      unreadCount: 0,
+    };
+  }, [reminders]);
+}

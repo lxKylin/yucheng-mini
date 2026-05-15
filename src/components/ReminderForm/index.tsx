@@ -18,6 +18,7 @@ import {
 } from "@/constants";
 import { useDerivedById, useReminderActions } from "@/hooks/useReminders";
 import { calcNextDate, calcRemindDate, today } from "@/utils/dateUtils";
+import { loadSettings } from "@/utils/storage";
 
 import "./index.scss";
 
@@ -38,13 +39,15 @@ interface FormValues {
 }
 
 function makeDefaults(): FormValues {
+  const settings = loadSettings();
+
   return {
     name: "",
     spec: "",
     lastDate: today(),
-    time: DEFAULT_REMIND_TIME,
+    time: settings.defaultTime || DEFAULT_REMIND_TIME,
     interval: DEFAULT_INTERVAL,
-    before: DEFAULT_BEFORE,
+    before: settings.defaultBefore || DEFAULT_BEFORE,
     note: "",
   };
 }

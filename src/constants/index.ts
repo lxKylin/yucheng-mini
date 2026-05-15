@@ -16,6 +16,9 @@ export const DEFAULT_BEFORE = 7;
 /** 本地存储 key */
 export const STORAGE_KEY_REMINDERS = "reminders_v1";
 
+/** 设置的本地存储 key */
+export const STORAGE_KEY_SETTINGS = "settings_v1";
+
 /** 历史记录最大保留条数 */
 export const HISTORY_MAX = 5;
 
@@ -26,3 +29,6 @@ export const LEVEL_ORDER: Record<string, number> = {
   good: 2,
   paused: 3,
 };
+
+/** 提前天数选项的显示文本（与 BEFORE_OPTIONS 下标一一对应） */
+export const BEFORE_OPTIONS_LABEL = BEFORE_OPTIONS.map((d) => `${d} 天`);
