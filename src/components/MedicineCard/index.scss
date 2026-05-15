@@ -85,6 +85,11 @@
       background: $warning;
     }
 
+    &--disabled {
+      color: $violet;
+      background: $violet-soft;
+    }
+
     &--ghost {
       color: $primary-deep;
       background: $primary-soft;

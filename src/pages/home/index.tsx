@@ -103,7 +103,7 @@ export default function Home() {
 
         markDone(id);
         Taro.showToast({
-          title: "已进入下一轮",
+          title: `${target.name} 已进入下一轮周期`,
           icon: "success",
           duration: 1500,
         });

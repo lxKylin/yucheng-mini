@@ -20,6 +20,7 @@ export default function MedicineCard({
   onDone,
   onDetail,
 }: MedicineCardProps) {
+  const doneDisabled = item.status === "paused";
   const doneColor =
     item.level === "danger"
       ? "danger"
@@ -48,8 +49,8 @@ export default function MedicineCard({
       {showActions ? (
         <View className="medicine-card__actions">
           <View
-            className={`medicine-card__btn medicine-card__btn--${doneColor}`}
-            onClick={onDone}
+            className={`medicine-card__btn medicine-card__btn--${doneColor}${doneDisabled ? " medicine-card__btn--disabled" : ""}`}
+            onClick={doneDisabled ? undefined : onDone}
           >
             <Success className="medicine-card__btn-icon" />
             <Text className="medicine-card__btn-text">已开药</Text>

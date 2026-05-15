@@ -211,6 +211,20 @@
       color: $success !important;
     }
 
+    &.taroify-button--disabled {
+      background: $violet-soft !important;
+      color: $violet !important;
+      opacity: 1 !important;
+
+      &::before {
+        opacity: 0 !important;
+      }
+
+      .taroify-button__button {
+        color: inherit !important;
+      }
+    }
+
     &--pause {
       background: $surface-soft !important;
       color: $ink !important;

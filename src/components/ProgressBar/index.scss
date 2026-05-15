@@ -25,4 +25,8 @@
   &--good .progress-bar__portion {
     background: $success;
   }
+
+  &--paused .progress-bar__portion {
+    background: $violet;
+  }
 }

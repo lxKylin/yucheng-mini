@@ -31,7 +31,6 @@ export default function ReminderDetail({
       : item.daysLeft === 0
         ? "今日需要开药"
         : "天后预计需要重新开药";
-  const progressLevel = item.status === "paused" ? "good" : item.level;
   const doneBtnMod =
     item.level === "danger"
       ? "danger"
@@ -40,6 +39,10 @@ export default function ReminderDetail({
         : "success";
 
   const handleDone = () => {
+    if (item.status === "paused") {
+      return;
+    }
+
     Taro.showModal({
       title: "确认本次已开药",
       content: `确认已完成「${item.name}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
@@ -53,7 +56,7 @@ export default function ReminderDetail({
 
         markDone(item.id);
         Taro.showToast({
-          title: "已进入下一轮",
+          title: `${item.name} 已进入下一轮周期`,
           icon: "success",
           duration: 1500,
         });
@@ -63,10 +66,50 @@ export default function ReminderDetail({
   };
 
   const handleTogglePause = () => {
-    togglePause(item.id);
-    const msg = item.status === "paused" ? "提醒已重新启用" : "提醒已暂停";
-    Taro.showToast({ title: msg, icon: "none", duration: 1500 });
-    onClose();
+    if (item.status === "paused") {
+      Taro.showModal({
+        title: "重新启用提醒",
+        content: `确定重新启用「${item.name}」的提醒吗？恢复后会继续按照当前周期推送提醒。`,
+        confirmText: "启用",
+        cancelText: "取消",
+        confirmColor: "#157a66",
+        success: (res) => {
+          if (!res.confirm) {
+            return;
+          }
+
+          togglePause(item.id);
+          Taro.showToast({
+            title: "提醒已重新启用",
+            icon: "none",
+            duration: 1500,
+          });
+          onClose();
+        },
+      });
+      return;
+    }
+
+    Taro.showModal({
+      title: "暂停提醒",
+      content: `确定暂停「${item.name}」的提醒吗？暂停后将不会继续提示，直到你重新启用。`,
+      confirmText: "暂停",
+      cancelText: "取消",
+      confirmColor: "#b86c1e",
+      success: (res) => {
+        if (!res.confirm) {
+          return;
+        }
+
+        togglePause(item.id);
+        Taro.showToast({
+          title: "提醒已暂停",
+          icon: "none",
+          duration: 1500,
+        });
+        onClose();
+      },
+    });
   };
 
   const handleDelete = () => {
@@ -123,12 +166,13 @@ export default function ReminderDetail({
       )}
 
       <View className="reminder-detail__progress">
-        <ProgressBar progress={item.progress} level={progressLevel} />
+        <ProgressBar progress={item.progress} level={item.level} />
       </View>
 
       <View className="reminder-detail__actions">
         <Button
           className={`reminder-detail__btn reminder-detail__btn--done reminder-detail__btn--${doneBtnMod}`}
+          disabled={item.status === "paused"}
           onClick={handleDone}
         >
           本次已开药
