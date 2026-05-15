@@ -17,7 +17,6 @@
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid $line-soft;
   box-shadow: $shadow-card;
-  margin-top: $spacing-3;
 
   &__icon {
     flex-shrink: 0;
@@ -26,12 +25,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  &__icon-text {
-    color: $quiet;
-    font-size: 28px;
-    line-height: 1;
   }
 
   &__input {

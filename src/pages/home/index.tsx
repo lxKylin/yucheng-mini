@@ -116,7 +116,6 @@ export default function Home() {
   };
 
   const handleAddNew = () => {
-    console.log("add new reminder");
     Taro.hideTabBar({ animation: true });
     setEditReminderId(undefined);
     setFormKey((key) => key + 1);
@@ -137,8 +136,6 @@ export default function Home() {
 
   return (
     <View className="home-page">
-      <AppBar title="首页总览" caption={todayStr} />
-
       <View className={`home-hero${hasDanger ? " home-hero--danger" : ""}`}>
         <Text className="home-hero__eyebrow">今日待办</Text>
         <Text className="home-hero__title">

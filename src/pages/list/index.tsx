@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Input, Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
+import { Search } from "@taroify/icons";
 
 import AppBar from "@/components/AppBar";
 import BottomSheet from "@/components/BottomSheet";
@@ -143,11 +144,9 @@ export default function ListPage() {
 
   return (
     <View className="list-page">
-      <AppBar title="提醒列表" caption="统一管理全部开药任务" />
-
       <View className="list-search">
         <View className="list-search__icon" aria-hidden="true">
-          <Text className="list-search__icon-text">⌕</Text>
+          <Search />
         </View>
         <Input
           className="list-search__input"
