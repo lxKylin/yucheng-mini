@@ -1,16 +1,39 @@
+import { useEffect, useState } from "react";
 import { Text, View } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 
 import AppBar from "@/components/AppBar";
+import BottomSheet from "@/components/BottomSheet";
 import MedicineCard from "@/components/MedicineCard";
+import ReminderForm from "@/components/ReminderForm";
 import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
 import { formatDisplay, parseDate } from "@/utils/dateUtils";
 
 import "./index.scss";
 
 export default function Home() {
+  const [formOpen, setFormOpen] = useState(false);
+  const [formKey, setFormKey] = useState(0);
   const allItems = useDerivedList();
   const { markDone } = useReminderActions();
+
+  const handleSheetEntered = () => {
+    Taro.hideTabBar({ animation: true });
+  };
+
+  const handleSheetExited = () => {
+    Taro.showTabBar({ animation: true });
+  };
+
+  const closeFormSheet = () => {
+    setFormOpen(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      Taro.showTabBar({ animation: false });
+    };
+  }, []);
 
   const overdueCount = allItems.filter(
     (item) => item.status !== "paused" && item.daysLeft < 0,
@@ -36,9 +59,11 @@ export default function Home() {
     Taro.switchTab({ url: "/pages/list/index" });
   };
 
-  // TODO: M5 接入后替换为打开新增 BottomSheet。
   const handleAddNew = () => {
-    Taro.showToast({ title: "功能开发中", icon: "none", duration: 1200 });
+    console.log("add new reminder");
+    Taro.hideTabBar({ animation: true });
+    setFormKey((key) => key + 1);
+    setFormOpen(true);
   };
 
   // TODO: M6 接入后替换为打开详情 BottomSheet。
@@ -134,9 +159,25 @@ export default function Home() {
         })}
       </View>
 
-      <View className="home-fab" onClick={handleAddNew}>
-        <Text className="home-fab__icon">+</Text>
-      </View>
+      {!formOpen ? (
+        <View className="home-fab" onClick={handleAddNew}>
+          <Text className="home-fab__icon">+</Text>
+        </View>
+      ) : null}
+
+      <BottomSheet
+        open={formOpen}
+        title="新增提醒"
+        onClose={closeFormSheet}
+        onAfterOpen={handleSheetEntered}
+        onAfterClose={handleSheetExited}
+      >
+        <ReminderForm
+          key={formKey}
+          onSuccess={closeFormSheet}
+          onCancel={closeFormSheet}
+        />
+      </BottomSheet>
     </View>
   );
 }

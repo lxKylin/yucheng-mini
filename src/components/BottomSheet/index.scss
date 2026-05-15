@@ -1,5 +1,55 @@
 @use "@/styles/variables" as *;
 
+.bottom-sheet-panel {
+  &.taroify-popup {
+    --popup-rounded-border-radius: #{$radius-strong};
+    background: $paper !important;
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    box-shadow: 0 -20px 60px rgba(10, 30, 35, 0.16);
+  }
+}
+
 .bottom-sheet {
-  padding: $spacing-3;
+  &__head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    padding: $spacing-6 $spacing-8 $spacing-4;
+    background: $paper;
+  }
+
+  &__title {
+    color: $ink-strong;
+    font-size: $text-xl;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  &__close {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: $surface-soft;
+    flex-shrink: 0;
+  }
+
+  &__close-icon {
+    color: $muted;
+    font-size: $text-xl;
+    line-height: 1;
+  }
+
+  &__body {
+    padding: 0 $spacing-8 $spacing-8;
+  }
 }
