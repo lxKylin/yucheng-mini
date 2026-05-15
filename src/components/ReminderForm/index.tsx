@@ -170,24 +170,28 @@ export default function ReminderForm({
           药物名称
           <Text className="reminder-form__required">*</Text>
         </Text>
-        <Input
-          className="reminder-form__input"
-          value={values.name}
-          placeholder="例如：洛拉替尼"
-          clearable
-          onChange={(e: InputEvent) => setField("name", e.detail.value)}
-        />
+        <View className="reminder-form__input-row">
+          <Input
+            className="reminder-form__input"
+            value={values.name}
+            placeholder="例如：洛拉替尼"
+            clearable
+            onChange={(e: InputEvent) => setField("name", e.detail.value)}
+          />
+        </View>
       </View>
 
       <View className="reminder-form__field">
         <Text className="reminder-form__label">药物规格</Text>
-        <Input
-          className="reminder-form__input"
-          value={values.spec}
-          placeholder="例如：20mg"
-          clearable
-          onChange={(e: InputEvent) => setField("spec", e.detail.value)}
-        />
+        <View className="reminder-form__input-row">
+          <Input
+            className="reminder-form__input"
+            value={values.spec}
+            placeholder="例如：20mg"
+            clearable
+            onChange={(e: InputEvent) => setField("spec", e.detail.value)}
+          />
+        </View>
       </View>
 
       <View className="reminder-form__grid">

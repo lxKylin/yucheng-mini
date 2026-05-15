@@ -1,0 +1,229 @@
+@use "@/styles/variables" as *;
+
+.reminder-detail {
+  display: grid;
+  gap: $spacing-4;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $spacing-3;
+  }
+
+  &__header-main {
+    display: grid;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    color: $ink-strong;
+    font-size: $text-xl;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  &__spec {
+    color: $muted;
+    font-size: $text-sm;
+  }
+
+  &__note {
+    color: $quiet;
+    font-size: $text-xs;
+    line-height: 1.5;
+  }
+
+  &__days {
+    display: flex;
+    align-items: baseline;
+    gap: $spacing-2;
+    flex-wrap: wrap;
+  }
+
+  &__days-number {
+    font-size: $text-hero;
+    line-height: 1;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+
+    &--danger {
+      color: $danger;
+    }
+
+    &--warning {
+      color: $warning;
+    }
+
+    &--good {
+      color: $success;
+    }
+
+    &--paused {
+      color: $muted;
+    }
+  }
+
+  &__days-text {
+    color: $muted;
+    font-size: $text-base;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  &__paused-notice {
+    padding: $spacing-4;
+    border-radius: $radius;
+    background: $violet-soft;
+  }
+
+  &__paused-text {
+    color: $violet;
+    font-size: $text-sm;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-3;
+  }
+
+  &__info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-3;
+  }
+
+  &__info {
+    display: grid;
+    gap: 4px;
+    padding: $spacing-3;
+    border-radius: $radius;
+    background: $surface-soft;
+  }
+
+  &__info-label {
+    color: $muted;
+    font-size: $text-md;
+  }
+
+  &__info-value {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__notice {
+    padding: $spacing-4;
+    border-radius: $radius;
+    background: $primary-soft;
+    border: 1px solid rgba(21, 122, 102, 0.12);
+  }
+
+  &__notice-title {
+    display: block;
+    color: $primary-deep;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__notice-desc {
+    display: block;
+    margin-top: 4px;
+    color: $primary;
+    font-size: $text-xs;
+    line-height: 1.6;
+  }
+
+  &__footer {
+    display: flex;
+    gap: $spacing-3;
+  }
+
+  &__history {
+    display: grid;
+    gap: $spacing-3;
+    padding-top: $spacing-4;
+    border-top: 1px solid $line;
+  }
+
+  &__history-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__history-title {
+    color: $ink-strong;
+    font-size: $text-lg;
+    font-weight: 900;
+  }
+
+  &__history-count {
+    color: $muted;
+    font-size: $text-md;
+  }
+
+  &__history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    padding: $spacing-3;
+    border-radius: $radius;
+    background: $surface-soft;
+    font-size: $text-md;
+  }
+
+  &__history-date {
+    color: $ink;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__history-desc {
+    color: $muted;
+    text-align: right;
+  }
+
+  &__btn {
+    flex: 1;
+    min-height: 80px !important;
+    border-radius: $radius !important;
+    font-size: $text-lg !important;
+    font-weight: 900 !important;
+    border: none !important;
+
+    &--done.reminder-detail__btn--danger {
+      background: $danger-soft !important;
+      color: $danger !important;
+    }
+
+    &--done.reminder-detail__btn--warning {
+      background: $warning-soft !important;
+      color: $warning !important;
+    }
+
+    &--done.reminder-detail__btn--success {
+      background: $success-soft !important;
+      color: $success !important;
+    }
+
+    &--pause {
+      background: $surface-soft !important;
+      color: $ink !important;
+    }
+
+    &--edit {
+      background: $primary !important;
+      color: #fff !important;
+    }
+
+    &--delete {
+      background: $danger-soft !important;
+      color: $danger !important;
+    }
+  }
+}

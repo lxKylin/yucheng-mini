@@ -1,33 +1,66 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Text, View } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 
 import AppBar from "@/components/AppBar";
 import BottomSheet from "@/components/BottomSheet";
 import MedicineCard from "@/components/MedicineCard";
+import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
 import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
 import { formatDisplay, parseDate } from "@/utils/dateUtils";
 
 import "./index.scss";
 
+type SheetMode = "detail" | "form";
+
 export default function Home() {
-  const [formOpen, setFormOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetMode, setSheetMode] = useState<SheetMode>("form");
+  const [detailId, setDetailId] = useState("");
+  const [editReminderId, setEditReminderId] = useState<string | undefined>(
+    undefined,
+  );
+  const sheetOpenRef = useRef(sheetOpen);
   const allItems = useDerivedList();
   const { markDone } = useReminderActions();
+
+  const formOpen = sheetOpen && sheetMode === "form";
+  const detailOpen = sheetOpen && sheetMode === "detail";
 
   const handleSheetEntered = () => {
     Taro.hideTabBar({ animation: true });
   };
 
   const handleSheetExited = () => {
+    if (sheetOpenRef.current) {
+      return;
+    }
+
+    setDetailId("");
+    setEditReminderId(undefined);
     Taro.showTabBar({ animation: true });
   };
 
   const closeFormSheet = () => {
-    setFormOpen(false);
+    setSheetOpen(false);
   };
+
+  const closeDetailSheet = () => {
+    setSheetOpen(false);
+  };
+
+  const handleEditFromDetail = (id: string) => {
+    setEditReminderId(id);
+    setFormKey((key) => key + 1);
+    setSheetMode("form");
+    setSheetOpen(true);
+  };
+
+  useEffect(() => {
+    sheetOpenRef.current = sheetOpen;
+  }, [sheetOpen]);
 
   useEffect(() => {
     return () => {
@@ -51,8 +84,31 @@ export default function Home() {
   const todayStr = `${now.getMonth() + 1}月${now.getDate()}日，先处理最紧急的开药任务`;
 
   const handleMarkDone = (id: string) => {
-    markDone(id);
-    Taro.showToast({ title: "已记录开药", icon: "success", duration: 1500 });
+    const target = allItems.find((item) => item.id === id);
+
+    if (!target) {
+      return;
+    }
+
+    Taro.showModal({
+      title: "确认已开药",
+      content: `确认已完成「${target.name}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
+      confirmText: "确认",
+      cancelText: "取消",
+      confirmColor: "#157a66",
+      success: (res) => {
+        if (!res.confirm) {
+          return;
+        }
+
+        markDone(id);
+        Taro.showToast({
+          title: "已进入下一轮",
+          icon: "success",
+          duration: 1500,
+        });
+      },
+    });
   };
 
   const handleViewAll = () => {
@@ -62,13 +118,17 @@ export default function Home() {
   const handleAddNew = () => {
     console.log("add new reminder");
     Taro.hideTabBar({ animation: true });
+    setEditReminderId(undefined);
     setFormKey((key) => key + 1);
-    setFormOpen(true);
+    setSheetMode("form");
+    setSheetOpen(true);
   };
 
-  // TODO: M6 接入后替换为打开详情 BottomSheet。
-  const handleDetail = (_id: string) => {
-    Taro.showToast({ title: "详情开发中", icon: "none", duration: 1200 });
+  const handleDetail = (id: string) => {
+    setDetailId(id);
+    Taro.hideTabBar({ animation: true });
+    setSheetMode("detail");
+    setSheetOpen(true);
   };
 
   useLoad(() => {
@@ -159,24 +219,40 @@ export default function Home() {
         })}
       </View>
 
-      {!formOpen ? (
+      {!formOpen && !detailOpen ? (
         <View className="home-fab" onClick={handleAddNew}>
           <Text className="home-fab__icon">+</Text>
         </View>
       ) : null}
 
       <BottomSheet
-        open={formOpen}
-        title="新增提醒"
-        onClose={closeFormSheet}
+        open={sheetOpen}
+        title={
+          sheetMode === "detail"
+            ? "提醒详情"
+            : editReminderId
+              ? "编辑提醒"
+              : "新增提醒"
+        }
+        onClose={sheetMode === "detail" ? closeDetailSheet : closeFormSheet}
         onAfterOpen={handleSheetEntered}
         onAfterClose={handleSheetExited}
       >
-        <ReminderForm
-          key={formKey}
-          onSuccess={closeFormSheet}
-          onCancel={closeFormSheet}
-        />
+        {sheetMode === "detail" && detailId ? (
+          <ReminderDetail
+            reminderId={detailId}
+            onClose={closeDetailSheet}
+            onEdit={handleEditFromDetail}
+          />
+        ) : null}
+        {sheetMode === "form" ? (
+          <ReminderForm
+            key={formKey}
+            reminderId={editReminderId}
+            onSuccess={closeFormSheet}
+            onCancel={closeFormSheet}
+          />
+        ) : null}
       </BottomSheet>
     </View>
   );

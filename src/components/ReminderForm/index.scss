@@ -42,17 +42,44 @@
     color: $danger;
   }
 
-  &__input {
-    width: 100%;
+  &__input-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
     min-height: 52px;
     padding: 0 $spacing-4;
     border: 1px solid $line-strong;
     border-radius: $radius;
-    color: $ink;
     background: #fff;
+
+    .taroify-input__clear {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      margin-right: 0;
+      padding: 0;
+      line-height: 1;
+    }
+  }
+
+  &__input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0;
+    border: 0;
+    color: $ink;
+    background: transparent;
     font-size: $text-md;
     display: flex;
     align-items: center;
+
+    .taroify-native-input {
+      width: 100%;
+      min-height: 52px;
+    }
   }
 
   &__textarea {
