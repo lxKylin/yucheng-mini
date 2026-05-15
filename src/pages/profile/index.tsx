@@ -84,12 +84,13 @@ export default function Profile() {
           <View>
             <Text className="profile-page__user-name">微信用户</Text>
             <Text className="profile-page__user-meta">
-              管理中 {stats.total} 个提醒 · 历史 {stats.historyTotal} 次开药
+              管理中 {stats.total} 个提醒
+              {/* · 历史 {stats.historyTotal} 次开药 */}
             </Text>
           </View>
         </View>
 
-        <View className="profile-page__metrics">
+        {/* <View className="profile-page__metrics">
           <View className="profile-page__metric">
             <Text className="profile-page__metric-value">
               {stats.activeCount}
@@ -108,9 +109,9 @@ export default function Profile() {
             </Text>
             <Text className="profile-page__metric-label">历史记录</Text>
           </View>
-        </View>
+        </View> */}
 
-        <View
+        {/* <View
           className="profile-page__inbox-entry"
           onClick={() => setInboxOpen(true)}
           role="button"
@@ -138,7 +139,7 @@ export default function Profile() {
                 : "消息入口用于兜底查看提醒，不替代首页和列表的任务操作。"}
             </Text>
           </View>
-        </View>
+        </View> */}
 
         <View className="profile-page__menu">
           <View className="profile-page__menu-item">
