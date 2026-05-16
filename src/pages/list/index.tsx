@@ -123,21 +123,29 @@ export default function ListPage() {
 
     Taro.showModal({
       title: "确认已开药",
-      content: `确认已完成「${target.name}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
+      content: `确认已完成「${target.medicineName}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
       confirmText: "确认",
       cancelText: "取消",
       confirmColor: "#157a66",
-      success: (result) => {
+      success: async (result) => {
         if (!result.confirm) {
           return;
         }
 
-        markDone(id);
-        Taro.showToast({
-          title: `${target.name} 已进入下一轮周期`,
-          icon: "success",
-          duration: 1500,
-        });
+        try {
+          await markDone(id);
+          Taro.showToast({
+            title: `${target.medicineName} 已进入下一轮周期`,
+            icon: "success",
+            duration: 1500,
+          });
+        } catch {
+          Taro.showToast({
+            title: "更新失败，请稍后重试",
+            icon: "none",
+            duration: 1800,
+          });
+        }
       },
     });
   };

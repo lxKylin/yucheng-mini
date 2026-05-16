@@ -21,6 +21,13 @@ export default function MedicineCard({
   onDetail,
 }: MedicineCardProps) {
   const doneDisabled = item.status === "paused";
+  const accentColor = doneDisabled
+    ? "disabled"
+    : item.level === "danger"
+      ? "danger"
+      : item.level === "warning"
+        ? "warning"
+        : "success";
   const doneColor =
     item.level === "danger"
       ? "danger"
@@ -30,16 +37,27 @@ export default function MedicineCard({
 
   return (
     <View
-      className={`medicine-card${item.status === "paused" ? " medicine-card--paused" : ""}`}
+      className={`medicine-card medicine-card--${accentColor}${item.status === "paused" ? " medicine-card--paused" : ""}`}
     >
       <View className="medicine-card__header">
         <Text className="medicine-card__name">{item.medicineName}</Text>
         <StatusTag level={item.level} label={item.levelLabel} />
       </View>
-      <Text className="medicine-card__meta">规格 {item.medicineSpec}</Text>
       <Text className="medicine-card__meta">
-        最近开药 {item.currentPrescriptionDate} · 周期 {item.intervalDays} 天 ·
-        提前 {item.remindAdvanceDays} 天 {item.remindTime}提醒
+        规格: {item.medicineSpec || "-"} · 周期: {item.intervalDays} 天
+      </Text>
+      <Text className="medicine-card__meta">
+        最近一盒开始时间: {item.currentPrescriptionDate}
+      </Text>
+      <Text
+        className={`medicine-card__meta medicine-card__meta--accent medicine-card__meta--${accentColor}`}
+      >
+        下一盒开始时间: {item.nextPrescriptionDate}
+      </Text>
+      <Text
+        className={`medicine-card__meta medicine-card__meta--accent medicine-card__meta--${accentColor}`}
+      >
+        提醒时间: {item.nextRemindDate} {item.remindTime}
       </Text>
 
       <View className="medicine-card__progress">

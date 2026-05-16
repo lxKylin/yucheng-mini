@@ -12,48 +12,66 @@ const COL = "medicines";
  */
 function migrateReminder(raw: any): Reminder {
   return {
-    id: raw.id,
-    medicineName: raw.medicineName ?? raw.name ?? "",
-    medicineSpec: raw.medicineSpec ?? raw.spec ?? "",
-    currentPrescriptionDate: raw.currentPrescriptionDate ?? raw.lastDate ?? "",
-    intervalDays: raw.intervalDays ?? raw.interval ?? 30,
-    remindAdvanceDays: raw.remindAdvanceDays ?? raw.before ?? 7,
-    remindTime: raw.remindTime ?? raw.time ?? "09:00",
+    id: raw._id ?? "",
+    medicineName: raw.medicineName ?? "",
+    medicineSpec: raw.medicineSpec ?? "",
+    currentPrescriptionDate: raw.currentPrescriptionDate ?? "",
+    intervalDays: raw.intervalDays ?? 30,
+    remindAdvanceDays: raw.remindAdvanceDays ?? 7,
+    remindTime: raw.remindTime ?? "09:00",
     status: raw.status ?? "active",
     note: raw.note ?? "",
-    prescriptionHistory: raw.prescriptionHistory ?? raw.history ?? [],
+    prescriptionHistory: raw.prescriptionHistory ?? [],
     createdAt: raw.createdAt ?? "",
     updatedAt: raw.updatedAt ?? "",
   };
 }
 
+async function queryUserReminders(field: "_openid" | "userId", userId: string) {
+  return getCollection(COL)
+    .where({
+      [field]: userId,
+      status: Taro.cloud.database().command.neq("deleted"),
+    })
+    .limit(100)
+    .orderBy("createdAt", "asc")
+    .get();
+}
+
 /** 拉取当前用户的全部提醒（排除 deleted） */
 export async function fetchReminders(): Promise<Reminder[]> {
-  if (!getUserId()) return [];
+  const userId = getUserId();
+  console.log("[reminderService] 当前用户 ID：", userId);
+  if (!userId) return [];
 
   try {
-    const { data } = await getCollection(COL)
-      .where({ status: Taro.cloud.database().command.neq("deleted") })
-      .limit(100)
-      .orderBy("createdAt", "asc")
-      .get();
+    let { data } = await queryUserReminders("_openid", userId);
+    console.log("[_openid] 拉取数据：", data);
+
+    // 兼容手工导入或旧版本写入的数据：仅保存了 userId，没有系统 _openid 字段可查。
+    if (data.length === 0) {
+      ({ data } = await queryUserReminders("userId", userId));
+      console.log("[userId] 拉取数据：", data);
+    }
 
     // 兼容旧字段格式，迁移后返回
-    return data.map(({ _id, _openid, ...rest }: any) => migrateReminder(rest));
+    return data.map((item: any) => migrateReminder(item));
   } catch (err) {
     console.error("[reminderService] 拉取失败：", err);
-    return [];
+    throw err;
   }
 }
 
 /** 新增提醒（本地 id 作为 id 字段存入云文档） */
 export async function addReminderToCloud(reminder: Reminder): Promise<void> {
-  if (!getUserId()) return;
+  const userId = getUserId();
+  if (!userId) return;
 
   try {
-    await getCollection(COL).add({ data: reminder });
+    await getCollection(COL).add({ data: { ...reminder, userId } });
   } catch (err) {
     console.error("[reminderService] 新增失败：", err);
+    throw err;
   }
 }
 
@@ -65,9 +83,17 @@ export async function updateReminderInCloud(
   if (!getUserId()) return;
 
   try {
-    await getCollection(COL).where({ id }).update({ data: payload });
+    const existing = await getCollection(COL).where({ id }).limit(1).get();
+
+    if (existing.data.length > 0) {
+      await getCollection(COL).where({ id }).update({ data: payload });
+      return;
+    }
+
+    await getCollection(COL).doc(id).update({ data: payload });
   } catch (err) {
     console.error("[reminderService] 更新失败：", err);
+    throw err;
   }
 }
 
@@ -76,12 +102,20 @@ export async function deleteReminderInCloud(id: string): Promise<void> {
   if (!getUserId()) return;
 
   try {
-    await getCollection(COL)
-      .where({ id })
-      .update({
-        data: { status: "deleted", updatedAt: new Date().toISOString() },
-      });
+    const payload = {
+      status: "deleted",
+      updatedAt: new Date().toISOString(),
+    };
+    const existing = await getCollection(COL).where({ id }).limit(1).get();
+
+    if (existing.data.length > 0) {
+      await getCollection(COL).where({ id }).update({ data: payload });
+      return;
+    }
+
+    await getCollection(COL).doc(id).update({ data: payload });
   } catch (err) {
     console.error("[reminderService] 删除失败：", err);
+    throw err;
   }
 }

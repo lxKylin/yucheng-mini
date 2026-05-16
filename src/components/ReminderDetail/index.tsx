@@ -45,22 +45,30 @@ export default function ReminderDetail({
 
     Taro.showModal({
       title: "确认本次已开药",
-      content: `确认已完成「${item.medicineName}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
+      content: `确认已完成「${item.medicineName}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
       confirmText: "确认",
       cancelText: "取消",
       confirmColor: "#157a66",
-      success: (res) => {
+      success: async (res) => {
         if (!res.confirm) {
           return;
         }
 
-        markDone(item.id);
-        Taro.showToast({
-          title: `${item.medicineName} 已进入下一轮周期`,
-          icon: "success",
-          duration: 1500,
-        });
-        onClose();
+        try {
+          await markDone(item.id);
+          Taro.showToast({
+            title: `${item.medicineName} 已进入下一轮周期`,
+            icon: "success",
+            duration: 1500,
+          });
+          onClose();
+        } catch {
+          Taro.showToast({
+            title: "更新失败，请稍后重试",
+            icon: "none",
+            duration: 1800,
+          });
+        }
       },
     });
   };
@@ -73,18 +81,26 @@ export default function ReminderDetail({
         confirmText: "启用",
         cancelText: "取消",
         confirmColor: "#157a66",
-        success: (res) => {
+        success: async (res) => {
           if (!res.confirm) {
             return;
           }
 
-          togglePause(item.id);
-          Taro.showToast({
-            title: "提醒已重新启用",
-            icon: "none",
-            duration: 1500,
-          });
-          onClose();
+          try {
+            await togglePause(item.id);
+            Taro.showToast({
+              title: "提醒已重新启用",
+              icon: "none",
+              duration: 1500,
+            });
+            onClose();
+          } catch {
+            Taro.showToast({
+              title: "操作失败，请稍后重试",
+              icon: "none",
+              duration: 1800,
+            });
+          }
         },
       });
       return;
@@ -96,18 +112,26 @@ export default function ReminderDetail({
       confirmText: "暂停",
       cancelText: "取消",
       confirmColor: "#b86c1e",
-      success: (res) => {
+      success: async (res) => {
         if (!res.confirm) {
           return;
         }
 
-        togglePause(item.id);
-        Taro.showToast({
-          title: "提醒已暂停",
-          icon: "none",
-          duration: 1500,
-        });
-        onClose();
+        try {
+          await togglePause(item.id);
+          Taro.showToast({
+            title: "提醒已暂停",
+            icon: "none",
+            duration: 1500,
+          });
+          onClose();
+        } catch {
+          Taro.showToast({
+            title: "操作失败，请稍后重试",
+            icon: "none",
+            duration: 1800,
+          });
+        }
       },
     });
   };
@@ -119,15 +143,23 @@ export default function ReminderDetail({
       confirmText: "删除",
       cancelText: "取消",
       confirmColor: "#ca4e41",
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          deleteReminder(item.id);
-          Taro.showToast({
-            title: `${item.medicineName} 已删除`,
-            icon: "none",
-            duration: 1500,
-          });
-          onClose();
+          try {
+            await deleteReminder(item.id);
+            Taro.showToast({
+              title: `${item.medicineName} 已删除`,
+              icon: "none",
+              duration: 1500,
+            });
+            onClose();
+          } catch {
+            Taro.showToast({
+              title: "删除失败，请稍后重试",
+              icon: "none",
+              duration: 1800,
+            });
+          }
         }
       },
     });

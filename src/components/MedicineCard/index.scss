@@ -7,6 +7,26 @@
   border: 1px solid rgba(216, 235, 239, 0.92);
   box-shadow: 0 12px 28px rgba(16, 74, 91, 0.09);
 
+  &--danger {
+    border-color: rgba(202, 78, 65, 0.22);
+    box-shadow: 0 12px 28px rgba(202, 78, 65, 0.08);
+  }
+
+  &--warning {
+    border-color: rgba(184, 108, 30, 0.2);
+    box-shadow: 0 12px 28px rgba(184, 108, 30, 0.08);
+  }
+
+  &--success {
+    border-color: rgba(31, 134, 87, 0.18);
+    box-shadow: 0 12px 28px rgba(31, 134, 87, 0.07);
+  }
+
+  &--disabled {
+    border-color: rgba(95, 103, 184, 0.18);
+    box-shadow: 0 12px 28px rgba(95, 103, 184, 0.06);
+  }
+
   &--paused {
     opacity: 0.72;
   }
@@ -34,6 +54,26 @@
     color: $muted;
     font-size: 24px;
     line-height: 1.65;
+
+    &--accent {
+      font-weight: 700;
+    }
+
+    &--danger {
+      color: $danger;
+    }
+
+    &--warning {
+      color: $warning;
+    }
+
+    &--success {
+      color: $success;
+    }
+
+    &--disabled {
+      color: $violet;
+    }
   }
 
   &__progress {

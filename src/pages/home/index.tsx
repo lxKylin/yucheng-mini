@@ -8,7 +8,6 @@ import MedicineCard from "@/components/MedicineCard";
 import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
 import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
-import { formatDisplay, parseDate } from "@/utils/dateUtils";
 
 import "./index.scss";
 
@@ -93,21 +92,29 @@ export default function Home() {
 
     Taro.showModal({
       title: "确认已开药",
-      content: `确认已完成「${target.medicineName}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
+      content: `确认已完成「${target.medicineName}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
       confirmText: "确认",
       cancelText: "取消",
       confirmColor: "#157a66",
-      success: (res) => {
+      success: async (res) => {
         if (!res.confirm) {
           return;
         }
 
-        markDone(id);
-        Taro.showToast({
-          title: `${target.medicineName} 已进入下一轮周期`,
-          icon: "success",
-          duration: 1500,
-        });
+        try {
+          await markDone(id);
+          Taro.showToast({
+            title: `${target.medicineName} 已进入下一轮周期`,
+            icon: "success",
+            duration: 1500,
+          });
+        } catch {
+          Taro.showToast({
+            title: "更新失败，请稍后重试",
+            icon: "none",
+            duration: 1800,
+          });
+        }
       },
     });
   };
@@ -165,7 +172,12 @@ export default function Home() {
       </View>
 
       <View className="home-subhead">
-        <Text className="home-subhead__title">最近提醒</Text>
+        <View className="home-subhead__main">
+          <Text className="home-subhead__title">最近提醒</Text>
+          <Text className="home-subhead__desc">
+            仅展示最近 3 条，更多提醒请查看全部
+          </Text>
+        </View>
         <View className="home-subhead__action" onClick={handleViewAll}>
           <Text>查看全部</Text>
         </View>
@@ -198,67 +210,6 @@ export default function Home() {
                 点击右下角 + 开始新增提醒
               </Text>
             ) : null}
-          </View>
-        )}
-      </View>
-
-      <View className="home-subhead">
-        <Text className="home-subhead__title">近期时间线</Text>
-      </View>
-      <View className="home-timeline">
-        {urgent.length > 0 ? (
-          urgent.map((item) => {
-            const nextDate = parseDate(item.nextPrescriptionDate);
-            const remindDate = formatDisplay(parseDate(item.nextRemindDate));
-            const dateShort = `${nextDate.getMonth() + 1}/${nextDate.getDate()}`;
-
-            return (
-              <View key={`tl-${item.id}`} className="home-timeline__item">
-                <View className="home-timeline__date">
-                  {item.daysLeft <= 0 ? (
-                    <Text className="home-timeline__date-main">今天</Text>
-                  ) : (
-                    <Text className="home-timeline__date-main">
-                      {dateShort}
-                    </Text>
-                  )}
-                </View>
-                <View className="home-timeline__body">
-                  <Text className="home-timeline__name">
-                    {item.medicineName}
-                  </Text>
-                  <Text className="home-timeline__desc">
-                    {item.levelLabel} · 预计下次开药 {item.nextPrescriptionDate}
-                    ，提醒时间 {remindDate} {item.remindTime}。
-                  </Text>
-                </View>
-              </View>
-            );
-          })
-        ) : (
-          <View className="home-empty home-empty--timeline">
-            <Text className="home-empty__badge">近期时间轴</Text>
-            <Text className="home-empty__title">
-              {hasRecords ? "暂时没有近期节点" : "时间线会显示在这里"}
-            </Text>
-            <Text className="home-empty__desc">
-              {hasRecords
-                ? "当前提醒还没有进入最近处理窗口，临近的开药节点会按时间顺序出现在这里。"
-                : "添加提醒后，你可以在这里按时间查看下一次开药日期和提醒节奏。"}
-            </Text>
-            {hasRecords ? (
-              <View className="home-empty__steps">
-                <Text className="home-empty__step">临近节点</Text>
-                <Text className="home-empty__step-dot">·</Text>
-                <Text className="home-empty__step">时间排序</Text>
-                <Text className="home-empty__step-dot">·</Text>
-                <Text className="home-empty__step">集中查看</Text>
-              </View>
-            ) : (
-              <Text className="home-empty__hint">
-                点击右下角 + 新增后，这里会生成时间线
-              </Text>
-            )}
           </View>
         )}
       </View>

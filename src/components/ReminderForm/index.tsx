@@ -125,7 +125,7 @@ export default function ReminderForm({
     setValues((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!values.medicineName.trim()) {
       Taro.showToast({ title: "请填写药物名称", icon: "none", duration: 1500 });
       return;
@@ -150,19 +150,35 @@ export default function ReminderForm({
       note: values.note.trim(),
     };
 
-    if (isEdit && reminderId) {
-      updateReminder(reminderId, payload);
-      Taro.showToast({ title: "提醒已更新", icon: "success", duration: 1500 });
-    } else {
-      addReminder({
-        ...payload,
-        status: "active",
-        prescriptionHistory: [values.currentPrescriptionDate],
-      });
-      Taro.showToast({ title: "提醒已创建", icon: "success", duration: 1500 });
-    }
+    try {
+      if (isEdit && reminderId) {
+        await updateReminder(reminderId, payload);
+        Taro.showToast({
+          title: "提醒已更新",
+          icon: "success",
+          duration: 1500,
+        });
+      } else {
+        await addReminder({
+          ...payload,
+          status: "active",
+          prescriptionHistory: [values.currentPrescriptionDate],
+        });
+        Taro.showToast({
+          title: "提醒已创建",
+          icon: "success",
+          duration: 1500,
+        });
+      }
 
-    onSuccess();
+      onSuccess();
+    } catch {
+      Taro.showToast({
+        title: "保存失败，请稍后重试",
+        icon: "none",
+        duration: 1800,
+      });
+    }
   };
 
   return (
