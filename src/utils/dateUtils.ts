@@ -104,17 +104,27 @@ function calcLevelLabel(daysLeft: number, level: ReminderLevel): string {
 /** 核心派生函数：将单条 Reminder 计算为 DerivedReminder */
 export function derive(reminder: Reminder): DerivedReminder {
   const todayStr = today();
-  const nextDate = calcNextDate(reminder.lastDate, reminder.interval);
-  const remindAt = calcRemindDate(nextDate, reminder.before);
-  const daysLeft = diffDays(todayStr, nextDate);
+  const nextPrescriptionDate = calcNextDate(
+    reminder.currentPrescriptionDate,
+    reminder.intervalDays,
+  );
+  const nextRemindDate = calcRemindDate(
+    nextPrescriptionDate,
+    reminder.remindAdvanceDays,
+  );
+  const daysLeft = diffDays(todayStr, nextPrescriptionDate);
   const level = calcLevel(daysLeft, reminder.status);
   const levelLabel = calcLevelLabel(daysLeft, level);
-  const progress = calcProgress(reminder.lastDate, nextDate, todayStr);
+  const progress = calcProgress(
+    reminder.currentPrescriptionDate,
+    nextPrescriptionDate,
+    todayStr,
+  );
 
   return {
     ...reminder,
-    nextDate,
-    remindAt,
+    nextPrescriptionDate,
+    nextRemindDate,
     daysLeft,
     level,
     levelLabel,
@@ -135,6 +145,6 @@ export function deriveAll(reminders: Reminder[]): DerivedReminder[] {
       const levelDiff =
         (LEVEL_ORDER[a.level] ?? 99) - (LEVEL_ORDER[b.level] ?? 99);
       if (levelDiff !== 0) return levelDiff;
-      return a.nextDate.localeCompare(b.nextDate);
+      return a.nextPrescriptionDate.localeCompare(b.nextPrescriptionDate);
     });
 }

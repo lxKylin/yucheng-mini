@@ -33,13 +33,13 @@ export default function MedicineCard({
       className={`medicine-card${item.status === "paused" ? " medicine-card--paused" : ""}`}
     >
       <View className="medicine-card__header">
-        <Text className="medicine-card__name">{item.name}</Text>
+        <Text className="medicine-card__name">{item.medicineName}</Text>
         <StatusTag level={item.level} label={item.levelLabel} />
       </View>
-      <Text className="medicine-card__meta">规格 {item.spec}</Text>
+      <Text className="medicine-card__meta">规格 {item.medicineSpec}</Text>
       <Text className="medicine-card__meta">
-        最近开药 {item.lastDate} · 周期 {item.interval} 天 · 提前 {item.before}{" "}
-        天 {item.time}提醒
+        最近开药 {item.currentPrescriptionDate} · 周期 {item.intervalDays} 天 ·
+        提前 {item.remindAdvanceDays} 天 {item.remindTime}提醒
       </Text>
 
       <View className="medicine-card__progress">

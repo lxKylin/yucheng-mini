@@ -65,7 +65,7 @@ export function useProfileStats() {
   return useMemo(() => {
     const activeList = reminders.filter((r) => r.status === "active");
     const historyTotal = reminders.reduce(
-      (sum, r) => sum + r.history.length,
+      (sum, r) => sum + r.prescriptionHistory.length,
       0,
     );
 

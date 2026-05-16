@@ -29,12 +29,12 @@ interface ReminderFormProps {
 }
 
 interface FormValues {
-  name: string;
-  spec: string;
-  lastDate: string;
-  time: string;
-  interval: number;
-  before: number;
+  medicineName: string;
+  medicineSpec: string;
+  currentPrescriptionDate: string;
+  remindTime: string;
+  intervalDays: number;
+  remindAdvanceDays: number;
   note: string;
 }
 
@@ -42,12 +42,12 @@ function makeDefaults(): FormValues {
   const settings = loadSettings();
 
   return {
-    name: "",
-    spec: "",
-    lastDate: today(),
-    time: settings.defaultTime || DEFAULT_REMIND_TIME,
-    interval: DEFAULT_INTERVAL,
-    before: settings.defaultBefore || DEFAULT_BEFORE,
+    medicineName: "",
+    medicineSpec: "",
+    currentPrescriptionDate: today(),
+    remindTime: settings.defaultTime || DEFAULT_REMIND_TIME,
+    intervalDays: DEFAULT_INTERVAL,
+    remindAdvanceDays: settings.defaultBefore || DEFAULT_BEFORE,
     note: "",
   };
 }
@@ -73,12 +73,12 @@ export default function ReminderForm({
   useEffect(() => {
     if (isEdit && existingItem) {
       setValues({
-        name: existingItem.name,
-        spec: existingItem.spec,
-        lastDate: existingItem.lastDate,
-        time: existingItem.time,
-        interval: existingItem.interval,
-        before: existingItem.before,
+        medicineName: existingItem.medicineName,
+        medicineSpec: existingItem.medicineSpec,
+        currentPrescriptionDate: existingItem.currentPrescriptionDate,
+        remindTime: existingItem.remindTime,
+        intervalDays: existingItem.intervalDays,
+        remindAdvanceDays: existingItem.remindAdvanceDays,
         note: existingItem.note,
       });
       return;
@@ -90,27 +90,35 @@ export default function ReminderForm({
   }, [existingItem, isEdit]);
 
   const calcText = useMemo(() => {
-    const nextDate = calcNextDate(values.lastDate, values.interval);
-    const remindDate = calcRemindDate(nextDate, values.before);
-    return `预计下次开药日期为 ${nextDate}，提醒时间为 ${remindDate} ${values.time}`;
-  }, [values.before, values.interval, values.lastDate, values.time]);
+    const nextDate = calcNextDate(
+      values.currentPrescriptionDate,
+      values.intervalDays,
+    );
+    const remindDate = calcRemindDate(nextDate, values.remindAdvanceDays);
+    return `预计下次开药日期为 ${nextDate}，提醒时间为 ${remindDate} ${values.remindTime}`;
+  }, [
+    values.remindAdvanceDays,
+    values.intervalDays,
+    values.currentPrescriptionDate,
+    values.remindTime,
+  ]);
 
   const intervalIndex = useMemo(
     () =>
       Math.max(
         0,
-        INTERVAL_OPTIONS.findIndex((value) => value === values.interval),
+        INTERVAL_OPTIONS.findIndex((value) => value === values.intervalDays),
       ),
-    [values.interval],
+    [values.intervalDays],
   );
 
   const beforeIndex = useMemo(
     () =>
       Math.max(
         0,
-        BEFORE_OPTIONS.findIndex((value) => value === values.before),
+        BEFORE_OPTIONS.findIndex((value) => value === values.remindAdvanceDays),
       ),
-    [values.before],
+    [values.remindAdvanceDays],
   );
 
   const setField = (field: keyof FormValues, value: string | number) => {
@@ -118,12 +126,12 @@ export default function ReminderForm({
   };
 
   const handleSubmit = () => {
-    if (!values.name.trim()) {
+    if (!values.medicineName.trim()) {
       Taro.showToast({ title: "请填写药物名称", icon: "none", duration: 1500 });
       return;
     }
 
-    if (values.interval < 1 || values.interval > 365) {
+    if (values.intervalDays < 1 || values.intervalDays > 365) {
       Taro.showToast({
         title: "间隔天数需在 1-365 之间",
         icon: "none",
@@ -133,12 +141,12 @@ export default function ReminderForm({
     }
 
     const payload = {
-      name: values.name.trim(),
-      spec: values.spec.trim(),
-      lastDate: values.lastDate,
-      time: values.time,
-      interval: values.interval,
-      before: values.before,
+      medicineName: values.medicineName.trim(),
+      medicineSpec: values.medicineSpec.trim(),
+      currentPrescriptionDate: values.currentPrescriptionDate,
+      remindTime: values.remindTime,
+      intervalDays: values.intervalDays,
+      remindAdvanceDays: values.remindAdvanceDays,
       note: values.note.trim(),
     };
 
@@ -149,7 +157,7 @@ export default function ReminderForm({
       addReminder({
         ...payload,
         status: "active",
-        history: [values.lastDate],
+        prescriptionHistory: [values.currentPrescriptionDate],
       });
       Taro.showToast({ title: "提醒已创建", icon: "success", duration: 1500 });
     }
@@ -176,10 +184,12 @@ export default function ReminderForm({
         <View className="reminder-form__input-row">
           <Input
             className="reminder-form__input"
-            value={values.name}
+            value={values.medicineName}
             placeholder="例如：洛拉替尼"
             clearable
-            onChange={(e: InputEvent) => setField("name", e.detail.value)}
+            onChange={(e: InputEvent) =>
+              setField("medicineName", e.detail.value)
+            }
           />
         </View>
       </View>
@@ -189,10 +199,12 @@ export default function ReminderForm({
         <View className="reminder-form__input-row">
           <Input
             className="reminder-form__input"
-            value={values.spec}
+            value={values.medicineSpec}
             placeholder="例如：20mg"
             clearable
-            onChange={(e: InputEvent) => setField("spec", e.detail.value)}
+            onChange={(e: InputEvent) =>
+              setField("medicineSpec", e.detail.value)
+            }
           />
         </View>
       </View>
@@ -205,14 +217,14 @@ export default function ReminderForm({
           </Text>
           <Picker
             mode="date"
-            value={values.lastDate}
+            value={values.currentPrescriptionDate}
             onChange={(e: DatePickerEvent) =>
-              setField("lastDate", e.detail.value)
+              setField("currentPrescriptionDate", e.detail.value)
             }
           >
             <View className="reminder-form__picker">
               <Text className="reminder-form__picker-text">
-                {values.lastDate}
+                {values.currentPrescriptionDate}
               </Text>
             </View>
           </Picker>
@@ -228,12 +240,15 @@ export default function ReminderForm({
             range={INTERVAL_OPTIONS.map((value) => `${value}天`)}
             value={intervalIndex}
             onChange={(e: SelectorPickerEvent) => {
-              setField("interval", INTERVAL_OPTIONS[Number(e.detail.value)]);
+              setField(
+                "intervalDays",
+                INTERVAL_OPTIONS[Number(e.detail.value)],
+              );
             }}
           >
             <View className="reminder-form__picker">
               <Text className="reminder-form__picker-text">
-                {values.interval}天
+                {values.intervalDays}天
               </Text>
             </View>
           </Picker>
@@ -251,12 +266,15 @@ export default function ReminderForm({
             range={BEFORE_OPTIONS.map((value) => `${value}天`)}
             value={beforeIndex}
             onChange={(e: SelectorPickerEvent) => {
-              setField("before", BEFORE_OPTIONS[Number(e.detail.value)]);
+              setField(
+                "remindAdvanceDays",
+                BEFORE_OPTIONS[Number(e.detail.value)],
+              );
             }}
           >
             <View className="reminder-form__picker">
               <Text className="reminder-form__picker-text">
-                {values.before}天
+                {values.remindAdvanceDays}天
               </Text>
             </View>
           </Picker>
@@ -269,11 +287,15 @@ export default function ReminderForm({
           </Text>
           <Picker
             mode="time"
-            value={values.time}
-            onChange={(e: TimePickerEvent) => setField("time", e.detail.value)}
+            value={values.remindTime}
+            onChange={(e: TimePickerEvent) =>
+              setField("remindTime", e.detail.value)
+            }
           >
             <View className="reminder-form__picker">
-              <Text className="reminder-form__picker-text">{values.time}</Text>
+              <Text className="reminder-form__picker-text">
+                {values.remindTime}
+              </Text>
             </View>
           </Picker>
         </View>

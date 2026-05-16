@@ -45,7 +45,7 @@ export default function ReminderDetail({
 
     Taro.showModal({
       title: "确认本次已开药",
-      content: `确认已完成「${item.name}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
+      content: `确认已完成「${item.medicineName}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
       confirmText: "确认",
       cancelText: "取消",
       confirmColor: "#157a66",
@@ -56,7 +56,7 @@ export default function ReminderDetail({
 
         markDone(item.id);
         Taro.showToast({
-          title: `${item.name} 已进入下一轮周期`,
+          title: `${item.medicineName} 已进入下一轮周期`,
           icon: "success",
           duration: 1500,
         });
@@ -69,7 +69,7 @@ export default function ReminderDetail({
     if (item.status === "paused") {
       Taro.showModal({
         title: "重新启用提醒",
-        content: `确定重新启用「${item.name}」的提醒吗？恢复后会继续按照当前周期推送提醒。`,
+        content: `确定重新启用「${item.medicineName}」的提醒吗？恢复后会继续按照当前周期推送提醒。`,
         confirmText: "启用",
         cancelText: "取消",
         confirmColor: "#157a66",
@@ -92,7 +92,7 @@ export default function ReminderDetail({
 
     Taro.showModal({
       title: "暂停提醒",
-      content: `确定暂停「${item.name}」的提醒吗？暂停后将不会继续提示，直到你重新启用。`,
+      content: `确定暂停「${item.medicineName}」的提醒吗？暂停后将不会继续提示，直到你重新启用。`,
       confirmText: "暂停",
       cancelText: "取消",
       confirmColor: "#b86c1e",
@@ -115,7 +115,7 @@ export default function ReminderDetail({
   const handleDelete = () => {
     Taro.showModal({
       title: "删除提醒",
-      content: `确定要删除「${item.name}」的开药提醒吗？此操作不可撤销。`,
+      content: `确定要删除「${item.medicineName}」的开药提醒吗？此操作不可撤销。`,
       confirmText: "删除",
       cancelText: "取消",
       confirmColor: "#ca4e41",
@@ -123,7 +123,7 @@ export default function ReminderDetail({
         if (res.confirm) {
           deleteReminder(item.id);
           Taro.showToast({
-            title: `${item.name} 已删除`,
+            title: `${item.medicineName} 已删除`,
             icon: "none",
             duration: 1500,
           });
@@ -137,9 +137,9 @@ export default function ReminderDetail({
     <View className="reminder-detail">
       <View className="reminder-detail__header">
         <View className="reminder-detail__header-main">
-          <Text className="reminder-detail__name">{item.name}</Text>
-          {item.spec ? (
-            <Text className="reminder-detail__spec">{item.spec}</Text>
+          <Text className="reminder-detail__name">{item.medicineName}</Text>
+          {item.medicineSpec ? (
+            <Text className="reminder-detail__spec">{item.medicineSpec}</Text>
           ) : null}
           {item.note ? (
             <Text className="reminder-detail__note">{item.note}</Text>
@@ -188,22 +188,26 @@ export default function ReminderDetail({
       <View className="reminder-detail__info-grid">
         <View className="reminder-detail__info">
           <Text className="reminder-detail__info-label">最近开药日期</Text>
-          <Text className="reminder-detail__info-value">{item.lastDate}</Text>
+          <Text className="reminder-detail__info-value">
+            {item.currentPrescriptionDate}
+          </Text>
         </View>
         <View className="reminder-detail__info">
           <Text className="reminder-detail__info-label">开药间隔</Text>
           <Text className="reminder-detail__info-value">
-            {item.interval} 天
+            {item.intervalDays} 天
           </Text>
         </View>
         <View className="reminder-detail__info">
           <Text className="reminder-detail__info-label">下次开药日期</Text>
-          <Text className="reminder-detail__info-value">{item.nextDate}</Text>
+          <Text className="reminder-detail__info-value">
+            {item.nextPrescriptionDate}
+          </Text>
         </View>
         <View className="reminder-detail__info">
           <Text className="reminder-detail__info-label">提醒设置</Text>
           <Text className="reminder-detail__info-value">
-            提前 {item.before} 天 {item.time}
+            提前 {item.remindAdvanceDays} 天 {item.remindTime}
           </Text>
         </View>
       </View>
@@ -230,19 +234,20 @@ export default function ReminderDetail({
         </Button>
       </View>
 
-      {item.history.length > 0 ? (
+      {item.prescriptionHistory.length > 0 ? (
         <View className="reminder-detail__history">
           <View className="reminder-detail__history-head">
             <Text className="reminder-detail__history-title">开药历史记录</Text>
             <Text className="reminder-detail__history-count">
-              最近 {item.history.length} 次
+              最近 {item.prescriptionHistory.length} 次
             </Text>
           </View>
-          {item.history.map((date, idx) => (
+          {item.prescriptionHistory.map((date, idx) => (
             <View key={`hist-${idx}`} className="reminder-detail__history-item">
               <Text className="reminder-detail__history-date">{date}</Text>
               <Text className="reminder-detail__history-desc">
-                周期 {item.interval} 天 · 提前 {item.before} 天提醒
+                周期 {item.intervalDays} 天 · 提前 {item.remindAdvanceDays}{" "}
+                天提醒
               </Text>
             </View>
           ))}

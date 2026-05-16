@@ -79,6 +79,7 @@ export default function Home() {
   const urgent = allItems
     .filter((item) => item.status !== "paused")
     .slice(0, 3);
+  const hasRecords = total > 0;
 
   const now = new Date();
   const todayStr = `${now.getMonth() + 1}月${now.getDate()}日，先处理最紧急的开药任务`;
@@ -92,7 +93,7 @@ export default function Home() {
 
     Taro.showModal({
       title: "确认已开药",
-      content: `确认已完成「${target.name}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
+      content: `确认已完成「${target.medicineName}」本次开药吗？系统会更新最近开药日期并推算下一次提醒。`,
       confirmText: "确认",
       cancelText: "取消",
       confirmColor: "#157a66",
@@ -103,7 +104,7 @@ export default function Home() {
 
         markDone(id);
         Taro.showToast({
-          title: `${target.name} 已进入下一轮周期`,
+          title: `${target.medicineName} 已进入下一轮周期`,
           icon: "success",
           duration: 1500,
         });
@@ -180,8 +181,23 @@ export default function Home() {
             />
           ))
         ) : (
-          <View className="home-empty">
-            <Text>暂无待处理提醒</Text>
+          <View className="home-empty home-empty--card">
+            <Text className="home-empty__badge">
+              {hasRecords ? "当前节奏稳定" : "开始建立提醒"}
+            </Text>
+            <Text className="home-empty__title">
+              {hasRecords ? "暂无待处理提醒" : "还没有开药提醒"}
+            </Text>
+            <Text className="home-empty__desc">
+              {hasRecords
+                ? "你最近没有需要立即处理的任务，下一次临近提醒会优先显示在这里。"
+                : "新增第一条提醒后，这里会显示最近需要处理的开药任务。"}
+            </Text>
+            {!hasRecords ? (
+              <Text className="home-empty__hint">
+                点击右下角 + 开始新增提醒
+              </Text>
+            ) : null}
           </View>
         )}
       </View>
@@ -190,30 +206,61 @@ export default function Home() {
         <Text className="home-subhead__title">近期时间线</Text>
       </View>
       <View className="home-timeline">
-        {urgent.map((item) => {
-          const nextDate = parseDate(item.nextDate);
-          const remindDate = formatDisplay(parseDate(item.remindAt));
-          const dateShort = `${nextDate.getMonth() + 1}/${nextDate.getDate()}`;
+        {urgent.length > 0 ? (
+          urgent.map((item) => {
+            const nextDate = parseDate(item.nextPrescriptionDate);
+            const remindDate = formatDisplay(parseDate(item.nextRemindDate));
+            const dateShort = `${nextDate.getMonth() + 1}/${nextDate.getDate()}`;
 
-          return (
-            <View key={`tl-${item.id}`} className="home-timeline__item">
-              <View className="home-timeline__date">
-                {item.daysLeft <= 0 ? (
-                  <Text className="home-timeline__date-main">今天</Text>
-                ) : (
-                  <Text className="home-timeline__date-main">{dateShort}</Text>
-                )}
+            return (
+              <View key={`tl-${item.id}`} className="home-timeline__item">
+                <View className="home-timeline__date">
+                  {item.daysLeft <= 0 ? (
+                    <Text className="home-timeline__date-main">今天</Text>
+                  ) : (
+                    <Text className="home-timeline__date-main">
+                      {dateShort}
+                    </Text>
+                  )}
+                </View>
+                <View className="home-timeline__body">
+                  <Text className="home-timeline__name">
+                    {item.medicineName}
+                  </Text>
+                  <Text className="home-timeline__desc">
+                    {item.levelLabel} · 预计下次开药 {item.nextPrescriptionDate}
+                    ，提醒时间 {remindDate} {item.remindTime}。
+                  </Text>
+                </View>
               </View>
-              <View className="home-timeline__body">
-                <Text className="home-timeline__name">{item.name}</Text>
-                <Text className="home-timeline__desc">
-                  {item.levelLabel} · 预计下次开药 {item.nextDate}，提醒时间{" "}
-                  {remindDate} {item.time}。
-                </Text>
+            );
+          })
+        ) : (
+          <View className="home-empty home-empty--timeline">
+            <Text className="home-empty__badge">近期时间轴</Text>
+            <Text className="home-empty__title">
+              {hasRecords ? "暂时没有近期节点" : "时间线会显示在这里"}
+            </Text>
+            <Text className="home-empty__desc">
+              {hasRecords
+                ? "当前提醒还没有进入最近处理窗口，临近的开药节点会按时间顺序出现在这里。"
+                : "添加提醒后，你可以在这里按时间查看下一次开药日期和提醒节奏。"}
+            </Text>
+            {hasRecords ? (
+              <View className="home-empty__steps">
+                <Text className="home-empty__step">临近节点</Text>
+                <Text className="home-empty__step-dot">·</Text>
+                <Text className="home-empty__step">时间排序</Text>
+                <Text className="home-empty__step-dot">·</Text>
+                <Text className="home-empty__step">集中查看</Text>
               </View>
-            </View>
-          );
-        })}
+            ) : (
+              <Text className="home-empty__hint">
+                点击右下角 + 新增后，这里会生成时间线
+              </Text>
+            )}
+          </View>
+        )}
       </View>
 
       {!formOpen && !detailOpen ? (

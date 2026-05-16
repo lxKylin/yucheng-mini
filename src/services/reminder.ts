@@ -5,6 +5,28 @@ import { getUserId } from "./auth";
 
 const COL = "medicines";
 
+/**
+ * 将云端旧字段格式迁移为新字段格式（兼容字段重命名前的数据）
+ * 旧字段：name / spec / lastDate / interval / before / time / history
+ * 新字段：medicineName / medicineSpec / currentPrescriptionDate / intervalDays / remindAdvanceDays / remindTime / prescriptionHistory
+ */
+function migrateReminder(raw: any): Reminder {
+  return {
+    id: raw.id,
+    medicineName: raw.medicineName ?? raw.name ?? "",
+    medicineSpec: raw.medicineSpec ?? raw.spec ?? "",
+    currentPrescriptionDate: raw.currentPrescriptionDate ?? raw.lastDate ?? "",
+    intervalDays: raw.intervalDays ?? raw.interval ?? 30,
+    remindAdvanceDays: raw.remindAdvanceDays ?? raw.before ?? 7,
+    remindTime: raw.remindTime ?? raw.time ?? "09:00",
+    status: raw.status ?? "active",
+    note: raw.note ?? "",
+    prescriptionHistory: raw.prescriptionHistory ?? raw.history ?? [],
+    createdAt: raw.createdAt ?? "",
+    updatedAt: raw.updatedAt ?? "",
+  };
+}
+
 /** 拉取当前用户的全部提醒（排除 deleted） */
 export async function fetchReminders(): Promise<Reminder[]> {
   if (!getUserId()) return [];
@@ -16,8 +38,8 @@ export async function fetchReminders(): Promise<Reminder[]> {
       .orderBy("createdAt", "asc")
       .get();
 
-    // 云文档中已存储 id 字段，直接忽略 _id 和 _openid
-    return data.map(({ _id, _openid, ...rest }: any) => rest as Reminder);
+    // 兼容旧字段格式，迁移后返回
+    return data.map(({ _id, _openid, ...rest }: any) => migrateReminder(rest));
   } catch (err) {
     console.error("[reminderService] 拉取失败：", err);
     return [];

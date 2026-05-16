@@ -57,8 +57,8 @@ export default function ListPage() {
       const byFilter = activeFilter === "all" || item.level === activeFilter;
       const bySearch =
         !term ||
-        item.name.toLowerCase().includes(term) ||
-        item.spec.toLowerCase().includes(term);
+        item.medicineName.toLowerCase().includes(term) ||
+        item.medicineSpec.toLowerCase().includes(term);
 
       return byFilter && bySearch;
     });
