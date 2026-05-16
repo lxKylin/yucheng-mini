@@ -8,6 +8,7 @@ import type {
 } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { Button, Input, Textarea } from "@taroify/core";
+import type { Reminder } from "@/types";
 
 import {
   INTERVAL_OPTIONS,
@@ -54,9 +55,9 @@ function makeDefaults(): FormValues {
 
 type InputEvent = BaseEventOrig<{ value: string }>;
 type TextareaEvent = BaseEventOrig<{ value: string }>;
-type DatePickerEvent = BaseEventOrig<PickerDateProps.onChangeEventDetail>;
+type DatePickerEvent = BaseEventOrig<PickerDateProps.ChangeEventDetail>;
 type SelectorPickerEvent = BaseEventOrig<PickerSelectorProps.ChangeEventDetail>;
-type TimePickerEvent = BaseEventOrig<PickerTimeProps.onChangeEventDetail>;
+type TimePickerEvent = BaseEventOrig<PickerTimeProps.ChangeEventDetail>;
 
 export default function ReminderForm({
   reminderId,
@@ -140,6 +141,14 @@ export default function ReminderForm({
       return;
     }
 
+    const settings = loadSettings();
+    const wechatReminderEnabled = settings.subscribeEnabled;
+    const wechatSubscriptionStatus: Reminder["wechatSubscriptionStatus"] =
+      wechatReminderEnabled ? "accepted" : "unknown";
+    const wechatSubscriptionUpdatedAt = wechatReminderEnabled
+      ? new Date().toISOString()
+      : "";
+
     const payload = {
       medicineName: values.medicineName.trim(),
       medicineSpec: values.medicineSpec.trim(),
@@ -147,6 +156,9 @@ export default function ReminderForm({
       remindTime: values.remindTime,
       intervalDays: values.intervalDays,
       remindAdvanceDays: values.remindAdvanceDays,
+      wechatReminderEnabled,
+      wechatSubscriptionStatus,
+      wechatSubscriptionUpdatedAt,
       note: values.note.trim(),
     };
 
@@ -161,6 +173,8 @@ export default function ReminderForm({
       } else {
         await addReminder({
           ...payload,
+          lastWechatReminderDate: "",
+          lastWechatReminderAt: "",
           status: "active",
           prescriptionHistory: [values.currentPrescriptionDate],
         });

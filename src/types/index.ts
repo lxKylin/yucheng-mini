@@ -13,6 +13,11 @@ export interface Reminder {
   intervalDays: number; // 开药间隔（天）
   remindAdvanceDays: number; // 提前提醒天数
   remindTime: string; // 提醒时间 HH:mm
+  wechatReminderEnabled: boolean; // 是否尝试发送微信提醒
+  wechatSubscriptionStatus: "unknown" | "accepted" | "rejected"; // 最近一次订阅授权结果
+  wechatSubscriptionUpdatedAt: string; // 最近一次订阅状态更新时间
+  lastWechatReminderDate: string; // 最近一次成功发送的提醒日期 YYYY-MM-DD
+  lastWechatReminderAt: string; // 最近一次成功发送时间 ISO 字符串
   status: ReminderStatus;
   note: string; // 备注
   prescriptionHistory: string[]; // 历史开药日期列表（最近 5 条，YYYY-MM-DD）

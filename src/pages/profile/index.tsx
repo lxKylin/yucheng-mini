@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Arrow, UserCircleOutlined } from "@taroify/icons";
+import { UserCircleOutlined } from "@taroify/icons";
 import { Button, Image, Input, Picker, Text, View } from "@tarojs/components";
 import type {
   BaseEventOrig,
@@ -9,17 +9,17 @@ import type {
 } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 
-import AppBar from "@/components/AppBar";
 import BottomSheet from "@/components/BottomSheet";
 import { BEFORE_OPTIONS, BEFORE_OPTIONS_LABEL } from "@/constants";
 import { useProfileStats } from "@/hooks/useReminders";
 import { getUserId, getUserProfile, updateProfile } from "@/services/auth";
+import { requestWechatReminderSubscription } from "@/services/wechatReminder";
 import { loadSettings, saveSettings } from "@/utils/storage";
 import type { AppSettings } from "@/utils/storage";
 
 import "./index.scss";
 
-type TimePickerEvent = BaseEventOrig<PickerTimeProps.onChangeEventDetail>;
+type TimePickerEvent = BaseEventOrig<PickerTimeProps.ChangeEventDetail>;
 type SelectorPickerEvent = BaseEventOrig<PickerSelectorProps.ChangeEventDetail>;
 
 export default function Profile() {
@@ -96,31 +96,37 @@ export default function Profile() {
       return;
     }
 
-    // 开启订阅：调用微信授权弹层
-    // YOUR_TEMPLATE_ID 与云函数中一致，部署前替换为真实模板 ID
-    const TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+    const result = await requestWechatReminderSubscription();
+    updateSettings({ subscribeEnabled: result.enabled });
 
-    try {
-      const res = await Taro.requestSubscribeMessage({
-        tmplIds: [TEMPLATE_ID],
-      });
-      const accepted = res[TEMPLATE_ID] === "accept";
-      updateSettings({ subscribeEnabled: accepted });
+    if (result.enabled) {
       Taro.showToast({
-        title: accepted
-          ? "订阅消息已开启"
-          : "授权被拒绝，可在系统设置中重新授权",
-        icon: accepted ? "success" : "none",
+        title: result.message,
+        icon: "success",
         duration: 1800,
       });
-    } catch (err) {
-      console.error("[profile] 订阅消息授权失败：", err);
-      Taro.showToast({
-        title: "授权请求失败，请重试",
-        icon: "none",
-        duration: 1500,
-      });
+      return;
     }
+
+    if (result.shouldOpenSetting) {
+      const modalRes = await Taro.showModal({
+        title: "订阅未开启",
+        content: result.message,
+        confirmText: "去设置",
+        cancelText: "知道了",
+      });
+
+      if (modalRes.confirm) {
+        await Taro.openSetting();
+      }
+      return;
+    }
+
+    Taro.showToast({
+      title: result.message,
+      icon: "none",
+      duration: 2200,
+    });
   };
 
   const handleTimeChange = (e: TimePickerEvent) => {

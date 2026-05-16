@@ -28,6 +28,9 @@ export default defineConfig<"vite">(async (merge) => {
       "process.env.ENV_CLOUD_ID": JSON.stringify(
         process.env.ENV_CLOUD_ID ?? "",
       ),
+      "process.env.ENV_TEMPLATE_ID": JSON.stringify(
+        process.env.ENV_TEMPLATE_ID ?? "",
+      ),
     },
     copy: {
       patterns: [],

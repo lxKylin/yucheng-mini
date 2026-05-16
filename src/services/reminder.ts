@@ -19,6 +19,11 @@ function migrateReminder(raw: any): Reminder {
     intervalDays: raw.intervalDays ?? 30,
     remindAdvanceDays: raw.remindAdvanceDays ?? 7,
     remindTime: raw.remindTime ?? "09:00",
+    wechatReminderEnabled: raw.wechatReminderEnabled ?? false,
+    wechatSubscriptionStatus: raw.wechatSubscriptionStatus ?? "unknown",
+    wechatSubscriptionUpdatedAt: raw.wechatSubscriptionUpdatedAt ?? "",
+    lastWechatReminderDate: raw.lastWechatReminderDate ?? "",
+    lastWechatReminderAt: raw.lastWechatReminderAt ?? "",
     status: raw.status ?? "active",
     note: raw.note ?? "",
     prescriptionHistory: raw.prescriptionHistory ?? [],
@@ -86,7 +91,9 @@ export async function updateReminderInCloud(
     const existing = await getCollection(COL).where({ id }).limit(1).get();
 
     if (existing.data.length > 0) {
-      await getCollection(COL).where({ id }).update({ data: payload });
+      const docId = existing.data[0]?._id;
+      if (!docId) return;
+      await getCollection(COL).doc(docId).update({ data: payload });
       return;
     }
 
@@ -109,7 +116,9 @@ export async function deleteReminderInCloud(id: string): Promise<void> {
     const existing = await getCollection(COL).where({ id }).limit(1).get();
 
     if (existing.data.length > 0) {
-      await getCollection(COL).where({ id }).update({ data: payload });
+      const docId = existing.data[0]?._id;
+      if (!docId) return;
+      await getCollection(COL).doc(docId).update({ data: payload });
       return;
     }
 
