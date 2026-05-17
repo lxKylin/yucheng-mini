@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { Text, View } from "@tarojs/components";
+import Taro from "@tarojs/taro";
 import { Backdrop, Popup } from "@taroify/core";
 
 import "./index.scss";
@@ -21,6 +23,34 @@ export default function BottomSheet({
   onAfterClose,
   children,
 }: BottomSheetProps) {
+  const hiddenTabBarRef = useRef(false);
+
+  useEffect(() => {
+    if (open) {
+      hiddenTabBarRef.current = true;
+      void Taro.hideTabBar({ animation: true }).catch(() => undefined);
+      return;
+    }
+
+    if (!hiddenTabBarRef.current) {
+      return;
+    }
+
+    hiddenTabBarRef.current = false;
+    void Taro.showTabBar({ animation: true }).catch(() => undefined);
+  }, [open]);
+
+  useEffect(() => {
+    return () => {
+      if (!hiddenTabBarRef.current) {
+        return;
+      }
+
+      hiddenTabBarRef.current = false;
+      void Taro.showTabBar({ animation: false }).catch(() => undefined);
+    };
+  }, []);
+
   const handleClose = () => {
     onClose();
   };
