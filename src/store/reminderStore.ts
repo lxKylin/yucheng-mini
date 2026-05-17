@@ -21,6 +21,8 @@ function genId(): string {
 
 type AddPayload = Omit<Reminder, "id" | "createdAt" | "updatedAt">;
 
+const DEFAULT_REMINDER_STATUS: Reminder["status"] = "active";
+
 interface ReminderStore {
   reminders: Reminder[];
 
@@ -30,7 +32,7 @@ interface ReminderStore {
   deleteReminder: (id: string) => Promise<void>;
 
   // ─── 业务操作 ────────────────────────────────────────────────────
-  /** 标记已开药：更新 lastDate，将今日日期插入 history 头部，最多保留 HISTORY_MAX 条 */
+  /** 标记已开药：更新最近开药日期，将本次记录日期插入 history 头部，最多保留 HISTORY_MAX 条 */
   markDone: (id: string, date?: string) => Promise<void>;
   /** 切换暂停/启用 */
   togglePause: (id: string) => Promise<void>;
@@ -49,17 +51,17 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
   async addReminder(payload) {
     const now = new Date().toISOString();
     const newItem: Reminder = {
+      ...payload,
       id: genId(),
       createdAt: now,
       updatedAt: now,
       // 未传入字段使用默认值兜底
-      remindTime: DEFAULT_REMIND_TIME,
-      intervalDays: DEFAULT_INTERVAL,
-      remindAdvanceDays: DEFAULT_BEFORE,
-      note: "",
-      prescriptionHistory: [],
-      status: "active",
-      ...payload,
+      remindTime: payload.remindTime || DEFAULT_REMIND_TIME,
+      intervalDays: payload.intervalDays || DEFAULT_INTERVAL,
+      remindAdvanceDays: payload.remindAdvanceDays || DEFAULT_BEFORE,
+      note: payload.note || "",
+      prescriptionHistory: payload.prescriptionHistory || [],
+      status: payload.status || DEFAULT_REMINDER_STATUS,
     };
 
     await addReminderToCloud(newItem);
@@ -125,7 +127,8 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
     if (!target) return;
 
     const updatedAt = new Date().toISOString();
-    const status = target.status === "paused" ? "active" : "paused";
+    const status: Reminder["status"] =
+      target.status === "paused" ? "active" : "paused";
     const nextPayload = { status, updatedAt };
 
     await updateReminderInCloud(id, nextPayload);

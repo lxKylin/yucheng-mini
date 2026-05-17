@@ -3,8 +3,8 @@ import { Input, Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { Search } from "@taroify/icons";
 
-import AppBar from "@/components/AppBar";
 import BottomSheet from "@/components/BottomSheet";
+import DoneDateSheet from "@/components/DoneDateSheet";
 import MedicineCard from "@/components/MedicineCard";
 import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
@@ -31,6 +31,7 @@ export default function ListPage() {
   const [detailId, setDetailId] = useState("");
   const [editReminderId, setEditReminderId] = useState<string | undefined>();
   const [formKey, setFormKey] = useState(0);
+  const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
   const sheetOpenRef = useRef(sheetOpen);
 
   const allItems = useDerivedList();
@@ -38,6 +39,10 @@ export default function ListPage() {
 
   const formOpen = sheetOpen && sheetMode === "form";
   const detailOpen = sheetOpen && sheetMode === "detail";
+  const doneTarget =
+    doneReminderId === null
+      ? null
+      : (allItems.find((item) => item.id === doneReminderId) ?? null);
 
   const counts = useMemo<Record<FilterKey, number>>(
     () => ({
@@ -92,6 +97,10 @@ export default function ListPage() {
     setSheetOpen(false);
   };
 
+  const closeDoneSheet = () => {
+    setDoneReminderId(null);
+  };
+
   const handleAddNew = () => {
     Taro.hideTabBar({ animation: true });
     setEditReminderId(undefined);
@@ -118,6 +127,11 @@ export default function ListPage() {
     const target = allItems.find((item) => item.id === id);
 
     if (!target || target.status === "paused") {
+      return;
+    }
+
+    if (target.daysLeft < 0) {
+      setDoneReminderId(id);
       return;
     }
 
@@ -238,6 +252,12 @@ export default function ListPage() {
           onCancel={closeSheet}
         />
       </BottomSheet>
+
+      <DoneDateSheet
+        open={doneTarget !== null}
+        item={doneTarget}
+        onClose={closeDoneSheet}
+      />
     </View>
   );
 }

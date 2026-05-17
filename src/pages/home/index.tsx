@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Text, View } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 
-import AppBar from "@/components/AppBar";
 import BottomSheet from "@/components/BottomSheet";
+import DoneDateSheet from "@/components/DoneDateSheet";
 import MedicineCard from "@/components/MedicineCard";
 import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
@@ -21,12 +21,17 @@ export default function Home() {
   const [editReminderId, setEditReminderId] = useState<string | undefined>(
     undefined,
   );
+  const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
   const sheetOpenRef = useRef(sheetOpen);
   const allItems = useDerivedList();
   const { markDone } = useReminderActions();
 
   const formOpen = sheetOpen && sheetMode === "form";
   const detailOpen = sheetOpen && sheetMode === "detail";
+  const doneTarget =
+    doneReminderId === null
+      ? null
+      : (allItems.find((item) => item.id === doneReminderId) ?? null);
 
   const handleSheetEntered = () => {
     Taro.hideTabBar({ animation: true });
@@ -80,13 +85,15 @@ export default function Home() {
     .slice(0, 3);
   const hasRecords = total > 0;
 
-  const now = new Date();
-  const todayStr = `${now.getMonth() + 1}月${now.getDate()}日，先处理最紧急的开药任务`;
-
   const handleMarkDone = (id: string) => {
     const target = allItems.find((item) => item.id === id);
 
-    if (!target) {
+    if (!target || target.status === "paused") {
+      return;
+    }
+
+    if (target.daysLeft < 0) {
+      setDoneReminderId(id);
       return;
     }
 
@@ -136,6 +143,10 @@ export default function Home() {
     Taro.hideTabBar({ animation: true });
     setSheetMode("detail");
     setSheetOpen(true);
+  };
+
+  const closeDoneSheet = () => {
+    setDoneReminderId(null);
   };
 
   useLoad(() => {
@@ -249,6 +260,12 @@ export default function Home() {
           />
         ) : null}
       </BottomSheet>
+
+      <DoneDateSheet
+        open={doneTarget !== null}
+        item={doneTarget}
+        onClose={closeDoneSheet}
+      />
     </View>
   );
 }

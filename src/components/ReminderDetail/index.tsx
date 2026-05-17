@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import Button from "@taroify/core/button";
 
+import DoneDateSheet from "@/components/DoneDateSheet";
 import ProgressBar from "@/components/ProgressBar";
 import StatusTag from "@/components/StatusTag";
 import { useDerivedById, useReminderActions } from "@/hooks/useReminders";
@@ -19,6 +21,7 @@ export default function ReminderDetail({
   onClose,
   onEdit,
 }: ReminderDetailProps) {
+  const [doneSheetOpen, setDoneSheetOpen] = useState(false);
   const item = useDerivedById(reminderId);
   const { markDone, togglePause, deleteReminder } = useReminderActions();
 
@@ -40,6 +43,11 @@ export default function ReminderDetail({
 
   const handleDone = () => {
     if (item.status === "paused") {
+      return;
+    }
+
+    if (item.daysLeft < 0) {
+      setDoneSheetOpen(true);
       return;
     }
 
@@ -285,6 +293,13 @@ export default function ReminderDetail({
           ))}
         </View>
       ) : null}
+
+      <DoneDateSheet
+        open={doneSheetOpen}
+        item={item}
+        onClose={() => setDoneSheetOpen(false)}
+        onSuccess={onClose}
+      />
     </View>
   );
 }

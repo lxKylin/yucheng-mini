@@ -1,0 +1,120 @@
+@use "sass:color";
+@use "@/styles/variables" as *;
+
+.done-date-sheet {
+  display: grid;
+  gap: $spacing-4;
+
+  &__notice {
+    padding: $spacing-4;
+    border-radius: $radius;
+    background: $danger-soft;
+    border: 1px solid rgba(202, 78, 65, 0.12);
+  }
+
+  &__notice-title {
+    display: block;
+    color: $danger;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__notice-desc {
+    display: block;
+    margin-top: 4px;
+    color: color.mix($danger, $ink-strong, 70%);
+    font-size: $text-sm;
+    line-height: 1.6;
+  }
+
+  &__summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-3;
+  }
+
+  &__summary-item {
+    display: grid;
+    gap: 4px;
+    padding: $spacing-3;
+    border-radius: $radius;
+    background: $surface-soft;
+  }
+
+  &__summary-label {
+    color: $muted;
+    font-size: $text-sm;
+  }
+
+  &__summary-value {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__field {
+    display: grid;
+    gap: $spacing-2;
+  }
+
+  &__label {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__picker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    padding: $spacing-4;
+    border-radius: $radius;
+    background: $surface-soft;
+    border: 1px solid $line;
+  }
+
+  &__picker-text {
+    color: $ink-strong;
+    font-size: $text-lg;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__picker-hint {
+    color: $primary;
+    font-size: $text-sm;
+    font-weight: 800;
+  }
+
+  &__tip {
+    color: $muted;
+    font-size: $text-sm;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-3;
+  }
+
+  &__btn {
+    flex: 1;
+    min-height: 80px !important;
+    border-radius: $radius !important;
+    font-size: $text-lg !important;
+    font-weight: 900 !important;
+    border: none !important;
+
+    &--ghost {
+      background: $surface-soft !important;
+      color: $ink !important;
+    }
+
+    &--primary {
+      background: $primary !important;
+      color: #fff !important;
+    }
+  }
+}
