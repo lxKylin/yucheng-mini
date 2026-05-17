@@ -10,20 +10,24 @@ import MedicineCard from "@/components/MedicineCard";
 import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
 import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
+import { useReminderSheet } from "../../hooks/useReminderSheet";
 
 import "./index.scss";
 
-type SheetMode = "detail" | "form";
-
 export default function Home() {
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [sheetActive, setSheetActive] = useState(false);
-  const [sheetMode, setSheetMode] = useState<SheetMode>("form");
-  const [detailId, setDetailId] = useState("");
-  const [editReminderId, setEditReminderId] = useState<string | undefined>(
-    undefined,
-  );
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
+  const {
+    detailId,
+    editReminderId,
+    sheetActive,
+    sheetMode,
+    sheetOpen,
+    sheetTitle,
+    closeSheet,
+    handleSheetExited,
+    openDetail,
+    openEdit,
+  } = useReminderSheet();
   const allItems = useDerivedList();
   const { markDone } = useReminderActions();
 
@@ -31,27 +35,6 @@ export default function Home() {
     doneReminderId === null
       ? null
       : (allItems.find((item) => item.id === doneReminderId) ?? null);
-
-  const handleSheetExited = () => {
-    setSheetActive(false);
-    setDetailId("");
-    setEditReminderId(undefined);
-  };
-
-  const closeFormSheet = () => {
-    setSheetOpen(false);
-  };
-
-  const closeDetailSheet = () => {
-    setSheetOpen(false);
-  };
-
-  const handleEditFromDetail = (id: string) => {
-    setEditReminderId(id);
-    setSheetMode("form");
-    setSheetActive(true);
-    setSheetOpen(true);
-  };
 
   const overdueCount = allItems.filter(
     (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft < 0,
@@ -111,13 +94,6 @@ export default function Home() {
     Taro.switchTab({ url: "/pages/list/index" });
   };
 
-  const handleDetail = (id: string) => {
-    setDetailId(id);
-    setSheetMode("detail");
-    setSheetActive(true);
-    setSheetOpen(true);
-  };
-
   const closeDoneSheet = () => {
     setDoneReminderId(null);
   };
@@ -173,7 +149,7 @@ export default function Home() {
               key={item.id}
               item={item}
               onDone={() => handleMarkDone(item.id)}
-              onDetail={() => handleDetail(item.id)}
+              onDetail={() => openDetail(item.id)}
             />
           ))
         ) : (
@@ -202,28 +178,22 @@ export default function Home() {
 
       <BottomSheet
         open={sheetOpen}
-        title={
-          sheetMode === "detail"
-            ? "提醒详情"
-            : editReminderId
-              ? "编辑提醒"
-              : "新增提醒"
-        }
-        onClose={sheetMode === "detail" ? closeDetailSheet : closeFormSheet}
+        title={sheetTitle}
+        onClose={closeSheet}
         onAfterClose={handleSheetExited}
       >
         {sheetMode === "detail" && detailId ? (
           <ReminderDetail
             reminderId={detailId}
-            onClose={closeDetailSheet}
-            onEdit={handleEditFromDetail}
+            onClose={closeSheet}
+            onEdit={openEdit}
           />
         ) : null}
         {sheetMode === "form" ? (
           <ReminderForm
             reminderId={editReminderId}
-            onSuccess={closeFormSheet}
-            onCancel={closeFormSheet}
+            onSuccess={closeSheet}
+            onCancel={closeSheet}
           />
         ) : null}
       </BottomSheet>

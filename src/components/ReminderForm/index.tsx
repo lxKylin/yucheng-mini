@@ -342,7 +342,6 @@ export default function ReminderForm({
             className="reminder-form__textarea-inner"
             value={values.note}
             placeholder="医院、复诊事项、注意事项"
-            autoHeight
             maxlength={200}
             onChange={(e: TextareaEvent) => setField("note", e.detail.value)}
           />

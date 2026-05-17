@@ -12,11 +12,11 @@ import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
 import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
 import type { ReminderLevel } from "@/types";
+import { useReminderSheet } from "../../hooks/useReminderSheet";
 
 import "./index.scss";
 
 type FilterKey = "all" | ReminderLevel;
-type SheetMode = "detail" | "form";
 
 const FILTER_TABS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "全部" },
@@ -29,12 +29,19 @@ const FILTER_TABS: { key: FilterKey; label: string }[] = [
 export default function ListPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [sheetActive, setSheetActive] = useState(false);
-  const [sheetMode, setSheetMode] = useState<SheetMode>("form");
-  const [detailId, setDetailId] = useState("");
-  const [editReminderId, setEditReminderId] = useState<string | undefined>();
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
+  const {
+    detailId,
+    editReminderId,
+    sheetActive,
+    sheetMode,
+    sheetOpen,
+    sheetTitle,
+    closeSheet,
+    handleSheetExited,
+    openDetail,
+    openEdit,
+  } = useReminderSheet();
 
   const allItems = useDerivedList();
   const { markDone } = useReminderActions();
@@ -77,32 +84,8 @@ export default function ListPage() {
     });
   }, [activeFilter, allItems, searchTerm]);
 
-  const handleSheetExited = () => {
-    setSheetActive(false);
-    setDetailId("");
-    setEditReminderId(undefined);
-  };
-
-  const closeSheet = () => {
-    setSheetOpen(false);
-  };
-
   const closeDoneSheet = () => {
     setDoneReminderId(null);
-  };
-
-  const handleDetail = (id: string) => {
-    setDetailId(id);
-    setSheetMode("detail");
-    setSheetActive(true);
-    setSheetOpen(true);
-  };
-
-  const handleEditFromDetail = (id: string) => {
-    setEditReminderId(id);
-    setSheetMode("form");
-    setSheetActive(true);
-    setSheetOpen(true);
   };
 
   const handleMarkDone = (id: string) => {
@@ -183,7 +166,7 @@ export default function ListPage() {
               item={item}
               showActions
               onDone={() => handleMarkDone(item.id)}
-              onDetail={() => handleDetail(item.id)}
+              onDetail={() => openDetail(item.id)}
             />
           ))
         ) : (
@@ -202,13 +185,7 @@ export default function ListPage() {
 
       <BottomSheet
         open={sheetOpen}
-        title={
-          sheetMode === "detail"
-            ? "提醒详情"
-            : editReminderId
-              ? "编辑提醒"
-              : "新增提醒"
-        }
+        title={sheetTitle}
         onClose={closeSheet}
         onAfterClose={handleSheetExited}
       >
@@ -216,7 +193,7 @@ export default function ListPage() {
           <ReminderDetail
             reminderId={detailId}
             onClose={closeSheet}
-            onEdit={handleEditFromDetail}
+            onEdit={openEdit}
           />
         ) : null}
         {sheetMode === "form" ? (

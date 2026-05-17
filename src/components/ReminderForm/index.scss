@@ -85,27 +85,33 @@
   &__textarea {
     width: 100%;
     max-width: 100%;
-    min-height: 112px;
+    min-height: 72px;
     padding: $spacing-3 $spacing-4;
     border: 1px solid $line-strong;
     border-radius: $radius;
     box-sizing: border-box;
     display: block;
     background: #fff;
+
+    .taroify-textarea__wrapper {
+      height: 72px;
+    }
   }
 
   &__textarea-inner {
     width: 100%;
+    min-height: 72px !important;
+    height: 72px !important;
+    max-height: 72px !important;
+    display: block;
+    overflow-y: auto;
     color: $ink;
     font-size: $text-md;
     line-height: 1.6;
+    padding: 0;
+    margin: 0;
     background: transparent;
-
-    // 覆盖 taroify 默认的内边距/边框
-    .taroify-textarea {
-      padding: 0;
-      background: transparent;
-    }
+    resize: none;
   }
 
   &__picker {
