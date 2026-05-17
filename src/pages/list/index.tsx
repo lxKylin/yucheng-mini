@@ -79,10 +79,20 @@ export default function ListPage() {
     });
   }, [activeFilter, allItems, searchTerm]);
 
-  const handleSheetExited = () => {
-    setSheetActive(false);
+  const handleDetailSheetExited = () => {
     setDetailId("");
+
+    if (!formOpen) {
+      setSheetActive(false);
+    }
+  };
+
+  const handleFormSheetExited = () => {
     setEditReminderId(undefined);
+
+    if (!detailOpen) {
+      setSheetActive(false);
+    }
   };
 
   const closeSheet = () => {
@@ -206,7 +216,7 @@ export default function ListPage() {
         open={detailOpen}
         title="提醒详情"
         onClose={closeSheet}
-        onAfterClose={handleSheetExited}
+        onAfterClose={handleDetailSheetExited}
       >
         {detailId ? (
           <ReminderDetail
@@ -221,7 +231,7 @@ export default function ListPage() {
         open={formOpen}
         title={editReminderId ? "编辑提醒" : "新增提醒"}
         onClose={closeSheet}
-        onAfterClose={handleSheetExited}
+        onAfterClose={handleFormSheetExited}
       >
         <ReminderForm
           reminderId={editReminderId}

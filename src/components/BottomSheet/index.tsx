@@ -6,6 +6,20 @@ import { Popup } from "@taroify/core";
 
 import "./index.scss";
 
+let activeSheetCount = 0;
+
+function registerActiveSheet() {
+  activeSheetCount += 1;
+}
+
+function unregisterActiveSheet() {
+  activeSheetCount = Math.max(0, activeSheetCount - 1);
+}
+
+function shouldShowTabBar() {
+  return activeSheetCount === 0;
+}
+
 interface BottomSheetProps {
   open: boolean;
   title: string;
@@ -23,13 +37,14 @@ export default function BottomSheet({
   onAfterClose,
   children,
 }: BottomSheetProps) {
-  const hiddenTabBarRef = useRef(false);
+  const registeredRef = useRef(false);
   const [backdropMounted, setBackdropMounted] = useState(open);
   const transitionDuration = 220;
 
   useEffect(() => {
-    if (open) {
-      hiddenTabBarRef.current = true;
+    if (open && !registeredRef.current) {
+      registeredRef.current = true;
+      registerActiveSheet();
       setBackdropMounted(true);
       void Taro.hideTabBar({ animation: false }).catch(() => undefined);
     }
@@ -37,12 +52,16 @@ export default function BottomSheet({
 
   useEffect(() => {
     return () => {
-      if (!hiddenTabBarRef.current) {
+      if (!registeredRef.current) {
         return;
       }
 
-      hiddenTabBarRef.current = false;
-      void Taro.showTabBar({ animation: false }).catch(() => undefined);
+      registeredRef.current = false;
+      unregisterActiveSheet();
+
+      if (shouldShowTabBar()) {
+        void Taro.showTabBar({ animation: false }).catch(() => undefined);
+      }
     };
   }, []);
 
@@ -57,9 +76,13 @@ export default function BottomSheet({
   const handleTransitionExited = () => {
     setBackdropMounted(false);
 
-    if (hiddenTabBarRef.current) {
-      hiddenTabBarRef.current = false;
-      void Taro.showTabBar({ animation: false }).catch(() => undefined);
+    if (registeredRef.current) {
+      registeredRef.current = false;
+      unregisterActiveSheet();
+
+      if (shouldShowTabBar()) {
+        void Taro.showTabBar({ animation: false }).catch(() => undefined);
+      }
     }
 
     onAfterClose?.();
