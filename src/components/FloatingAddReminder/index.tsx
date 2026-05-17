@@ -1,56 +1,23 @@
-import { useState } from "react";
 import { Text, View } from "@tarojs/components";
-
-import BottomSheet from "@/components/BottomSheet";
-import ReminderForm from "@/components/ReminderForm";
 
 import "./index.scss";
 
 interface FloatingAddReminderProps {
   hidden?: boolean;
+  onClick: () => void;
 }
 
 export default function FloatingAddReminder({
   hidden = false,
+  onClick,
 }: FloatingAddReminderProps) {
-  const [open, setOpen] = useState(false);
-  const [sheetActive, setSheetActive] = useState(false);
-  const [formKey, setFormKey] = useState(0);
-
-  const handleOpen = () => {
-    setFormKey((current) => current + 1);
-    setSheetActive(true);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleAfterClose = () => {
-    setSheetActive(false);
-  };
+  if (hidden) {
+    return null;
+  }
 
   return (
-    <>
-      {!hidden && !sheetActive ? (
-        <View className="floating-add-reminder" onClick={handleOpen}>
-          <Text className="floating-add-reminder__icon">+</Text>
-        </View>
-      ) : null}
-
-      <BottomSheet
-        open={open}
-        title="新增提醒"
-        onClose={handleClose}
-        onAfterClose={handleAfterClose}
-      >
-        <ReminderForm
-          key={formKey}
-          onSuccess={handleClose}
-          onCancel={handleClose}
-        />
-      </BottomSheet>
-    </>
+    <View className="floating-add-reminder" onClick={onClick}>
+      <Text className="floating-add-reminder__icon">+</Text>
+    </View>
   );
 }

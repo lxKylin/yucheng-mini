@@ -19,12 +19,15 @@ export default function Home() {
   const {
     detailId,
     editReminderId,
+    formKey,
     sheetActive,
     sheetMode,
     sheetOpen,
     sheetTitle,
     closeSheet,
+    handleFormSuccess,
     handleSheetExited,
+    openCreate,
     openDetail,
     openEdit,
   } = useReminderSheet();
@@ -174,7 +177,7 @@ export default function Home() {
         )}
       </View>
 
-      <FloatingAddReminder hidden={sheetActive} />
+      <FloatingAddReminder hidden={sheetActive} onClick={openCreate} />
 
       <BottomSheet
         open={sheetOpen}
@@ -191,8 +194,9 @@ export default function Home() {
         ) : null}
         {sheetMode === "form" ? (
           <ReminderForm
+            key={formKey}
             reminderId={editReminderId}
-            onSuccess={closeSheet}
+            onSuccess={handleFormSuccess}
             onCancel={closeSheet}
           />
         ) : null}

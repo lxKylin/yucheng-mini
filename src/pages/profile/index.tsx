@@ -12,6 +12,8 @@ import Taro, { useLoad } from "@tarojs/taro";
 import BottomSheet from "@/components/BottomSheet";
 import { BEFORE_OPTIONS, BEFORE_OPTIONS_LABEL } from "@/constants";
 import FloatingAddReminder from "@/components/FloatingAddReminder";
+import ReminderForm from "@/components/ReminderForm";
+import { useReminderSheet } from "../../hooks/useReminderSheet";
 import { useProfileStats } from "@/hooks/useReminders";
 import { getUserId, getUserProfile, updateProfile } from "@/services/auth";
 import { requestWechatReminderSubscription } from "@/services/wechatReminder";
@@ -27,6 +29,18 @@ export default function Profile() {
   const stats = useProfileStats();
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [inboxOpen, setInboxOpen] = useState(false);
+  const {
+    editReminderId,
+    formKey,
+    sheetActive,
+    sheetMode,
+    sheetOpen,
+    sheetTitle,
+    closeSheet,
+    handleFormSuccess,
+    handleSheetExited,
+    openCreate,
+  } = useReminderSheet();
   const [profile, setProfile] = useState(getUserProfile);
   const [nickName, setNickName] = useState(
     () => getUserProfile()?.nickName ?? "",
@@ -312,7 +326,26 @@ export default function Profile() {
         </View>
       </BottomSheet>
 
-      <FloatingAddReminder hidden={inboxOpen} />
+      <BottomSheet
+        open={sheetOpen}
+        title={sheetTitle}
+        onClose={closeSheet}
+        onAfterClose={handleSheetExited}
+      >
+        {sheetMode === "form" ? (
+          <ReminderForm
+            key={formKey}
+            reminderId={editReminderId}
+            onSuccess={handleFormSuccess}
+            onCancel={closeSheet}
+          />
+        ) : null}
+      </BottomSheet>
+
+      <FloatingAddReminder
+        hidden={inboxOpen || sheetActive}
+        onClick={openCreate}
+      />
     </View>
   );
 }

@@ -3,6 +3,7 @@ import { useState } from "react";
 export type ReminderSheetMode = "detail" | "form";
 
 export function useReminderSheet() {
+  const [formKey, setFormKey] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetActive, setSheetActive] = useState(false);
   const [sheetMode, setSheetMode] = useState<ReminderSheetMode>("form");
@@ -17,13 +18,24 @@ export function useReminderSheet() {
         : "新增提醒";
 
   const openDetail = (id: string) => {
+    setEditReminderId(undefined);
     setDetailId(id);
     setSheetMode("detail");
     setSheetActive(true);
     setSheetOpen(true);
   };
 
+  const openCreate = () => {
+    setFormKey((current) => current + 1);
+    setDetailId("");
+    setEditReminderId(undefined);
+    setSheetMode("form");
+    setSheetActive(true);
+    setSheetOpen(true);
+  };
+
   const openEdit = (id: string) => {
+    setDetailId("");
     setEditReminderId(id);
     setSheetMode("form");
     setSheetActive(true);
@@ -32,6 +44,14 @@ export function useReminderSheet() {
 
   const closeSheet = () => {
     setSheetOpen(false);
+  };
+
+  const handleFormSuccess = () => {
+    if (!editReminderId) {
+      setFormKey((current) => current + 1);
+    }
+
+    closeSheet();
   };
 
   const handleSheetExited = () => {
@@ -43,12 +63,15 @@ export function useReminderSheet() {
   return {
     detailId,
     editReminderId,
+    formKey,
     sheetActive,
     sheetMode,
     sheetOpen,
     sheetTitle,
     closeSheet,
+    handleFormSuccess,
     handleSheetExited,
+    openCreate,
     openDetail,
     openEdit,
   };
