@@ -11,6 +11,7 @@ import Taro, { useLoad } from "@tarojs/taro";
 
 import BottomSheet from "@/components/BottomSheet";
 import { BEFORE_OPTIONS, BEFORE_OPTIONS_LABEL } from "@/constants";
+import FloatingAddReminder from "@/components/FloatingAddReminder";
 import { useProfileStats } from "@/hooks/useReminders";
 import { getUserId, getUserProfile, updateProfile } from "@/services/auth";
 import { requestWechatReminderSubscription } from "@/services/wechatReminder";
@@ -310,6 +311,8 @@ export default function Profile() {
           <Text>通知记录功能将在 M7 中实现。</Text>
         </View>
       </BottomSheet>
+
+      <FloatingAddReminder hidden={inboxOpen} />
     </View>
   );
 }

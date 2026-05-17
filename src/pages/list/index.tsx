@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Input, Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { Search } from "@taroify/icons";
@@ -6,6 +6,7 @@ import { Search } from "@taroify/icons";
 import { REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
 import BottomSheet from "@/components/BottomSheet";
 import DoneDateSheet from "@/components/DoneDateSheet";
+import FloatingAddReminder from "@/components/FloatingAddReminder";
 import MedicineCard from "@/components/MedicineCard";
 import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
@@ -29,12 +30,11 @@ export default function ListPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetActive, setSheetActive] = useState(false);
   const [sheetMode, setSheetMode] = useState<SheetMode>("form");
   const [detailId, setDetailId] = useState("");
   const [editReminderId, setEditReminderId] = useState<string | undefined>();
-  const [formKey, setFormKey] = useState(0);
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
-  const sheetOpenRef = useRef(sheetOpen);
 
   const allItems = useDerivedList();
   const { markDone } = useReminderActions();
@@ -79,28 +79,10 @@ export default function ListPage() {
     });
   }, [activeFilter, allItems, searchTerm]);
 
-  useEffect(() => {
-    sheetOpenRef.current = sheetOpen;
-  }, [sheetOpen]);
-
-  useEffect(() => {
-    return () => {
-      Taro.showTabBar({ animation: false });
-    };
-  }, []);
-
-  const handleSheetEntered = () => {
-    Taro.hideTabBar({ animation: true });
-  };
-
   const handleSheetExited = () => {
-    if (sheetOpenRef.current) {
-      return;
-    }
-
+    setSheetActive(false);
     setDetailId("");
     setEditReminderId(undefined);
-    Taro.showTabBar({ animation: true });
   };
 
   const closeSheet = () => {
@@ -111,25 +93,17 @@ export default function ListPage() {
     setDoneReminderId(null);
   };
 
-  const handleAddNew = () => {
-    Taro.hideTabBar({ animation: true });
-    setEditReminderId(undefined);
-    setFormKey((current) => current + 1);
-    setSheetMode("form");
-    setSheetOpen(true);
-  };
-
   const handleDetail = (id: string) => {
     setDetailId(id);
-    Taro.hideTabBar({ animation: true });
     setSheetMode("detail");
+    setSheetActive(true);
     setSheetOpen(true);
   };
 
   const handleEditFromDetail = (id: string) => {
     setEditReminderId(id);
-    setFormKey((current) => current + 1);
     setSheetMode("form");
+    setSheetActive(true);
     setSheetOpen(true);
   };
 
@@ -226,17 +200,12 @@ export default function ListPage() {
         )}
       </View>
 
-      {!formOpen && !detailOpen ? (
-        <View className="list-fab" onClick={handleAddNew}>
-          <Text className="list-fab__icon">+</Text>
-        </View>
-      ) : null}
+      <FloatingAddReminder hidden={sheetActive} />
 
       <BottomSheet
         open={detailOpen}
         title="提醒详情"
         onClose={closeSheet}
-        onAfterOpen={handleSheetEntered}
         onAfterClose={handleSheetExited}
       >
         {detailId ? (
@@ -252,11 +221,9 @@ export default function ListPage() {
         open={formOpen}
         title={editReminderId ? "编辑提醒" : "新增提醒"}
         onClose={closeSheet}
-        onAfterOpen={handleSheetEntered}
         onAfterClose={handleSheetExited}
       >
         <ReminderForm
-          key={formKey}
           reminderId={editReminderId}
           onSuccess={closeSheet}
           onCancel={closeSheet}

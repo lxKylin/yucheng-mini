@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { Backdrop, Popup } from "@taroify/core";
+import { Popup } from "@taroify/core";
 
 import "./index.scss";
 
@@ -24,20 +24,15 @@ export default function BottomSheet({
   children,
 }: BottomSheetProps) {
   const hiddenTabBarRef = useRef(false);
+  const [backdropMounted, setBackdropMounted] = useState(open);
+  const transitionDuration = 220;
 
   useEffect(() => {
     if (open) {
       hiddenTabBarRef.current = true;
-      void Taro.hideTabBar({ animation: true }).catch(() => undefined);
-      return;
+      setBackdropMounted(true);
+      void Taro.hideTabBar({ animation: false }).catch(() => undefined);
     }
-
-    if (!hiddenTabBarRef.current) {
-      return;
-    }
-
-    hiddenTabBarRef.current = false;
-    void Taro.showTabBar({ animation: true }).catch(() => undefined);
   }, [open]);
 
   useEffect(() => {
@@ -55,29 +50,54 @@ export default function BottomSheet({
     onClose();
   };
 
+  const handleTransitionEnter = () => {
+    onAfterOpen?.();
+  };
+
+  const handleTransitionExited = () => {
+    setBackdropMounted(false);
+
+    if (hiddenTabBarRef.current) {
+      hiddenTabBarRef.current = false;
+      void Taro.showTabBar({ animation: false }).catch(() => undefined);
+    }
+
+    onAfterClose?.();
+  };
+
   return (
-    <Popup
-      open={open}
-      placement="bottom"
-      rounded
-      className="bottom-sheet-panel"
-      onClose={handleClose}
-      onTransitionEnter={onAfterOpen}
-      onTransitionExited={onAfterClose}
-    >
-      <Backdrop open={open} closeable onClose={handleClose} />
-      <View className="bottom-sheet__head">
-        <Text className="bottom-sheet__title">{title}</Text>
+    <>
+      {backdropMounted ? (
         <View
-          className="bottom-sheet__close"
-          role="button"
-          aria-label="关闭"
+          className="bottom-sheet__backdrop bottom-sheet__backdrop--open"
           onClick={handleClose}
-        >
-          <Text className="bottom-sheet__close-icon">×</Text>
+          catchMove
+        />
+      ) : null}
+
+      <Popup
+        open={open}
+        placement="bottom"
+        rounded
+        duration={transitionDuration}
+        className="bottom-sheet-panel"
+        onClose={handleClose}
+        onTransitionEnter={handleTransitionEnter}
+        onTransitionExited={handleTransitionExited}
+      >
+        <View className="bottom-sheet__head">
+          <Text className="bottom-sheet__title">{title}</Text>
+          <View
+            className="bottom-sheet__close"
+            role="button"
+            aria-label="关闭"
+            onClick={handleClose}
+          >
+            <Text className="bottom-sheet__close-icon">×</Text>
+          </View>
         </View>
-      </View>
-      <View className="bottom-sheet__body">{children}</View>
-    </Popup>
+        <View className="bottom-sheet__body">{children}</View>
+      </Popup>
+    </>
   );
 }

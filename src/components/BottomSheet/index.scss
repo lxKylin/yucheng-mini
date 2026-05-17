@@ -4,6 +4,7 @@
   &.taroify-popup {
     --popup-rounded-border-radius: #{$radius-strong};
     background: $paper !important;
+    z-index: 1010;
     max-height: 90vh;
     overflow-y: auto;
     overflow-x: hidden;
@@ -13,6 +14,17 @@
 }
 
 .bottom-sheet {
+  &__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(11, 23, 28, 0.42);
+
+    &--open {
+      background: rgba(11, 23, 28, 0.42);
+    }
+  }
+
   &__head {
     position: sticky;
     top: 0;
