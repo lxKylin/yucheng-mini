@@ -13,7 +13,8 @@ import BottomSheet from "@/components/BottomSheet";
 import { BEFORE_OPTIONS, BEFORE_OPTIONS_LABEL } from "@/constants";
 import FloatingAddReminder from "@/components/FloatingAddReminder";
 import ReminderForm from "@/components/ReminderForm";
-import { useReminderSheet } from "../../hooks/useReminderSheet";
+import { useTabScrollToTop } from "@/hooks/useTabScrollToTop";
+import { useReminderSheet } from "@/hooks/useReminderSheet";
 import { useProfileStats } from "@/hooks/useReminders";
 import { getUserId, getUserProfile, updateProfile } from "@/services/auth";
 import { requestWechatReminderSubscription } from "@/services/wechatReminder";
@@ -29,6 +30,8 @@ export default function Profile() {
   const stats = useProfileStats();
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [inboxOpen, setInboxOpen] = useState(false);
+  useTabScrollToTop();
+
   const {
     editReminderId,
     formKey,

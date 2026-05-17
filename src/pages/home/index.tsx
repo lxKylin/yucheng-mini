@@ -10,12 +10,15 @@ import MedicineCard from "@/components/MedicineCard";
 import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
 import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
-import { useReminderSheet } from "../../hooks/useReminderSheet";
+import { useTabScrollToTop } from "@/hooks/useTabScrollToTop";
+import { useReminderSheet } from "@/hooks/useReminderSheet";
 
 import "./index.scss";
 
 export default function Home() {
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
+  useTabScrollToTop();
+
   const {
     detailId,
     editReminderId,

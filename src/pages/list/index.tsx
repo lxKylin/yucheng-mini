@@ -12,7 +12,8 @@ import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
 import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
 import type { ReminderLevel } from "@/types";
-import { useReminderSheet } from "../../hooks/useReminderSheet";
+import { useTabScrollToTop } from "@/hooks/useTabScrollToTop";
+import { useReminderSheet } from "@/hooks/useReminderSheet";
 
 import "./index.scss";
 
@@ -30,6 +31,8 @@ export default function ListPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
+  useTabScrollToTop();
+
   const {
     detailId,
     editReminderId,
