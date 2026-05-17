@@ -1,8 +1,20 @@
+import {
+  REMINDER_LEVEL,
+  REMINDER_STATUS,
+  WECHAT_SUBSCRIPTION_STATUS,
+} from "@/constants";
+
 /** 提醒状态 */
-export type ReminderStatus = "active" | "paused" | "deleted";
+export type ReminderStatus =
+  (typeof REMINDER_STATUS)[keyof typeof REMINDER_STATUS];
 
 /** 提醒紧急等级（用于 UI 颜色） */
-export type ReminderLevel = "danger" | "warning" | "good" | "paused";
+export type ReminderLevel =
+  (typeof REMINDER_LEVEL)[keyof typeof REMINDER_LEVEL];
+
+/** 微信订阅授权状态 */
+export type WechatSubscriptionStatus =
+  (typeof WECHAT_SUBSCRIPTION_STATUS)[keyof typeof WECHAT_SUBSCRIPTION_STATUS];
 
 /** 药物提醒主体 */
 export interface Reminder {
@@ -14,7 +26,7 @@ export interface Reminder {
   remindAdvanceDays: number; // 提前提醒天数
   remindTime: string; // 提醒时间 HH:mm
   wechatReminderEnabled: boolean; // 是否尝试发送微信提醒
-  wechatSubscriptionStatus: "unknown" | "accepted" | "rejected"; // 最近一次订阅授权结果
+  wechatSubscriptionStatus: WechatSubscriptionStatus; // 最近一次订阅授权结果
   wechatSubscriptionUpdatedAt: string; // 最近一次订阅状态更新时间
   lastWechatReminderDate: string; // 最近一次成功发送的提醒日期 YYYY-MM-DD
   lastWechatReminderAt: string; // 最近一次成功发送时间 ISO 字符串

@@ -1,5 +1,6 @@
 import Tag from "@taroify/core/tag";
 
+import { REMINDER_LEVEL } from "@/constants";
 import type { ReminderLevel } from "@/types";
 
 import "./index.scss";
@@ -10,10 +11,10 @@ interface StatusTagProps {
 }
 
 const colorMap = {
-  danger: "danger",
-  warning: "warning",
-  good: "success",
-  paused: "default",
+  [REMINDER_LEVEL.DANGER]: "danger",
+  [REMINDER_LEVEL.WARNING]: "warning",
+  [REMINDER_LEVEL.GOOD]: "success",
+  [REMINDER_LEVEL.PAUSED]: "default",
 } as const;
 
 export default function StatusTag({ level, label }: StatusTagProps) {

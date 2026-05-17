@@ -13,6 +13,28 @@ export const DEFAULT_INTERVAL = 30;
 /** 默认提前提醒天数 */
 export const DEFAULT_BEFORE = 7;
 
+/** 提醒状态 */
+export const REMINDER_STATUS = {
+  ACTIVE: "active",
+  PAUSED: "paused",
+  DELETED: "deleted",
+} as const;
+
+/** 提醒紧急等级 */
+export const REMINDER_LEVEL = {
+  DANGER: "danger",
+  WARNING: "warning",
+  GOOD: "good",
+  PAUSED: "paused",
+} as const;
+
+/** 微信订阅授权状态 */
+export const WECHAT_SUBSCRIPTION_STATUS = {
+  UNKNOWN: "unknown",
+  ACCEPTED: "accepted",
+  REJECTED: "rejected",
+} as const;
+
 /** 本地存储 key */
 export const STORAGE_KEY_REMINDERS = "reminders_v1";
 
@@ -24,10 +46,10 @@ export const HISTORY_MAX = 5;
 
 /** level 对应的排序权重（数字越小越靠前） */
 export const LEVEL_ORDER: Record<string, number> = {
-  danger: 0,
-  warning: 1,
-  good: 2,
-  paused: 3,
+  [REMINDER_LEVEL.DANGER]: 0,
+  [REMINDER_LEVEL.WARNING]: 1,
+  [REMINDER_LEVEL.GOOD]: 2,
+  [REMINDER_LEVEL.PAUSED]: 3,
 };
 
 /** 提前天数选项的显示文本（与 BEFORE_OPTIONS 下标一一对应） */

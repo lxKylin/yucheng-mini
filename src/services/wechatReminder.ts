@@ -1,11 +1,13 @@
 import Taro from "@tarojs/taro";
 
+import { WECHAT_SUBSCRIPTION_STATUS } from "@/constants";
+import type { WechatSubscriptionStatus } from "@/types";
+
 const runtimeTemplateId = (process.env.ENV_TEMPLATE_ID ?? "").trim();
 
 export const WECHAT_REMINDER_TEMPLATE_ID =
   runtimeTemplateId || "lJrijmJoifhTuQjcF2ENsXwR1T5_59Ey1W-cu0KugTw";
 
-export type WechatSubscriptionStatus = "unknown" | "accepted" | "rejected";
 export type WechatTemplateDecision =
   | "accept"
   | "reject"
@@ -25,8 +27,8 @@ export interface ReminderSubscriptionResult {
 export function getWechatSubscriptionLabel(
   status: WechatSubscriptionStatus,
 ): string {
-  if (status === "accepted") return "已授权";
-  if (status === "rejected") return "未授权";
+  if (status === WECHAT_SUBSCRIPTION_STATUS.ACCEPTED) return "已授权";
+  if (status === WECHAT_SUBSCRIPTION_STATUS.REJECTED) return "未授权";
   return "待授权";
 }
 
@@ -43,7 +45,7 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
     });
     return {
       enabled: false,
-      status: "unknown",
+      status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
       updatedAt: new Date().toISOString(),
       templateDecision: "unknown",
       shouldOpenSetting: false,
@@ -61,7 +63,7 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
     if (decision === "accept") {
       return {
         enabled: true,
-        status: "accepted",
+        status: WECHAT_SUBSCRIPTION_STATUS.ACCEPTED,
         updatedAt: new Date().toISOString(),
         templateDecision: decision,
         shouldOpenSetting: false,
@@ -72,7 +74,7 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
     if (decision === "reject") {
       return {
         enabled: false,
-        status: "rejected",
+        status: WECHAT_SUBSCRIPTION_STATUS.REJECTED,
         updatedAt: new Date().toISOString(),
         templateDecision: decision,
         shouldOpenSetting: true,
@@ -84,7 +86,7 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
     if (decision === "ban") {
       return {
         enabled: false,
-        status: "unknown",
+        status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
         updatedAt: new Date().toISOString(),
         templateDecision: decision,
         shouldOpenSetting: false,
@@ -95,7 +97,7 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
     if (decision === "filter") {
       return {
         enabled: false,
-        status: "unknown",
+        status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
         updatedAt: new Date().toISOString(),
         templateDecision: decision,
         shouldOpenSetting: false,
@@ -105,7 +107,7 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
 
     return {
       enabled: false,
-      status: "unknown",
+      status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
       updatedAt: new Date().toISOString(),
       templateDecision: decision,
       shouldOpenSetting: false,
@@ -131,7 +133,7 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
 
     return {
       enabled: false,
-      status: "unknown",
+      status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
       updatedAt: new Date().toISOString(),
       templateDecision: "unknown",
       shouldOpenSetting: false,

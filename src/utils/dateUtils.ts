@@ -1,5 +1,5 @@
 import type { Reminder, DerivedReminder, ReminderLevel } from "@/types";
-import { LEVEL_ORDER } from "@/constants";
+import { LEVEL_ORDER, REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
 
 // ─── 基础日期工具 ─────────────────────────────────────────────────
 
@@ -84,10 +84,10 @@ function calcLevel(
   daysLeft: number,
   status: Reminder["status"],
 ): ReminderLevel {
-  if (status === "paused") return "paused";
-  if (daysLeft <= 0) return "danger";
-  if (daysLeft <= 7) return "warning";
-  return "good";
+  if (status === REMINDER_STATUS.PAUSED) return REMINDER_LEVEL.PAUSED;
+  if (daysLeft <= 0) return REMINDER_LEVEL.DANGER;
+  if (daysLeft <= 7) return REMINDER_LEVEL.WARNING;
+  return REMINDER_LEVEL.GOOD;
 }
 
 /**
@@ -95,7 +95,7 @@ function calcLevel(
  * 示例："-2" → "逾期 2 天"，"0" → "今日"，"5" → "5 天后"，paused → "已暂停"
  */
 function calcLevelLabel(daysLeft: number, level: ReminderLevel): string {
-  if (level === "paused") return "已暂停";
+  if (level === REMINDER_LEVEL.PAUSED) return "已暂停";
   if (daysLeft === 0) return "今日";
   if (daysLeft < 0) return `逾期 ${Math.abs(daysLeft)} 天`;
   return `${daysLeft} 天后`;
@@ -139,7 +139,7 @@ export function derive(reminder: Reminder): DerivedReminder {
  */
 export function deriveAll(reminders: Reminder[]): DerivedReminder[] {
   return reminders
-    .filter((r) => r.status !== "deleted")
+    .filter((r) => r.status !== REMINDER_STATUS.DELETED)
     .map(derive)
     .sort((a, b) => {
       const levelDiff =

@@ -5,6 +5,7 @@ import {
   DEFAULT_INTERVAL,
   DEFAULT_BEFORE,
   HISTORY_MAX,
+  REMINDER_STATUS,
 } from "@/constants";
 import {
   fetchReminders,
@@ -21,7 +22,7 @@ function genId(): string {
 
 type AddPayload = Omit<Reminder, "id" | "createdAt" | "updatedAt">;
 
-const DEFAULT_REMINDER_STATUS: Reminder["status"] = "active";
+const DEFAULT_REMINDER_STATUS: Reminder["status"] = REMINDER_STATUS.ACTIVE;
 
 interface ReminderStore {
   reminders: Reminder[];
@@ -90,7 +91,7 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
     set((state) => ({
       reminders: state.reminders.map((r) =>
-        r.id === id ? { ...r, status: "deleted", updatedAt } : r,
+        r.id === id ? { ...r, status: REMINDER_STATUS.DELETED, updatedAt } : r,
       ),
     }));
   },
@@ -128,7 +129,9 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
     const updatedAt = new Date().toISOString();
     const status: Reminder["status"] =
-      target.status === "paused" ? "active" : "paused";
+      target.status === REMINDER_STATUS.PAUSED
+        ? REMINDER_STATUS.ACTIVE
+        : REMINDER_STATUS.PAUSED;
     const nextPayload = { status, updatedAt };
 
     await updateReminderInCloud(id, nextPayload);
@@ -146,7 +149,7 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
   getById(id) {
     const r = get().reminders.find(
-      (r) => r.id === id && r.status !== "deleted",
+      (r) => r.id === id && r.status !== REMINDER_STATUS.DELETED,
     );
     return r ? derive(r) : null;
   },

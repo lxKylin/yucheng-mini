@@ -16,6 +16,8 @@ import {
   DEFAULT_BEFORE,
   DEFAULT_INTERVAL,
   DEFAULT_REMIND_TIME,
+  REMINDER_STATUS,
+  WECHAT_SUBSCRIPTION_STATUS,
 } from "@/constants";
 import { useDerivedById, useReminderActions } from "@/hooks/useReminders";
 import { calcNextDate, calcRemindDate, today } from "@/utils/dateUtils";
@@ -144,7 +146,9 @@ export default function ReminderForm({
     const settings = loadSettings();
     const wechatReminderEnabled = settings.subscribeEnabled;
     const wechatSubscriptionStatus: Reminder["wechatSubscriptionStatus"] =
-      wechatReminderEnabled ? "accepted" : "unknown";
+      wechatReminderEnabled
+        ? WECHAT_SUBSCRIPTION_STATUS.ACCEPTED
+        : WECHAT_SUBSCRIPTION_STATUS.UNKNOWN;
     const wechatSubscriptionUpdatedAt = wechatReminderEnabled
       ? new Date().toISOString()
       : "";
@@ -175,7 +179,7 @@ export default function ReminderForm({
           ...payload,
           lastWechatReminderDate: "",
           lastWechatReminderAt: "",
-          status: "active",
+          status: REMINDER_STATUS.ACTIVE,
           prescriptionHistory: [values.currentPrescriptionDate],
         });
         Taro.showToast({

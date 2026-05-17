@@ -3,6 +3,7 @@ import { Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import Button from "@taroify/core/button";
 
+import { REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
 import DoneDateSheet from "@/components/DoneDateSheet";
 import ProgressBar from "@/components/ProgressBar";
 import StatusTag from "@/components/StatusTag";
@@ -35,14 +36,14 @@ export default function ReminderDetail({
         ? "今日需要开药"
         : "天后预计需要重新开药";
   const doneBtnMod =
-    item.level === "danger"
+    item.level === REMINDER_LEVEL.DANGER
       ? "danger"
-      : item.level === "warning"
+      : item.level === REMINDER_LEVEL.WARNING
         ? "warning"
         : "success";
 
   const handleDone = () => {
-    if (item.status === "paused") {
+    if (item.status === REMINDER_STATUS.PAUSED) {
       return;
     }
 
@@ -82,7 +83,7 @@ export default function ReminderDetail({
   };
 
   const handleTogglePause = () => {
-    if (item.status === "paused") {
+    if (item.status === REMINDER_STATUS.PAUSED) {
       Taro.showModal({
         title: "重新启用提醒",
         content: `确定重新启用「${item.medicineName}」的提醒吗？恢复后会继续按照当前周期推送提醒。`,
@@ -188,7 +189,7 @@ export default function ReminderDetail({
         <StatusTag level={item.level} label={item.levelLabel} />
       </View>
 
-      {item.status !== "paused" ? (
+      {item.status !== REMINDER_STATUS.PAUSED ? (
         <View className="reminder-detail__days">
           <Text
             className={`reminder-detail__days-number reminder-detail__days-number--${item.level}`}
@@ -212,7 +213,7 @@ export default function ReminderDetail({
       <View className="reminder-detail__actions">
         <Button
           className={`reminder-detail__btn reminder-detail__btn--done reminder-detail__btn--${doneBtnMod}`}
-          disabled={item.status === "paused"}
+          disabled={item.status === REMINDER_STATUS.PAUSED}
           onClick={handleDone}
         >
           本次已开药
@@ -221,7 +222,7 @@ export default function ReminderDetail({
           className="reminder-detail__btn reminder-detail__btn--pause"
           onClick={handleTogglePause}
         >
-          {item.status === "paused" ? "重新启用" : "暂停提醒"}
+          {item.status === REMINDER_STATUS.PAUSED ? "重新启用" : "暂停提醒"}
         </Button>
       </View>
 

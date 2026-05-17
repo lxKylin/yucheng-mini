@@ -1,6 +1,7 @@
 import { EyeOutlined, Success } from "@taroify/icons";
 import { Text, View } from "@tarojs/components";
 
+import { REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
 import ProgressBar from "@/components/ProgressBar";
 import StatusTag from "@/components/StatusTag";
 import type { DerivedReminder } from "@/types";
@@ -20,24 +21,24 @@ export default function MedicineCard({
   onDone,
   onDetail,
 }: MedicineCardProps) {
-  const doneDisabled = item.status === "paused";
+  const doneDisabled = item.status === REMINDER_STATUS.PAUSED;
   const accentColor = doneDisabled
     ? "disabled"
-    : item.level === "danger"
+    : item.level === REMINDER_LEVEL.DANGER
       ? "danger"
-      : item.level === "warning"
+      : item.level === REMINDER_LEVEL.WARNING
         ? "warning"
         : "success";
   const doneColor =
-    item.level === "danger"
+    item.level === REMINDER_LEVEL.DANGER
       ? "danger"
-      : item.level === "warning"
+      : item.level === REMINDER_LEVEL.WARNING
         ? "warning"
         : "success";
 
   return (
     <View
-      className={`medicine-card medicine-card--${accentColor}${item.status === "paused" ? " medicine-card--paused" : ""}`}
+      className={`medicine-card medicine-card--${accentColor}${item.status === REMINDER_STATUS.PAUSED ? " medicine-card--paused" : ""}`}
     >
       <View className="medicine-card__header">
         <Text className="medicine-card__name">{item.medicineName}</Text>

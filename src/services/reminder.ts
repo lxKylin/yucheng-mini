@@ -1,4 +1,6 @@
 import Taro from "@tarojs/taro";
+
+import { REMINDER_STATUS, WECHAT_SUBSCRIPTION_STATUS } from "@/constants";
 import type { Reminder } from "@/types";
 import { getCollection } from "./cloud";
 import { getUserId } from "./auth";
@@ -20,11 +22,12 @@ function migrateReminder(raw: any): Reminder {
     remindAdvanceDays: raw.remindAdvanceDays ?? 7,
     remindTime: raw.remindTime ?? "09:00",
     wechatReminderEnabled: raw.wechatReminderEnabled ?? false,
-    wechatSubscriptionStatus: raw.wechatSubscriptionStatus ?? "unknown",
+    wechatSubscriptionStatus:
+      raw.wechatSubscriptionStatus ?? WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
     wechatSubscriptionUpdatedAt: raw.wechatSubscriptionUpdatedAt ?? "",
     lastWechatReminderDate: raw.lastWechatReminderDate ?? "",
     lastWechatReminderAt: raw.lastWechatReminderAt ?? "",
-    status: raw.status ?? "active",
+    status: raw.status ?? REMINDER_STATUS.ACTIVE,
     note: raw.note ?? "",
     prescriptionHistory: raw.prescriptionHistory ?? [],
     createdAt: raw.createdAt ?? "",
@@ -36,7 +39,7 @@ async function queryUserReminders(field: "_openid" | "userId", userId: string) {
   return getCollection(COL)
     .where({
       [field]: userId,
-      status: Taro.cloud.database().command.neq("deleted"),
+      status: Taro.cloud.database().command.neq(REMINDER_STATUS.DELETED),
     })
     .limit(100)
     .orderBy("createdAt", "asc")
@@ -110,7 +113,7 @@ export async function deleteReminderInCloud(id: string): Promise<void> {
 
   try {
     const payload = {
-      status: "deleted",
+      status: REMINDER_STATUS.DELETED,
       updatedAt: new Date().toISOString(),
     };
     const existing = await getCollection(COL).where({ id }).limit(1).get();

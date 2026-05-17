@@ -1,5 +1,6 @@
 import { useMemo, useSyncExternalStore } from "react";
 
+import { REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
 import { reminderStore } from "@/store/reminderStore";
 import { deriveAll } from "@/utils/dateUtils";
 
@@ -23,7 +24,8 @@ export function useDerivedById(id: string) {
 
   return useMemo(() => {
     const item = reminders.find(
-      (reminder) => reminder.id === id && reminder.status !== "deleted",
+      (reminder) =>
+        reminder.id === id && reminder.status !== REMINDER_STATUS.DELETED,
     );
     return item ? (deriveAll([item])[0] ?? null) : null;
   }, [id, reminders]);
@@ -35,9 +37,15 @@ export function useHomeSummary() {
 
   return useMemo(() => {
     const list = deriveAll(reminders);
-    const overdueCount = list.filter((r) => r.level === "danger").length;
-    const warningCount = list.filter((r) => r.level === "warning").length;
-    const activeCount = list.filter((r) => r.status === "active").length;
+    const overdueCount = list.filter(
+      (r) => r.level === REMINDER_LEVEL.DANGER,
+    ).length;
+    const warningCount = list.filter(
+      (r) => r.level === REMINDER_LEVEL.WARNING,
+    ).length;
+    const activeCount = list.filter(
+      (r) => r.status === REMINDER_STATUS.ACTIVE,
+    ).length;
     return { overdueCount, warningCount, activeCount, total: list.length };
   }, [reminders]);
 }
@@ -63,7 +71,9 @@ export function useProfileStats() {
   const reminders = useReminderStore().reminders;
 
   return useMemo(() => {
-    const activeList = reminders.filter((r) => r.status === "active");
+    const activeList = reminders.filter(
+      (r) => r.status === REMINDER_STATUS.ACTIVE,
+    );
     const historyTotal = reminders.reduce(
       (sum, r) => sum + r.prescriptionHistory.length,
       0,
@@ -72,7 +82,8 @@ export function useProfileStats() {
     return {
       activeCount: activeList.length,
       historyTotal,
-      total: reminders.filter((r) => r.status !== "deleted").length,
+      total: reminders.filter((r) => r.status !== REMINDER_STATUS.DELETED)
+        .length,
       unreadCount: 0,
     };
   }, [reminders]);

@@ -3,24 +3,26 @@ import { Input, Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { Search } from "@taroify/icons";
 
+import { REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
 import BottomSheet from "@/components/BottomSheet";
 import DoneDateSheet from "@/components/DoneDateSheet";
 import MedicineCard from "@/components/MedicineCard";
 import ReminderDetail from "@/components/ReminderDetail";
 import ReminderForm from "@/components/ReminderForm";
 import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
+import type { ReminderLevel } from "@/types";
 
 import "./index.scss";
 
-type FilterKey = "all" | "danger" | "warning" | "good" | "paused";
+type FilterKey = "all" | ReminderLevel;
 type SheetMode = "detail" | "form";
 
 const FILTER_TABS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "全部" },
-  { key: "danger", label: "逾期·今日" },
-  { key: "warning", label: "7天内" },
-  { key: "good", label: "正常" },
-  { key: "paused", label: "暂停" },
+  { key: REMINDER_LEVEL.DANGER, label: "逾期·今日" },
+  { key: REMINDER_LEVEL.WARNING, label: "7天内" },
+  { key: REMINDER_LEVEL.GOOD, label: "正常" },
+  { key: REMINDER_LEVEL.PAUSED, label: "暂停" },
 ];
 
 export default function ListPage() {
@@ -47,10 +49,18 @@ export default function ListPage() {
   const counts = useMemo<Record<FilterKey, number>>(
     () => ({
       all: allItems.length,
-      danger: allItems.filter((item) => item.level === "danger").length,
-      warning: allItems.filter((item) => item.level === "warning").length,
-      good: allItems.filter((item) => item.level === "good").length,
-      paused: allItems.filter((item) => item.level === "paused").length,
+      [REMINDER_LEVEL.DANGER]: allItems.filter(
+        (item) => item.level === REMINDER_LEVEL.DANGER,
+      ).length,
+      [REMINDER_LEVEL.WARNING]: allItems.filter(
+        (item) => item.level === REMINDER_LEVEL.WARNING,
+      ).length,
+      [REMINDER_LEVEL.GOOD]: allItems.filter(
+        (item) => item.level === REMINDER_LEVEL.GOOD,
+      ).length,
+      [REMINDER_LEVEL.PAUSED]: allItems.filter(
+        (item) => item.level === REMINDER_LEVEL.PAUSED,
+      ).length,
     }),
     [allItems],
   );
@@ -126,7 +136,7 @@ export default function ListPage() {
   const handleMarkDone = (id: string) => {
     const target = allItems.find((item) => item.id === id);
 
-    if (!target || target.status === "paused") {
+    if (!target || target.status === REMINDER_STATUS.PAUSED) {
       return;
     }
 

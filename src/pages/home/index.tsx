@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Text, View } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 
+import { REMINDER_STATUS } from "@/constants";
 import BottomSheet from "@/components/BottomSheet";
 import DoneDateSheet from "@/components/DoneDateSheet";
 import MedicineCard from "@/components/MedicineCard";
@@ -73,22 +74,22 @@ export default function Home() {
   }, []);
 
   const overdueCount = allItems.filter(
-    (item) => item.status !== "paused" && item.daysLeft < 0,
+    (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft < 0,
   ).length;
   const todayCount = allItems.filter(
-    (item) => item.status !== "paused" && item.daysLeft === 0,
+    (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft === 0,
   ).length;
   const total = allItems.length;
   const hasDanger = overdueCount > 0 || todayCount > 0;
   const urgent = allItems
-    .filter((item) => item.status !== "paused")
+    .filter((item) => item.status !== REMINDER_STATUS.PAUSED)
     .slice(0, 3);
   const hasRecords = total > 0;
 
   const handleMarkDone = (id: string) => {
     const target = allItems.find((item) => item.id === id);
 
-    if (!target || target.status === "paused") {
+    if (!target || target.status === REMINDER_STATUS.PAUSED) {
       return;
     }
 
