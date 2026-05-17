@@ -39,8 +39,6 @@ export default function ListPage() {
   const allItems = useDerivedList();
   const { markDone } = useReminderActions();
 
-  const formOpen = sheetOpen && sheetMode === "form";
-  const detailOpen = sheetOpen && sheetMode === "detail";
   const doneTarget =
     doneReminderId === null
       ? null
@@ -79,20 +77,10 @@ export default function ListPage() {
     });
   }, [activeFilter, allItems, searchTerm]);
 
-  const handleDetailSheetExited = () => {
+  const handleSheetExited = () => {
+    setSheetActive(false);
     setDetailId("");
-
-    if (!formOpen) {
-      setSheetActive(false);
-    }
-  };
-
-  const handleFormSheetExited = () => {
     setEditReminderId(undefined);
-
-    if (!detailOpen) {
-      setSheetActive(false);
-    }
   };
 
   const closeSheet = () => {
@@ -213,31 +201,31 @@ export default function ListPage() {
       <FloatingAddReminder hidden={sheetActive} />
 
       <BottomSheet
-        open={detailOpen}
-        title="提醒详情"
+        open={sheetOpen}
+        title={
+          sheetMode === "detail"
+            ? "提醒详情"
+            : editReminderId
+              ? "编辑提醒"
+              : "新增提醒"
+        }
         onClose={closeSheet}
-        onAfterClose={handleDetailSheetExited}
+        onAfterClose={handleSheetExited}
       >
-        {detailId ? (
+        {sheetMode === "detail" && detailId ? (
           <ReminderDetail
             reminderId={detailId}
             onClose={closeSheet}
             onEdit={handleEditFromDetail}
           />
         ) : null}
-      </BottomSheet>
-
-      <BottomSheet
-        open={formOpen}
-        title={editReminderId ? "编辑提醒" : "新增提醒"}
-        onClose={closeSheet}
-        onAfterClose={handleFormSheetExited}
-      >
-        <ReminderForm
-          reminderId={editReminderId}
-          onSuccess={closeSheet}
-          onCancel={closeSheet}
-        />
+        {sheetMode === "form" ? (
+          <ReminderForm
+            reminderId={editReminderId}
+            onSuccess={closeSheet}
+            onCancel={closeSheet}
+          />
+        ) : null}
       </BottomSheet>
 
       <DoneDateSheet
