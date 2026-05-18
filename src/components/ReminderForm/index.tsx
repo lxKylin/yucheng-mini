@@ -8,7 +8,6 @@ import type {
 } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { Button, Input, Textarea } from "@taroify/core";
-import type { Reminder } from "@/types";
 
 import {
   INTERVAL_OPTIONS,
@@ -17,7 +16,6 @@ import {
   DEFAULT_INTERVAL,
   DEFAULT_REMIND_TIME,
   REMINDER_STATUS,
-  WECHAT_SUBSCRIPTION_STATUS,
 } from "@/constants";
 import { useDerivedById, useReminderActions } from "@/hooks/useReminders";
 import { calcNextDate, calcRemindDate, today } from "@/utils/dateUtils";
@@ -143,16 +141,6 @@ export default function ReminderForm({
       return;
     }
 
-    const settings = loadSettings();
-    const wechatReminderEnabled = settings.subscribeEnabled;
-    const wechatSubscriptionStatus: Reminder["wechatSubscriptionStatus"] =
-      wechatReminderEnabled
-        ? WECHAT_SUBSCRIPTION_STATUS.ACCEPTED
-        : WECHAT_SUBSCRIPTION_STATUS.UNKNOWN;
-    const wechatSubscriptionUpdatedAt = wechatReminderEnabled
-      ? new Date().toISOString()
-      : "";
-
     const payload = {
       medicineName: values.medicineName.trim(),
       medicineSpec: values.medicineSpec.trim(),
@@ -160,9 +148,6 @@ export default function ReminderForm({
       remindTime: values.remindTime,
       intervalDays: values.intervalDays,
       remindAdvanceDays: values.remindAdvanceDays,
-      wechatReminderEnabled,
-      wechatSubscriptionStatus,
-      wechatSubscriptionUpdatedAt,
       note: values.note.trim(),
     };
 

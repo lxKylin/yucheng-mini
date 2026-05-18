@@ -8,15 +8,26 @@ import type {
   PickerTimeProps,
 } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
+import { useDidShow } from "@tarojs/taro";
 
 import BottomSheet from "@/components/BottomSheet";
-import { BEFORE_OPTIONS, BEFORE_OPTIONS_LABEL } from "@/constants";
+import {
+  BEFORE_OPTIONS,
+  BEFORE_OPTIONS_LABEL,
+  USER_WECHAT_SUBSCRIPTION_STATUS,
+} from "@/constants";
 import FloatingAddReminder from "@/components/FloatingAddReminder";
 import ReminderForm from "@/components/ReminderForm";
 import { useTabScrollToTop } from "@/hooks/useTabScrollToTop";
 import { useReminderSheet } from "@/hooks/useReminderSheet";
 import { useProfileStats } from "@/hooks/useReminders";
-import { getUserId, getUserProfile, updateProfile } from "@/services/auth";
+import {
+  getUserId,
+  getUserProfile,
+  refreshUserProfile,
+  updateProfile,
+  updateWechatSubscriptionStatus,
+} from "@/services/auth";
 import { requestWechatReminderSubscription } from "@/services/wechatReminder";
 import { loadSettings, saveSettings } from "@/utils/storage";
 import type { AppSettings } from "@/utils/storage";
@@ -25,6 +36,30 @@ import "./index.scss";
 
 type TimePickerEvent = BaseEventOrig<PickerTimeProps.ChangeEventDetail>;
 type SelectorPickerEvent = BaseEventOrig<PickerSelectorProps.ChangeEventDetail>;
+
+function getSubscriptionSummary(status?: string) {
+  if (status === USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE) {
+    return {
+      enabled: true,
+      label: "已获得下一次提醒资格",
+      desc: "下一条命中的提醒会消耗这次微信发送资格",
+    };
+  }
+
+  if (status === USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED) {
+    return {
+      enabled: false,
+      label: "尚未获得提醒资格",
+      desc: "你之前拒绝过授权，需要重新发起订阅请求",
+    };
+  }
+
+  return {
+    enabled: false,
+    label: "尚未获得提醒资格",
+    desc: "一次性订阅消息发送后会自动失效，需要再次授权",
+  };
+}
 
 export default function Profile() {
   const stats = useProfileStats();
@@ -54,6 +89,14 @@ export default function Profile() {
     const p = getUserProfile();
     setProfile(p);
     setNickName(p?.nickName ?? "");
+  });
+
+  useDidShow(() => {
+    void refreshUserProfile().then((nextProfile) => {
+      if (!nextProfile) return;
+      setProfile(nextProfile);
+      setNickName(nextProfile.nickName ?? "");
+    });
   });
 
   const updateSettings = (patch: Partial<AppSettings>) => {
@@ -107,23 +150,38 @@ export default function Profile() {
   };
 
   const handleToggleSubscribe = async () => {
-    // 关闭订阅：仅更新本地状态，微信侧已授权无法程序化撤销
-    if (settings.subscribeEnabled) {
-      updateSettings({ subscribeEnabled: false });
-      Taro.showToast({ title: "已关闭订阅消息", icon: "none", duration: 1200 });
+    if (
+      profile?.wechatSubscriptionStatus ===
+      USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
+    ) {
+      Taro.showToast({
+        title: "已获得下一次提醒资格",
+        icon: "none",
+        duration: 1500,
+      });
       return;
     }
 
     const result = await requestWechatReminderSubscription();
-    updateSettings({ subscribeEnabled: result.enabled });
 
     if (result.enabled) {
+      const nextProfile = await updateWechatSubscriptionStatus(
+        USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE,
+      );
+      setProfile(nextProfile ?? getUserProfile());
       Taro.showToast({
         title: result.message,
         icon: "success",
         duration: 1800,
       });
       return;
+    }
+
+    if (result.status === USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED) {
+      const nextProfile = await updateWechatSubscriptionStatus(
+        USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED,
+      );
+      setProfile(nextProfile ?? getUserProfile());
     }
 
     if (result.shouldOpenSetting) {
@@ -160,6 +218,9 @@ export default function Profile() {
     settings.defaultBefore as (typeof BEFORE_OPTIONS)[number],
   );
   const safeBeforeIdx = beforeIdx >= 0 ? beforeIdx : 0;
+  const subscriptionSummary = getSubscriptionSummary(
+    profile?.wechatSubscriptionStatus,
+  );
 
   const handleBeforeChange = (e: SelectorPickerEvent) => {
     const idx = Number(e.detail.value);
@@ -267,16 +328,16 @@ export default function Profile() {
         <View className="profile-page__menu">
           <View className="profile-page__menu-item">
             <View className="profile-page__menu-copy">
-              <Text className="profile-page__menu-label">订阅消息授权</Text>
+              <Text className="profile-page__menu-label">订阅消息资格</Text>
               <Text className="profile-page__menu-desc">
-                到点后自动发送微信提醒
+                {subscriptionSummary.label} · {subscriptionSummary.desc}
               </Text>
             </View>
             <View
-              className={`profile-page__switch${settings.subscribeEnabled ? " profile-page__switch--on" : ""}`}
+              className={`profile-page__switch${subscriptionSummary.enabled ? " profile-page__switch--on" : ""}`}
               onClick={handleToggleSubscribe}
               role="switch"
-              aria-checked={settings.subscribeEnabled}
+              aria-checked={subscriptionSummary.enabled}
             />
           </View>
 

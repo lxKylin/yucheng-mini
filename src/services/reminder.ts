@@ -1,6 +1,6 @@
 import Taro from "@tarojs/taro";
 
-import { REMINDER_STATUS, WECHAT_SUBSCRIPTION_STATUS } from "@/constants";
+import { REMINDER_STATUS } from "@/constants";
 import type { Reminder } from "@/types";
 import { getCollection } from "./cloud";
 import { getUserId } from "./auth";
@@ -21,10 +21,6 @@ function migrateReminder(raw: any): Reminder {
     intervalDays: raw.intervalDays ?? 30,
     remindAdvanceDays: raw.remindAdvanceDays ?? 7,
     remindTime: raw.remindTime ?? "09:00",
-    wechatReminderEnabled: raw.wechatReminderEnabled ?? false,
-    wechatSubscriptionStatus:
-      raw.wechatSubscriptionStatus ?? WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
-    wechatSubscriptionUpdatedAt: raw.wechatSubscriptionUpdatedAt ?? "",
     lastWechatReminderDate: raw.lastWechatReminderDate ?? "",
     lastWechatReminderAt: raw.lastWechatReminderAt ?? "",
     status: raw.status ?? REMINDER_STATUS.ACTIVE,

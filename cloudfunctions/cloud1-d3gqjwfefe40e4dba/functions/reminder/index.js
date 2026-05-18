@@ -12,6 +12,11 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 
+const USER_WECHAT_SUBSCRIPTION_STATUS = {
+  AVAILABLE: "available",
+  CONSUMED: "consumed",
+};
+
 /**
  * 获取东八区日期字符串
  * YYYY-MM-DD
@@ -232,10 +237,45 @@ async function updateReminderStatus(id, today) {
     });
 }
 
+async function getUserRecord(openId, cache) {
+  if (!openId) return null;
+
+  if (cache.has(openId)) {
+    return cache.get(openId);
+  }
+
+  const { data } = await db
+    .collection("users")
+    .where({ _openid: openId })
+    .limit(1)
+    .get();
+
+  const userRecord = data[0] || null;
+  cache.set(openId, userRecord);
+  return userRecord;
+}
+
+async function updateUserSubscriptionStatus(openId, status, cache) {
+  if (!openId) return;
+
+  const userRecord = await getUserRecord(openId, cache);
+  if (!userRecord || !userRecord._id) return;
+
+  const patch = {
+    wechatSubscriptionStatus: status,
+    wechatSubscriptionUpdatedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  await db.collection("users").doc(userRecord._id).update({ data: patch });
+  cache.set(openId, { ...userRecord, ...patch });
+}
+
 exports.main = async () => {
   const today = formatDate();
 
   const currentTime = formatTime();
+  const userCache = new Map();
 
   console.log(`[reminder] 开始执行，today=${today} currentTime=${currentTime}`);
 
@@ -257,8 +297,6 @@ exports.main = async () => {
       .collection("medicines")
       .where({
         status: "active",
-        wechatReminderEnabled: true,
-        wechatSubscriptionStatus: "accepted",
       })
       .limit(1000)
       .get();
@@ -287,6 +325,19 @@ exports.main = async () => {
           console.error(`[reminder] 缺少 openid id=${medicine._id}`);
 
           results.failed++;
+          continue;
+        }
+
+        const userRecord = await getUserRecord(openId, userCache);
+        if (
+          !userRecord ||
+          userRecord.wechatSubscriptionStatus !==
+            USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
+        ) {
+          console.log(
+            `[reminder] 用户暂无可用订阅资格 medicine=${medicine.medicineName}`,
+          );
+          results.skipped++;
           continue;
         }
 
@@ -337,6 +388,11 @@ exports.main = async () => {
          * 更新状态
          */
         await updateReminderStatus(medicine._id, today);
+        await updateUserSubscriptionStatus(
+          openId,
+          USER_WECHAT_SUBSCRIPTION_STATUS.CONSUMED,
+          userCache,
+        );
 
         console.log(`[reminder] 发送成功 medicine=${medicine.medicineName}`);
 
@@ -351,14 +407,11 @@ exports.main = async () => {
          */
         if (String(err.errCode) === "43101") {
           try {
-            await db
-              .collection("medicines")
-              .doc(medicine._id)
-              .update({
-                data: {
-                  wechatSubscriptionStatus: "expired",
-                },
-              });
+            await updateUserSubscriptionStatus(
+              openId,
+              USER_WECHAT_SUBSCRIPTION_STATUS.CONSUMED,
+              userCache,
+            );
           } catch (e) {
             console.error("[reminder] 更新订阅状态失败", e);
           }

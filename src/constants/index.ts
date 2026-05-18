@@ -35,6 +35,14 @@ export const WECHAT_SUBSCRIPTION_STATUS = {
   REJECTED: "rejected",
 } as const;
 
+/** 用户级微信订阅资格状态 */
+export const USER_WECHAT_SUBSCRIPTION_STATUS = {
+  UNKNOWN: "unknown",
+  AVAILABLE: "available",
+  CONSUMED: "consumed",
+  REJECTED: "rejected",
+} as const;
+
 /** 本地存储 key */
 export const STORAGE_KEY_REMINDERS = "reminders_v1";
 

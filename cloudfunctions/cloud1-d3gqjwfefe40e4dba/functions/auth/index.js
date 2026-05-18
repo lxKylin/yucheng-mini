@@ -18,7 +18,7 @@ exports.main = async (event = {}) => {
     return { success: false, error: "无法获取 OPENID" };
   }
 
-  const { nickName, avatarUrl } = event;
+  const { nickName, avatarUrl, wechatSubscriptionStatus } = event;
 
   try {
     const { data } = await db
@@ -36,6 +36,8 @@ exports.main = async (event = {}) => {
         _openid: OPENID,
         nickName: nickName || "",
         avatarUrl: avatarUrl || "",
+        wechatSubscriptionStatus: wechatSubscriptionStatus || "unknown",
+        wechatSubscriptionUpdatedAt: wechatSubscriptionStatus ? now : "",
         createdAt: now,
         updatedAt: now,
       };
@@ -44,10 +46,14 @@ exports.main = async (event = {}) => {
     } else {
       userRecord = data[0];
       // 如果本次携带了授权信息，顺便更新
-      if (nickName || avatarUrl) {
+      if (nickName || avatarUrl || wechatSubscriptionStatus) {
         const patch = { updatedAt: new Date().toISOString() };
         if (nickName) patch.nickName = nickName;
         if (avatarUrl) patch.avatarUrl = avatarUrl;
+        if (wechatSubscriptionStatus) {
+          patch.wechatSubscriptionStatus = wechatSubscriptionStatus;
+          patch.wechatSubscriptionUpdatedAt = patch.updatedAt;
+        }
         await db
           .collection("users")
           .where({ _openid: OPENID })
@@ -61,6 +67,9 @@ exports.main = async (event = {}) => {
       openid: OPENID,
       nickName: userRecord.nickName || "",
       avatarUrl: userRecord.avatarUrl || "",
+      wechatSubscriptionStatus:
+        userRecord.wechatSubscriptionStatus || "unknown",
+      wechatSubscriptionUpdatedAt: userRecord.wechatSubscriptionUpdatedAt || "",
     };
   } catch (err) {
     console.error("[auth] 用户记录操作失败：", err);
