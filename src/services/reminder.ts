@@ -6,6 +6,10 @@ import { getCollection } from "./cloud";
 import { getUserId } from "./auth";
 
 const COL = "medicines";
+const QUERYABLE_REMINDER_STATUSES = [
+  REMINDER_STATUS.ACTIVE,
+  REMINDER_STATUS.PAUSED,
+];
 
 /**
  * 将云端旧字段格式迁移为新字段格式（兼容字段重命名前的数据）
@@ -35,7 +39,7 @@ async function queryUserReminders(field: "_openid" | "userId", userId: string) {
   return getCollection(COL)
     .where({
       [field]: userId,
-      status: Taro.cloud.database().command.neq(REMINDER_STATUS.DELETED),
+      status: Taro.cloud.database().command.in(QUERYABLE_REMINDER_STATUSES),
     })
     .limit(100)
     .orderBy("createdAt", "asc")
