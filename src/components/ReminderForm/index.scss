@@ -82,27 +82,43 @@
     }
   }
 
+  &__suffix {
+    flex-shrink: 0;
+    color: $quiet;
+    font-size: $text-md;
+    font-weight: 700;
+  }
+
   &__textarea {
     width: 100%;
     max-width: 100%;
-    min-height: 72px;
+    min-height: 112px;
     padding: $spacing-3 $spacing-4;
     border: 1px solid $line-strong;
     border-radius: $radius;
     box-sizing: border-box;
-    display: block;
+    display: grid;
     background: #fff;
 
     .taroify-textarea__wrapper {
-      height: 72px;
+      display: grid;
+      gap: $spacing-2;
+      min-height: 80px;
+    }
+
+    .taroify-textarea__limit {
+      color: $quiet;
+      font-size: $text-xs;
+      line-height: 1.4;
+      margin-top: 0;
     }
   }
 
   &__textarea-inner {
     width: 100%;
     min-height: 72px !important;
-    height: 72px !important;
-    max-height: 72px !important;
+    height: 80px !important;
+    max-height: 120px !important;
     display: block;
     overflow-y: auto;
     color: $ink;

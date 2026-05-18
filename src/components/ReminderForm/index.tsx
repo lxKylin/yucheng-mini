@@ -10,7 +10,6 @@ import Taro from "@tarojs/taro";
 import { Button, Input, Textarea } from "@taroify/core";
 
 import {
-  INTERVAL_OPTIONS,
   BEFORE_OPTIONS,
   DEFAULT_BEFORE,
   DEFAULT_INTERVAL,
@@ -70,6 +69,9 @@ export default function ReminderForm({
   const { addReminder, updateReminder } = useReminderActions();
 
   const [values, setValues] = useState<FormValues>(makeDefaults);
+  const [intervalInput, setIntervalInput] = useState(() =>
+    String(DEFAULT_INTERVAL),
+  );
 
   useEffect(() => {
     if (isEdit && existingItem) {
@@ -82,15 +84,22 @@ export default function ReminderForm({
         remindAdvanceDays: existingItem.remindAdvanceDays,
         note: existingItem.note,
       });
+      setIntervalInput(String(existingItem.intervalDays));
       return;
     }
 
     if (!isEdit) {
-      setValues(makeDefaults());
+      const defaults = makeDefaults();
+      setValues(defaults);
+      setIntervalInput(String(defaults.intervalDays));
     }
   }, [existingItem, isEdit]);
 
   const calcText = useMemo(() => {
+    if (values.intervalDays < 1 || values.intervalDays > 365) {
+      return "请输入 1-365 之间的下次开药间隔天数";
+    }
+
     const nextDate = calcNextDate(
       values.currentPrescriptionDate,
       values.intervalDays,
@@ -104,15 +113,6 @@ export default function ReminderForm({
     values.remindTime,
   ]);
 
-  const intervalIndex = useMemo(
-    () =>
-      Math.max(
-        0,
-        INTERVAL_OPTIONS.findIndex((value) => value === values.intervalDays),
-      ),
-    [values.intervalDays],
-  );
-
   const beforeIndex = useMemo(
     () =>
       Math.max(
@@ -124,6 +124,12 @@ export default function ReminderForm({
 
   const setField = (field: keyof FormValues, value: string | number) => {
     setValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleIntervalChange = (e: InputEvent) => {
+    const nextValue = e.detail.value.replace(/\D/g, "");
+    setIntervalInput(nextValue);
+    setField("intervalDays", nextValue ? Number(nextValue) : 0);
   };
 
   const handleSubmit = async () => {
@@ -254,23 +260,16 @@ export default function ReminderForm({
             下次开药间隔
             <Text className="reminder-form__required">*</Text>
           </Text>
-          <Picker
-            mode="selector"
-            range={INTERVAL_OPTIONS.map((value) => `${value}天`)}
-            value={intervalIndex}
-            onChange={(e: SelectorPickerEvent) => {
-              setField(
-                "intervalDays",
-                INTERVAL_OPTIONS[Number(e.detail.value)],
-              );
-            }}
-          >
-            <View className="reminder-form__picker">
-              <Text className="reminder-form__picker-text">
-                {values.intervalDays}天
-              </Text>
-            </View>
-          </Picker>
+          <View className="reminder-form__input-row">
+            <Input
+              className="reminder-form__input"
+              value={intervalInput}
+              type="number"
+              placeholder="例如：30"
+              onChange={handleIntervalChange}
+            />
+            <Text className="reminder-form__suffix">天</Text>
+          </View>
         </View>
       </View>
 
@@ -327,7 +326,7 @@ export default function ReminderForm({
             className="reminder-form__textarea-inner"
             value={values.note}
             placeholder="医院、复诊事项、注意事项"
-            maxlength={200}
+            limit={100}
             onChange={(e: TextareaEvent) => setField("note", e.detail.value)}
           />
         </View>
