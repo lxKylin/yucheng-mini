@@ -1,6 +1,12 @@
+const axios = require("axios");
 const cloud = require("wx-server-sdk");
 
-const TEMPLATE_ID = "lJrijmJoifhTuQjcF2ENsXwR1T5_59Ey1W-cu0KugTw";
+const APP_ID = (process.env.ENV_APP_ID || "").trim();
+const APP_SECRET = (process.env.ENV_APP_SECRET || "").trim();
+const TEMPLATE_ID = (process.env.ENV_TEMPLATE_ID || "").trim();
+
+let cachedAccessToken = "";
+let cachedAccessTokenExpireAt = 0;
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
@@ -85,33 +91,126 @@ function safeText(value, max = 20) {
     .slice(0, max);
 }
 
+function assertWechatConfig() {
+  if (!APP_ID) {
+    throw new Error("未配置小程序 APP_ID，请设置 ENV_APP_ID 或 WX_APP_ID");
+  }
+
+  if (!APP_SECRET) {
+    throw new Error(
+      "未配置小程序 APP_SECRET，请在云函数环境变量中设置 ENV_APP_SECRET 或 WX_APP_SECRET",
+    );
+  }
+
+  if (!TEMPLATE_ID) {
+    throw new Error("未配置订阅消息模板 ID，请设置 ENV_TEMPLATE_ID");
+  }
+}
+
+function requestJson({ method, path, query = {}, body }) {
+  return axios({
+    baseURL: "https://api.weixin.qq.com",
+    url: path,
+    method,
+    params: query,
+    data: body,
+    timeout: 10000,
+  })
+    .then((response) => {
+      const parsed = response.data || {};
+
+      if (
+        typeof parsed.errcode !== "undefined" &&
+        Number(parsed.errcode) !== 0
+      ) {
+        const error = new Error(
+          `[wechat] errcode=${parsed.errcode} errmsg=${parsed.errmsg}`,
+        );
+        error.statusCode = response.status;
+        error.errCode = parsed.errcode;
+        error.errMsg = parsed.errmsg;
+        throw error;
+      }
+
+      return parsed;
+    })
+    .catch((error) => {
+      if (error.response) {
+        const parsed = error.response.data || {};
+        const wrapped = new Error(
+          `[wechat] HTTP ${error.response.status} ${parsed.errmsg || error.message}`,
+        );
+        wrapped.statusCode = error.response.status;
+        wrapped.errCode = parsed.errcode;
+        wrapped.errMsg = parsed.errmsg || error.message;
+        throw wrapped;
+      }
+
+      throw error;
+    });
+}
+
+async function getAccessToken() {
+  if (cachedAccessToken && cachedAccessTokenExpireAt > Date.now() + 60 * 1000) {
+    return cachedAccessToken;
+  }
+
+  assertWechatConfig();
+
+  const tokenRes = await requestJson({
+    method: "GET",
+    path: "/cgi-bin/token",
+    query: {
+      grant_type: "client_credential",
+      appid: APP_ID,
+      secret: APP_SECRET,
+    },
+  });
+
+  cachedAccessToken = tokenRes.access_token;
+  cachedAccessTokenExpireAt =
+    Date.now() + Number(tokenRes.expires_in || 0) * 1000;
+
+  if (!cachedAccessToken) {
+    throw new Error("微信 access_token 获取失败：响应中缺少 access_token");
+  }
+
+  return cachedAccessToken;
+}
+
 /**
  * 发送订阅消息
  */
 async function sendSubscribeMessage({ openId, medicine, nextDate }) {
-  return cloud.openapi.subscribeMessage.send({
-    touser: openId,
+  const accessToken = await getAccessToken();
 
-    templateId: TEMPLATE_ID,
-
-    page: "pages/home/index",
-
-    lang: "zh_CN",
-
-    data: {
-      thing2: {
-        value: safeText(
-          `请按时处理 ${medicine.medicineName || "开药提醒"}`,
-          20,
-        ),
-      },
-
-      time23: {
-        value: nextDate,
-      },
-
-      thing11: {
-        value: safeText(medicine.notes || "复诊开药", 20),
+  return requestJson({
+    method: "POST",
+    path: "/cgi-bin/message/subscribe/send",
+    query: {
+      access_token: accessToken,
+    },
+    body: {
+      touser: openId,
+      template_id: TEMPLATE_ID,
+      page: "pages/profile/index",
+      lang: "zh_CN",
+      data: {
+        thing5: {
+          value: safeText(
+            `请及时处理 ${medicine.medicineName || "开药提醒"}`,
+            20,
+          ),
+        },
+        date4: {
+          value: nextDate,
+        },
+        thing11: {
+          value: safeText(`${medicine.notes || "复诊开药"}`, 20),
+        },
+        thing2: {
+          value: "由于微信限制，下次提醒需重新订阅消息授权",
+        },
       },
     },
   });
@@ -140,6 +239,13 @@ exports.main = async () => {
 
   console.log(`[reminder] 开始执行，today=${today} currentTime=${currentTime}`);
 
+  try {
+    assertWechatConfig();
+  } catch (error) {
+    console.error(`[reminder] 配置错误 err=${error.message}`);
+    throw error;
+  }
+
   const results = {
     sent: 0,
     failed: 0,
@@ -165,6 +271,9 @@ exports.main = async () => {
          * 防止一天重复发送
          */
         if (medicine.lastWechatReminderDate === today) {
+          console.log(
+            `[reminder] 跳过重复发送 medicine=${medicine.medicineName}`,
+          );
           results.skipped++;
           continue;
         }

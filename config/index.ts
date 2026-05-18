@@ -1,4 +1,5 @@
 import path from "path";
+import dotenv from "dotenv";
 
 import { defineConfig, type UserConfigExport } from "@tarojs/cli";
 import { createStyleImportPlugin } from "vite-plugin-style-import";
@@ -6,8 +7,24 @@ import { createStyleImportPlugin } from "vite-plugin-style-import";
 import devConfig from "./dev";
 import prodConfig from "./prod";
 
+const workspaceRoot = path.resolve(__dirname, "..");
+
+function loadEnvFile() {
+  const envFileName =
+    process.env.NODE_ENV === "development"
+      ? ".env.development"
+      : ".env.production";
+
+  dotenv.config({
+    path: path.resolve(workspaceRoot, envFileName),
+    override: false,
+  });
+}
+
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<"vite">(async (merge) => {
+  loadEnvFile();
+
   const baseConfig: UserConfigExport<"vite"> = {
     projectName: "yucheng",
     date: "2026-5-13",
@@ -21,7 +38,7 @@ export default defineConfig<"vite">(async (merge) => {
     sourceRoot: "src",
     outputRoot: "dist",
     alias: {
-      "@": path.resolve(__dirname, "..", "src"),
+      "@": path.resolve(workspaceRoot, "src"),
     },
     plugins: ["@tarojs/plugin-generator"],
     defineConstants: {

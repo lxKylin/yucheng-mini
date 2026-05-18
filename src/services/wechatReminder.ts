@@ -5,8 +5,7 @@ import type { WechatSubscriptionStatus } from "@/types";
 
 const runtimeTemplateId = (process.env.ENV_TEMPLATE_ID ?? "").trim();
 
-export const WECHAT_REMINDER_TEMPLATE_ID =
-  runtimeTemplateId || "lJrijmJoifhTuQjcF2ENsXwR1T5_59Ey1W-cu0KugTw";
+export const WECHAT_REMINDER_TEMPLATE_ID = runtimeTemplateId || "";
 
 export type WechatTemplateDecision =
   | "accept"
