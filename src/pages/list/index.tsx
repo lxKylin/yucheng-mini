@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Input, Text, View } from "@tarojs/components";
-import Taro from "@tarojs/taro";
+import Taro, { useShareAppMessage, useShareTimeline } from "@tarojs/taro";
 import { Search } from "@taroify/icons";
 
 import { REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
@@ -16,6 +16,9 @@ import { useTabScrollToTop } from "@/hooks/useTabScrollToTop";
 import { useReminderSheet } from "@/hooks/useReminderSheet";
 
 import "./index.scss";
+
+const LIST_SHARE_TITLE = "愈程记：把开药提醒管理得更清楚";
+const LIST_SHARE_IMAGE = "/assets/images/logo.png";
 
 type FilterKey = "all" | ReminderLevel;
 
@@ -134,6 +137,25 @@ export default function ListPage() {
       },
     });
   };
+
+  Taro.useLoad(() => {
+    Taro.showShareMenu({
+      withShareTicket: true,
+      showShareItems: ["shareAppMessage", "shareTimeline"],
+    });
+  });
+
+  useShareAppMessage(() => ({
+    title: LIST_SHARE_TITLE,
+    path: "/pages/home/index",
+    imageUrl: LIST_SHARE_IMAGE,
+  }));
+
+  useShareTimeline(() => ({
+    title: "愈程记：长期用药提醒整理工具",
+    query: "from=list-timeline",
+    imageUrl: LIST_SHARE_IMAGE,
+  }));
 
   return (
     <View className="list-page">

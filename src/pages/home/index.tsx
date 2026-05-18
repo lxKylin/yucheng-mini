@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Text, View } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro, {
+  useLoad,
+  useShareAppMessage,
+  useShareTimeline,
+} from "@tarojs/taro";
 
 import { REMINDER_STATUS } from "@/constants";
 import BottomSheet from "@/components/BottomSheet";
@@ -14,6 +18,10 @@ import { useTabScrollToTop } from "@/hooks/useTabScrollToTop";
 import { useReminderSheet } from "@/hooks/useReminderSheet";
 
 import "./index.scss";
+
+const HOME_SHARE_TITLE = "我在用愈程记管理长期用药提醒，也分享给你";
+const HOME_SHARE_PATH = "/pages/home/index";
+const HOME_SHARE_IMAGE = "/assets/images/logo.png";
 
 export default function Home() {
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
@@ -105,8 +113,24 @@ export default function Home() {
   };
 
   useLoad(() => {
+    Taro.showShareMenu({
+      withShareTicket: true,
+      showShareItems: ["shareAppMessage", "shareTimeline"],
+    });
     console.log("home page loaded");
   });
+
+  useShareAppMessage(() => ({
+    title: HOME_SHARE_TITLE,
+    path: HOME_SHARE_PATH,
+    imageUrl: HOME_SHARE_IMAGE,
+  }));
+
+  useShareTimeline(() => ({
+    title: "愈程记：开药提醒小程序",
+    query: "from=timeline",
+    imageUrl: HOME_SHARE_IMAGE,
+  }));
 
   return (
     <View className="home-page">
