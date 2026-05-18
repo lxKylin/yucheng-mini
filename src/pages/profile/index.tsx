@@ -95,6 +95,7 @@ export default function Profile() {
       withShareTicket: true,
       showShareItems: ['shareAppMessage', 'shareTimeline']
     });
+
     setSettings(loadSettings());
     const p = getUserProfile();
     setProfile(p);
@@ -290,7 +291,7 @@ export default function Profile() {
               onBlur={handleNicknameBlur}
             />
             <Text className="profile-page__user-meta">
-              管理中 {stats.total} 个提醒
+              共有 {stats.total} 个药物
               {/* · 历史 {stats.historyTotal} 次开药 */}
             </Text>
           </View>

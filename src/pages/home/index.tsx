@@ -153,7 +153,7 @@ export default function Home() {
         </View>
         <View className="home-metric">
           <Text className="home-metric__value">{total}</Text>
-          <Text className="home-metric__label">管理中</Text>
+          <Text className="home-metric__label">药物数</Text>
         </View>
       </View>
 

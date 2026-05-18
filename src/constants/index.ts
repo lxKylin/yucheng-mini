@@ -64,5 +64,5 @@ export const LEVEL_ORDER: Record<string, number> = {
 export const BEFORE_OPTIONS_LABEL = BEFORE_OPTIONS.map((d) => `${d} 天`);
 
 export const SHARE_IMAGE =
-  'https://636c-cloud1-d3gqjwfefe40e4dba-1319087750.tcb.qcloud.la/avatars/logo%E6%97%A0%E6%8D%9F.png?sign=4980dfb686f6b75f077e6dea05d0b215&t=1779097484';
+  'https://636c-cloud1-d3gqjwfefe40e4dba-1319087750.tcb.qcloud.la/avatars/logo.png?sign=006db1948f25b48a009fbe2bac1a26c8&t=1779114111';
 export const SHARE_PATH = '/pages/home/index';
