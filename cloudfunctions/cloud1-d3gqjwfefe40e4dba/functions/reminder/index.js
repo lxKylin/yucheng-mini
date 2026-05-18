@@ -198,23 +198,22 @@ async function sendSubscribeMessage({ openId, medicine, nextDate }) {
     body: {
       touser: openId,
       template_id: TEMPLATE_ID,
-      page: "pages/profile/index",
+      page: "pages/home/index",
       lang: "zh_CN",
       data: {
-        thing5: {
+        thing2: {
           value: safeText(
-            `请及时处理 ${medicine.medicineName || "开药提醒"}`,
+            medicine.medicineName
+              ? `请及时处理 ${medicine.medicineName} 开药`
+              : "开药提醒",
             20,
           ),
         },
-        date4: {
+        time23: {
           value: nextDate,
         },
         thing11: {
           value: safeText(`${medicine.notes || "复诊开药"}`, 20),
-        },
-        thing2: {
-          value: "由于微信限制，下次提醒需重新订阅消息授权",
         },
       },
     },
