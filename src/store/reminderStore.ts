@@ -1,28 +1,28 @@
-import { createStore } from "zustand/vanilla";
-import type { Reminder, DerivedReminder } from "@/types";
+import { createStore } from 'zustand/vanilla';
+import type { Reminder, DerivedReminder } from '@/types';
 import {
   DEFAULT_REMIND_TIME,
   DEFAULT_INTERVAL,
   DEFAULT_BEFORE,
   HISTORY_MAX,
-  REMINDER_STATUS,
-} from "@/constants";
+  REMINDER_STATUS
+} from '@/constants';
 import {
   fetchReminders,
   addReminderToCloud,
   updateReminderInCloud,
-  deleteReminderInCloud,
-} from "@/services/reminder";
-import { calcNextDate, derive, deriveAll } from "@/utils/dateUtils";
+  deleteReminderInCloud
+} from '@/services/reminder';
+import { calcNextDate, derive, deriveAll } from '@/utils/dateUtils';
 
 /** 生成唯一 ID（小程序环境不使用 crypto） */
 function genId(): string {
   return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-type AddPayload = Omit<Reminder, "id" | "createdAt" | "updatedAt">;
+type AddPayload = Omit<Reminder, 'id' | 'createdAt' | 'updatedAt'>;
 
-const DEFAULT_REMINDER_STATUS: Reminder["status"] = REMINDER_STATUS.ACTIVE;
+const DEFAULT_REMINDER_STATUS: Reminder['status'] = REMINDER_STATUS.ACTIVE;
 
 interface ReminderStore {
   reminders: Reminder[];
@@ -60,9 +60,9 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
       remindTime: payload.remindTime || DEFAULT_REMIND_TIME,
       intervalDays: payload.intervalDays || DEFAULT_INTERVAL,
       remindAdvanceDays: payload.remindAdvanceDays || DEFAULT_BEFORE,
-      note: payload.note || "",
+      note: payload.note || '',
       prescriptionHistory: payload.prescriptionHistory || [],
-      status: payload.status || DEFAULT_REMINDER_STATUS,
+      status: payload.status || DEFAULT_REMINDER_STATUS
     };
 
     await addReminderToCloud(newItem);
@@ -79,8 +79,8 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
     set((state) => ({
       reminders: state.reminders.map((r) =>
-        r.id === id ? { ...r, ...nextPayload } : r,
-      ),
+        r.id === id ? { ...r, ...nextPayload } : r
+      )
     }));
   },
 
@@ -91,8 +91,8 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
     set((state) => ({
       reminders: state.reminders.map((r) =>
-        r.id === id ? { ...r, status: REMINDER_STATUS.DELETED, updatedAt } : r,
-      ),
+        r.id === id ? { ...r, status: REMINDER_STATUS.DELETED, updatedAt } : r
+      )
     }));
   },
 
@@ -106,20 +106,20 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
     const updatedAt = new Date().toISOString();
     const prescriptionHistory = [doneDate, ...target.prescriptionHistory].slice(
       0,
-      HISTORY_MAX,
+      HISTORY_MAX
     );
     const nextPayload = {
       currentPrescriptionDate: doneDate,
       prescriptionHistory,
-      updatedAt,
+      updatedAt
     };
 
     await updateReminderInCloud(id, nextPayload);
 
     set((state) => ({
       reminders: state.reminders.map((r) =>
-        r.id === id ? { ...r, ...nextPayload } : r,
-      ),
+        r.id === id ? { ...r, ...nextPayload } : r
+      )
     }));
   },
 
@@ -128,7 +128,7 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
     if (!target) return;
 
     const updatedAt = new Date().toISOString();
-    const status: Reminder["status"] =
+    const status: Reminder['status'] =
       target.status === REMINDER_STATUS.PAUSED
         ? REMINDER_STATUS.ACTIVE
         : REMINDER_STATUS.PAUSED;
@@ -138,8 +138,8 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
     set((state) => ({
       reminders: state.reminders.map((r) =>
-        r.id === id ? { ...r, ...nextPayload } : r,
-      ),
+        r.id === id ? { ...r, ...nextPayload } : r
+      )
     }));
   },
 
@@ -149,7 +149,7 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
   getById(id) {
     const r = get().reminders.find(
-      (r) => r.id === id && r.status !== REMINDER_STATUS.DELETED,
+      (r) => r.id === id && r.status !== REMINDER_STATUS.DELETED
     );
     return r ? derive(r) : null;
   },
@@ -157,5 +157,5 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
   async loadFromCloud() {
     const cloudList = await fetchReminders();
     set({ reminders: cloudList });
-  },
+  }
 }));

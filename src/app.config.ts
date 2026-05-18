@@ -1,36 +1,36 @@
 export default defineAppConfig({
-  pages: ["pages/home/index", "pages/list/index", "pages/profile/index"],
+  pages: ['pages/home/index', 'pages/list/index', 'pages/profile/index'],
   window: {
-    backgroundTextStyle: "light",
-    navigationBarBackgroundColor: "#f8fcfa",
-    navigationBarTitleText: "愈程记",
-    navigationBarTextStyle: "black",
+    backgroundTextStyle: 'light',
+    navigationBarBackgroundColor: '#f8fcfa',
+    navigationBarTitleText: '愈程记',
+    navigationBarTextStyle: 'black'
   },
   tabBar: {
     custom: false,
-    color: "#8aa0a7",
-    selectedColor: "#157a66",
-    backgroundColor: "#ffffff",
-    borderStyle: "white",
+    color: '#8aa0a7',
+    selectedColor: '#157a66',
+    backgroundColor: '#ffffff',
+    borderStyle: 'white',
     list: [
       {
-        pagePath: "pages/home/index",
-        text: "首页",
-        iconPath: "assets/tabbar/home.png",
-        selectedIconPath: "assets/tabbar/home-active.png",
+        pagePath: 'pages/home/index',
+        text: '首页',
+        iconPath: 'assets/tabbar/home.png',
+        selectedIconPath: 'assets/tabbar/home-active.png'
       },
       {
-        pagePath: "pages/list/index",
-        text: "列表",
-        iconPath: "assets/tabbar/list.png",
-        selectedIconPath: "assets/tabbar/list-active.png",
+        pagePath: 'pages/list/index',
+        text: '列表',
+        iconPath: 'assets/tabbar/list.png',
+        selectedIconPath: 'assets/tabbar/list-active.png'
       },
       {
-        pagePath: "pages/profile/index",
-        text: "我的",
-        iconPath: "assets/tabbar/user.png",
-        selectedIconPath: "assets/tabbar/user-active.png",
-      },
-    ],
-  },
+        pagePath: 'pages/profile/index',
+        text: '我的',
+        iconPath: 'assets/tabbar/user.png',
+        selectedIconPath: 'assets/tabbar/user-active.png'
+      }
+    ]
+  }
 });

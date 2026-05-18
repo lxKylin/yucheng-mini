@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { Picker, Text, View } from "@tarojs/components";
-import type { BaseEventOrig, PickerDateProps } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import Button from "@taroify/core/button";
+import { useEffect, useState } from 'react';
+import { Picker, Text, View } from '@tarojs/components';
+import type { BaseEventOrig, PickerDateProps } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import Button from '@taroify/core/button';
 
-import BottomSheet from "@/components/BottomSheet";
-import { useReminderActions } from "@/hooks/useReminders";
-import type { DerivedReminder } from "@/types";
-import { today } from "@/utils/dateUtils";
+import BottomSheet from '@/components/BottomSheet';
+import { useReminderActions } from '@/hooks/useReminders';
+import type { DerivedReminder } from '@/types';
+import { today } from '@/utils/dateUtils';
 
-import "./index.scss";
+import './index.scss';
 
 interface DoneDateSheetProps {
   open: boolean;
@@ -24,7 +24,7 @@ export default function DoneDateSheet({
   open,
   item,
   onClose,
-  onSuccess,
+  onSuccess
 }: DoneDateSheetProps) {
   const { markDone } = useReminderActions();
   const [selectedDate, setSelectedDate] = useState(today());
@@ -46,9 +46,9 @@ export default function DoneDateSheet({
   const handleConfirm = async () => {
     if (selectedDate < item.nextPrescriptionDate) {
       Taro.showToast({
-        title: "实际日期不能早于计划开药日",
-        icon: "none",
-        duration: 1800,
+        title: '实际日期不能早于计划开药日',
+        icon: 'none',
+        duration: 1800
       });
       return;
     }
@@ -57,16 +57,16 @@ export default function DoneDateSheet({
       await markDone(item.id, selectedDate);
       Taro.showToast({
         title: `${item.medicineName} 已按实际日期更新`,
-        icon: "success",
-        duration: 1500,
+        icon: 'success',
+        duration: 1500
       });
       onClose();
       onSuccess?.();
     } catch {
       Taro.showToast({
-        title: "更新失败，请稍后重试",
-        icon: "none",
-        duration: 1800,
+        title: '更新失败，请稍后重试',
+        icon: 'none',
+        duration: 1800
       });
     }
   };

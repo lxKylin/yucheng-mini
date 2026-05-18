@@ -1,4 +1,4 @@
-const cloud = require("wx-server-sdk");
+const cloud = require('wx-server-sdk');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -15,14 +15,14 @@ exports.main = async (event = {}) => {
   const { OPENID } = cloud.getWXContext();
 
   if (!OPENID) {
-    return { success: false, error: "无法获取 OPENID" };
+    return { success: false, error: '无法获取 OPENID' };
   }
 
   const { nickName, avatarUrl, wechatSubscriptionStatus } = event;
 
   try {
     const { data } = await db
-      .collection("users")
+      .collection('users')
       .where({ _openid: OPENID })
       .limit(1)
       .get();
@@ -34,14 +34,14 @@ exports.main = async (event = {}) => {
       const now = new Date().toISOString();
       const newUser = {
         _openid: OPENID,
-        nickName: nickName || "",
-        avatarUrl: avatarUrl || "",
-        wechatSubscriptionStatus: wechatSubscriptionStatus || "unknown",
-        wechatSubscriptionUpdatedAt: wechatSubscriptionStatus ? now : "",
+        nickName: nickName || '',
+        avatarUrl: avatarUrl || '',
+        wechatSubscriptionStatus: wechatSubscriptionStatus || 'unknown',
+        wechatSubscriptionUpdatedAt: wechatSubscriptionStatus ? now : '',
         createdAt: now,
-        updatedAt: now,
+        updatedAt: now
       };
-      await db.collection("users").add({ data: newUser });
+      await db.collection('users').add({ data: newUser });
       userRecord = newUser;
     } else {
       userRecord = data[0];
@@ -55,7 +55,7 @@ exports.main = async (event = {}) => {
           patch.wechatSubscriptionUpdatedAt = patch.updatedAt;
         }
         await db
-          .collection("users")
+          .collection('users')
           .where({ _openid: OPENID })
           .update({ data: patch });
         Object.assign(userRecord, patch);
@@ -65,14 +65,14 @@ exports.main = async (event = {}) => {
     return {
       success: true,
       openid: OPENID,
-      nickName: userRecord.nickName || "",
-      avatarUrl: userRecord.avatarUrl || "",
+      nickName: userRecord.nickName || '',
+      avatarUrl: userRecord.avatarUrl || '',
       wechatSubscriptionStatus:
-        userRecord.wechatSubscriptionStatus || "unknown",
-      wechatSubscriptionUpdatedAt: userRecord.wechatSubscriptionUpdatedAt || "",
+        userRecord.wechatSubscriptionStatus || 'unknown',
+      wechatSubscriptionUpdatedAt: userRecord.wechatSubscriptionUpdatedAt || ''
     };
   } catch (err) {
-    console.error("[auth] 用户记录操作失败：", err);
-    return { success: true, openid: OPENID, nickName: "", avatarUrl: "" };
+    console.error('[auth] 用户记录操作失败：', err);
+    return { success: true, openid: OPENID, nickName: '', avatarUrl: '' };
   }
 };

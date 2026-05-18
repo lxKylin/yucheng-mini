@@ -1,11 +1,11 @@
-const axios = require("axios");
-const cloud = require("wx-server-sdk");
+const axios = require('axios');
+const cloud = require('wx-server-sdk');
 
-const APP_ID = (process.env.ENV_APP_ID || "").trim();
-const APP_SECRET = (process.env.ENV_APP_SECRET || "").trim();
-const TEMPLATE_ID = (process.env.ENV_TEMPLATE_ID || "").trim();
+const APP_ID = (process.env.ENV_APP_ID || '').trim();
+const APP_SECRET = (process.env.ENV_APP_SECRET || '').trim();
+const TEMPLATE_ID = (process.env.ENV_TEMPLATE_ID || '').trim();
 
-let cachedAccessToken = "";
+let cachedAccessToken = '';
 let cachedAccessTokenExpireAt = 0;
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
@@ -13,8 +13,8 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 const USER_WECHAT_SUBSCRIPTION_STATUS = {
-  AVAILABLE: "available",
-  CONSUMED: "consumed",
+  AVAILABLE: 'available',
+  CONSUMED: 'consumed'
 };
 
 /**
@@ -33,8 +33,8 @@ function formatDate(date = new Date()) {
 function formatTime(date = new Date()) {
   const local = new Date(date.getTime() + 8 * 60 * 60 * 1000);
 
-  const hh = String(local.getUTCHours()).padStart(2, "0");
-  const mm = String(local.getUTCMinutes()).padStart(2, "0");
+  const hh = String(local.getUTCHours()).padStart(2, '0');
+  const mm = String(local.getUTCMinutes()).padStart(2, '0');
 
   return `${hh}:${mm}`;
 }
@@ -66,7 +66,7 @@ function calcRemindDate(nextDate, remindAdvanceDays) {
  * 获取 openid
  */
 function getOpenId(medicine) {
-  return medicine._openid || medicine.userId || "";
+  return medicine._openid || medicine.userId || '';
 }
 
 /**
@@ -80,7 +80,7 @@ function isTimeMatched(remindTime, toleranceMinutes = 30) {
 
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  const [hour, minute] = remindTime.split(":").map(Number);
+  const [hour, minute] = remindTime.split(':').map(Number);
 
   const targetMinutes = hour * 60 + minute;
 
@@ -91,45 +91,45 @@ function isTimeMatched(remindTime, toleranceMinutes = 30) {
  * 安全裁剪订阅消息字段
  */
 function safeText(value, max = 20) {
-  return String(value || "")
-    .replace(/\n/g, " ")
+  return String(value || '')
+    .replace(/\n/g, ' ')
     .slice(0, max);
 }
 
 function assertWechatConfig() {
   if (!APP_ID) {
-    throw new Error("未配置小程序 APP_ID，请设置 ENV_APP_ID 或 WX_APP_ID");
+    throw new Error('未配置小程序 APP_ID，请设置 ENV_APP_ID 或 WX_APP_ID');
   }
 
   if (!APP_SECRET) {
     throw new Error(
-      "未配置小程序 APP_SECRET，请在云函数环境变量中设置 ENV_APP_SECRET 或 WX_APP_SECRET",
+      '未配置小程序 APP_SECRET，请在云函数环境变量中设置 ENV_APP_SECRET 或 WX_APP_SECRET'
     );
   }
 
   if (!TEMPLATE_ID) {
-    throw new Error("未配置订阅消息模板 ID，请设置 ENV_TEMPLATE_ID");
+    throw new Error('未配置订阅消息模板 ID，请设置 ENV_TEMPLATE_ID');
   }
 }
 
 function requestJson({ method, path, query = {}, body }) {
   return axios({
-    baseURL: "https://api.weixin.qq.com",
+    baseURL: 'https://api.weixin.qq.com',
     url: path,
     method,
     params: query,
     data: body,
-    timeout: 10000,
+    timeout: 10000
   })
     .then((response) => {
       const parsed = response.data || {};
 
       if (
-        typeof parsed.errcode !== "undefined" &&
+        typeof parsed.errcode !== 'undefined' &&
         Number(parsed.errcode) !== 0
       ) {
         const error = new Error(
-          `[wechat] errcode=${parsed.errcode} errmsg=${parsed.errmsg}`,
+          `[wechat] errcode=${parsed.errcode} errmsg=${parsed.errmsg}`
         );
         error.statusCode = response.status;
         error.errCode = parsed.errcode;
@@ -143,7 +143,7 @@ function requestJson({ method, path, query = {}, body }) {
       if (error.response) {
         const parsed = error.response.data || {};
         const wrapped = new Error(
-          `[wechat] HTTP ${error.response.status} ${parsed.errmsg || error.message}`,
+          `[wechat] HTTP ${error.response.status} ${parsed.errmsg || error.message}`
         );
         wrapped.statusCode = error.response.status;
         wrapped.errCode = parsed.errcode;
@@ -163,13 +163,13 @@ async function getAccessToken() {
   assertWechatConfig();
 
   const tokenRes = await requestJson({
-    method: "GET",
-    path: "/cgi-bin/token",
+    method: 'GET',
+    path: '/cgi-bin/token',
     query: {
-      grant_type: "client_credential",
+      grant_type: 'client_credential',
       appid: APP_ID,
-      secret: APP_SECRET,
-    },
+      secret: APP_SECRET
+    }
   });
 
   cachedAccessToken = tokenRes.access_token;
@@ -177,7 +177,7 @@ async function getAccessToken() {
     Date.now() + Number(tokenRes.expires_in || 0) * 1000;
 
   if (!cachedAccessToken) {
-    throw new Error("微信 access_token 获取失败：响应中缺少 access_token");
+    throw new Error('微信 access_token 获取失败：响应中缺少 access_token');
   }
 
   return cachedAccessToken;
@@ -190,33 +190,33 @@ async function sendSubscribeMessage({ openId, medicine, nextDate }) {
   const accessToken = await getAccessToken();
 
   return requestJson({
-    method: "POST",
-    path: "/cgi-bin/message/subscribe/send",
+    method: 'POST',
+    path: '/cgi-bin/message/subscribe/send',
     query: {
-      access_token: accessToken,
+      access_token: accessToken
     },
     body: {
       touser: openId,
       template_id: TEMPLATE_ID,
-      page: "pages/home/index",
-      lang: "zh_CN",
+      page: 'pages/home/index',
+      lang: 'zh_CN',
       data: {
         thing2: {
           value: safeText(
             medicine.medicineName
               ? `请及时处理 ${medicine.medicineName} 开药`
-              : "开药提醒",
-            20,
-          ),
+              : '开药提醒',
+            20
+          )
         },
         time23: {
-          value: nextDate,
+          value: nextDate
         },
         thing11: {
-          value: safeText(`${medicine.notes || "复诊开药"}`, 20),
-        },
-      },
-    },
+          value: safeText(`${medicine.notes || '复诊开药'}`, 20)
+        }
+      }
+    }
   });
 }
 
@@ -225,14 +225,14 @@ async function sendSubscribeMessage({ openId, medicine, nextDate }) {
  */
 async function updateReminderStatus(id, today) {
   return db
-    .collection("medicines")
+    .collection('medicines')
     .doc(id)
     .update({
       data: {
         lastWechatReminderDate: today,
         lastWechatReminderAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
+        updatedAt: new Date().toISOString()
+      }
     });
 }
 
@@ -244,7 +244,7 @@ async function getUserRecord(openId, cache) {
   }
 
   const { data } = await db
-    .collection("users")
+    .collection('users')
     .where({ _openid: openId })
     .limit(1)
     .get();
@@ -263,10 +263,10 @@ async function updateUserSubscriptionStatus(openId, status, cache) {
   const patch = {
     wechatSubscriptionStatus: status,
     wechatSubscriptionUpdatedAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
 
-  await db.collection("users").doc(userRecord._id).update({ data: patch });
+  await db.collection('users').doc(userRecord._id).update({ data: patch });
   cache.set(openId, { ...userRecord, ...patch });
 }
 
@@ -288,14 +288,14 @@ exports.main = async () => {
   const results = {
     sent: 0,
     failed: 0,
-    skipped: 0,
+    skipped: 0
   };
 
   try {
     const { data: medicines } = await db
-      .collection("medicines")
+      .collection('medicines')
       .where({
-        status: "active",
+        status: 'active'
       })
       .limit(1000)
       .get();
@@ -309,7 +309,7 @@ exports.main = async () => {
          */
         if (medicine.lastWechatReminderDate === today) {
           console.log(
-            `[reminder] 跳过重复发送 medicine=${medicine.medicineName}`,
+            `[reminder] 跳过重复发送 medicine=${medicine.medicineName}`
           );
           results.skipped++;
           continue;
@@ -334,7 +334,7 @@ exports.main = async () => {
             USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
         ) {
           console.log(
-            `[reminder] 用户暂无可用订阅资格 medicine=${medicine.medicineName}`,
+            `[reminder] 用户暂无可用订阅资格 medicine=${medicine.medicineName}`
           );
           results.skipped++;
           continue;
@@ -345,13 +345,13 @@ exports.main = async () => {
          */
         const nextDate = calcNextDate(
           medicine.currentPrescriptionDate,
-          medicine.intervalDays,
+          medicine.intervalDays
         );
 
         const remindDate = calcRemindDate(nextDate, medicine.remindAdvanceDays);
 
         console.log(
-          `[reminder] 药品=${medicine.medicineName} remindDate=${remindDate} nextDate=${nextDate}`,
+          `[reminder] 药品=${medicine.medicineName} remindDate=${remindDate} nextDate=${nextDate}`
         );
 
         /**
@@ -365,9 +365,9 @@ exports.main = async () => {
         /**
          * 时间未命中
          */
-        if (!isTimeMatched(medicine.remindTime || "09:00")) {
+        if (!isTimeMatched(medicine.remindTime || '09:00')) {
           console.log(
-            `[reminder] 时间未命中 remindTime=${medicine.remindTime}`,
+            `[reminder] 时间未命中 remindTime=${medicine.remindTime}`
           );
 
           results.skipped++;
@@ -380,7 +380,7 @@ exports.main = async () => {
         await sendSubscribeMessage({
           openId,
           medicine,
-          nextDate,
+          nextDate
         });
 
         /**
@@ -390,7 +390,7 @@ exports.main = async () => {
         await updateUserSubscriptionStatus(
           openId,
           USER_WECHAT_SUBSCRIPTION_STATUS.CONSUMED,
-          userCache,
+          userCache
         );
 
         console.log(`[reminder] 发送成功 medicine=${medicine.medicineName}`);
@@ -398,21 +398,21 @@ exports.main = async () => {
         results.sent++;
       } catch (err) {
         console.error(
-          `[reminder] 单条处理失败 medicine=${medicine.medicineName} err=${err.errMsg || err.message}`,
+          `[reminder] 单条处理失败 medicine=${medicine.medicineName} err=${err.errMsg || err.message}`
         );
 
         /**
          * 用户订阅额度失效
          */
-        if (String(err.errCode) === "43101") {
+        if (String(err.errCode) === '43101') {
           try {
             await updateUserSubscriptionStatus(
               openId,
               USER_WECHAT_SUBSCRIPTION_STATUS.CONSUMED,
-              userCache,
+              userCache
             );
           } catch (e) {
-            console.error("[reminder] 更新订阅状态失败", e);
+            console.error('[reminder] 更新订阅状态失败', e);
           }
         }
 
@@ -420,11 +420,11 @@ exports.main = async () => {
       }
     }
   } catch (err) {
-    console.error("[reminder] 数据库扫描失败", err);
+    console.error('[reminder] 数据库扫描失败', err);
   }
 
   console.log(
-    `[reminder] 执行完成 sent=${results.sent} failed=${results.failed} skipped=${results.skipped}`,
+    `[reminder] 执行完成 sent=${results.sent} failed=${results.failed} skipped=${results.skipped}`
   );
 
   return results;

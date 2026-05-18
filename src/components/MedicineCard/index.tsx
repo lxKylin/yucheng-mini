@@ -1,12 +1,12 @@
-import { EyeOutlined, Success } from "@taroify/icons";
-import { Text, View } from "@tarojs/components";
+import { EyeOutlined, Success } from '@taroify/icons';
+import { Text, View } from '@tarojs/components';
 
-import { REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
-import ProgressBar from "@/components/ProgressBar";
-import StatusTag from "@/components/StatusTag";
-import type { DerivedReminder } from "@/types";
+import { REMINDER_LEVEL, REMINDER_STATUS } from '@/constants';
+import ProgressBar from '@/components/ProgressBar';
+import StatusTag from '@/components/StatusTag';
+import type { DerivedReminder } from '@/types';
 
-import "./index.scss";
+import './index.scss';
 
 interface MedicineCardProps {
   item: DerivedReminder;
@@ -19,33 +19,33 @@ export default function MedicineCard({
   item,
   showActions = true,
   onDone,
-  onDetail,
+  onDetail
 }: MedicineCardProps) {
   const doneDisabled = item.status === REMINDER_STATUS.PAUSED;
   const accentColor = doneDisabled
-    ? "disabled"
+    ? 'disabled'
     : item.level === REMINDER_LEVEL.DANGER
-      ? "danger"
+      ? 'danger'
       : item.level === REMINDER_LEVEL.WARNING
-        ? "warning"
-        : "success";
+        ? 'warning'
+        : 'success';
   const doneColor =
     item.level === REMINDER_LEVEL.DANGER
-      ? "danger"
+      ? 'danger'
       : item.level === REMINDER_LEVEL.WARNING
-        ? "warning"
-        : "success";
+        ? 'warning'
+        : 'success';
 
   return (
     <View
-      className={`medicine-card medicine-card--${accentColor}${item.status === REMINDER_STATUS.PAUSED ? " medicine-card--paused" : ""}`}
+      className={`medicine-card medicine-card--${accentColor}${item.status === REMINDER_STATUS.PAUSED ? ' medicine-card--paused' : ''}`}
     >
       <View className="medicine-card__header">
         <Text className="medicine-card__name">{item.medicineName}</Text>
         <StatusTag level={item.level} label={item.levelLabel} />
       </View>
       <Text className="medicine-card__meta">
-        规格: {item.medicineSpec || "-"} · 周期: {item.intervalDays} 天
+        规格: {item.medicineSpec || '-'} · 周期: {item.intervalDays} 天
       </Text>
       <Text className="medicine-card__meta">
         最近一盒开始时间: {item.currentPrescriptionDate}
@@ -68,7 +68,7 @@ export default function MedicineCard({
       {showActions ? (
         <View className="medicine-card__actions">
           <View
-            className={`medicine-card__btn medicine-card__btn--${doneColor}${doneDisabled ? " medicine-card__btn--disabled" : ""}`}
+            className={`medicine-card__btn medicine-card__btn--${doneColor}${doneDisabled ? ' medicine-card__btn--disabled' : ''}`}
             onClick={doneDisabled ? undefined : onDone}
           >
             <Success className="medicine-card__btn-icon" />

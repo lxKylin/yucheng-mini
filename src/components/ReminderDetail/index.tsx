@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { Text, View } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import Button from "@taroify/core/button";
+import { useEffect, useState } from 'react';
+import { Text, View } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import Button from '@taroify/core/button';
 
-import { REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
-import DoneDateSheet from "@/components/DoneDateSheet";
-import ProgressBar from "@/components/ProgressBar";
-import StatusTag from "@/components/StatusTag";
-import { useDerivedById, useReminderActions } from "@/hooks/useReminders";
+import { REMINDER_LEVEL, REMINDER_STATUS } from '@/constants';
+import DoneDateSheet from '@/components/DoneDateSheet';
+import ProgressBar from '@/components/ProgressBar';
+import StatusTag from '@/components/StatusTag';
+import { useDerivedById, useReminderActions } from '@/hooks/useReminders';
 
-import "./index.scss";
+import './index.scss';
 
 interface ReminderDetailProps {
   reminderId: string;
@@ -20,7 +20,7 @@ interface ReminderDetailProps {
 export default function ReminderDetail({
   reminderId,
   onClose,
-  onEdit,
+  onEdit
 }: ReminderDetailProps) {
   const [doneSheetOpen, setDoneSheetOpen] = useState(false);
   const item = useDerivedById(reminderId);
@@ -38,16 +38,16 @@ export default function ReminderDetail({
   const daysNumber = Math.abs(displayItem.daysLeft);
   const daysText =
     displayItem.daysLeft < 0
-      ? "天 · 已逾期"
+      ? '天 · 已逾期'
       : displayItem.daysLeft === 0
-        ? "今日需要开药"
-        : "天后预计需要重新开药";
+        ? '今日需要开药'
+        : '天后预计需要重新开药';
   const doneBtnMod =
     displayItem.level === REMINDER_LEVEL.DANGER
-      ? "danger"
+      ? 'danger'
       : displayItem.level === REMINDER_LEVEL.WARNING
-        ? "warning"
-        : "success";
+        ? 'warning'
+        : 'success';
 
   const handleDone = () => {
     if (displayItem.status === REMINDER_STATUS.PAUSED) {
@@ -60,11 +60,11 @@ export default function ReminderDetail({
     }
 
     Taro.showModal({
-      title: "确认本次已开药",
+      title: '确认本次已开药',
       content: `确认已完成「${displayItem.medicineName}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
-      confirmText: "确认",
-      cancelText: "取消",
-      confirmColor: "#157a66",
+      confirmText: '确认',
+      cancelText: '取消',
+      confirmColor: '#157a66',
       success: async (res) => {
         if (!res.confirm) {
           return;
@@ -74,29 +74,29 @@ export default function ReminderDetail({
           await markDone(displayItem.id);
           Taro.showToast({
             title: `${displayItem.medicineName} 已进入下一轮周期`,
-            icon: "success",
-            duration: 1500,
+            icon: 'success',
+            duration: 1500
           });
           onClose();
         } catch {
           Taro.showToast({
-            title: "更新失败，请稍后重试",
-            icon: "none",
-            duration: 1800,
+            title: '更新失败，请稍后重试',
+            icon: 'none',
+            duration: 1800
           });
         }
-      },
+      }
     });
   };
 
   const handleTogglePause = () => {
     if (displayItem.status === REMINDER_STATUS.PAUSED) {
       Taro.showModal({
-        title: "重新启用提醒",
+        title: '重新启用提醒',
         content: `确定重新启用「${displayItem.medicineName}」的提醒吗？恢复后会继续按照当前周期推送提醒。`,
-        confirmText: "启用",
-        cancelText: "取消",
-        confirmColor: "#157a66",
+        confirmText: '启用',
+        cancelText: '取消',
+        confirmColor: '#157a66',
         success: async (res) => {
           if (!res.confirm) {
             return;
@@ -105,29 +105,29 @@ export default function ReminderDetail({
           try {
             await togglePause(displayItem.id);
             Taro.showToast({
-              title: "提醒已重新启用",
-              icon: "none",
-              duration: 1500,
+              title: '提醒已重新启用',
+              icon: 'none',
+              duration: 1500
             });
             onClose();
           } catch {
             Taro.showToast({
-              title: "操作失败，请稍后重试",
-              icon: "none",
-              duration: 1800,
+              title: '操作失败，请稍后重试',
+              icon: 'none',
+              duration: 1800
             });
           }
-        },
+        }
       });
       return;
     }
 
     Taro.showModal({
-      title: "暂停提醒",
+      title: '暂停提醒',
       content: `确定暂停「${displayItem.medicineName}」的提醒吗？暂停后将不会继续提示，直到你重新启用。`,
-      confirmText: "暂停",
-      cancelText: "取消",
-      confirmColor: "#b86c1e",
+      confirmText: '暂停',
+      cancelText: '取消',
+      confirmColor: '#b86c1e',
       success: async (res) => {
         if (!res.confirm) {
           return;
@@ -136,48 +136,48 @@ export default function ReminderDetail({
         try {
           await togglePause(displayItem.id);
           Taro.showToast({
-            title: "提醒已暂停",
-            icon: "none",
-            duration: 1500,
+            title: '提醒已暂停',
+            icon: 'none',
+            duration: 1500
           });
           onClose();
         } catch {
           Taro.showToast({
-            title: "操作失败，请稍后重试",
-            icon: "none",
-            duration: 1800,
+            title: '操作失败，请稍后重试',
+            icon: 'none',
+            duration: 1800
           });
         }
-      },
+      }
     });
   };
 
   const handleDelete = () => {
     Taro.showModal({
-      title: "删除提醒",
+      title: '删除提醒',
       content: `确定要删除「${displayItem.medicineName}」的开药提醒吗？此操作不可撤销。`,
-      confirmText: "删除",
-      cancelText: "取消",
-      confirmColor: "#ca4e41",
+      confirmText: '删除',
+      cancelText: '取消',
+      confirmColor: '#ca4e41',
       success: async (res) => {
         if (res.confirm) {
           try {
             await deleteReminder(displayItem.id);
             Taro.showToast({
               title: `${displayItem.medicineName} 已删除`,
-              icon: "none",
-              duration: 1500,
+              icon: 'none',
+              duration: 1500
             });
             onClose();
           } catch {
             Taro.showToast({
-              title: "删除失败，请稍后重试",
-              icon: "none",
-              duration: 1800,
+              title: '删除失败，请稍后重试',
+              icon: 'none',
+              duration: 1800
             });
           }
         }
-      },
+      }
     });
   };
 
@@ -205,7 +205,7 @@ export default function ReminderDetail({
           <Text
             className={`reminder-detail__days-number reminder-detail__days-number--${displayItem.level}`}
           >
-            {displayItem.daysLeft === 0 ? "" : daysNumber}
+            {displayItem.daysLeft === 0 ? '' : daysNumber}
           </Text>
           <Text className="reminder-detail__days-text">{daysText}</Text>
         </View>
@@ -237,8 +237,8 @@ export default function ReminderDetail({
           onClick={handleTogglePause}
         >
           {displayItem.status === REMINDER_STATUS.PAUSED
-            ? "重新启用"
-            : "暂停提醒"}
+            ? '重新启用'
+            : '暂停提醒'}
         </Button>
       </View>
 
@@ -303,7 +303,7 @@ export default function ReminderDetail({
             <View key={`hist-${idx}`} className="reminder-detail__history-item">
               <Text className="reminder-detail__history-date">{date}</Text>
               <Text className="reminder-detail__history-desc">
-                周期 {displayItem.intervalDays} 天 · 提前{" "}
+                周期 {displayItem.intervalDays} 天 · 提前{' '}
                 {displayItem.remindAdvanceDays} 天提醒
               </Text>
             </View>

@@ -1,38 +1,44 @@
-import { useState } from "react";
-import { UserCircleOutlined } from "@taroify/icons";
-import { Button, Image, Input, Picker, Text, View } from "@tarojs/components";
+import { useState } from 'react';
+import { UserCircleOutlined } from '@taroify/icons';
+import { Button, Image, Input, Picker, Text, View } from '@tarojs/components';
 import type {
   BaseEventOrig,
   InputProps,
   PickerSelectorProps,
-  PickerTimeProps,
-} from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
-import { useDidShow } from "@tarojs/taro";
+  PickerTimeProps
+} from '@tarojs/components';
+import Taro, {
+  useLoad,
+  useDidShow,
+  useShareAppMessage,
+  useShareTimeline
+} from '@tarojs/taro';
 
-import BottomSheet from "@/components/BottomSheet";
+import BottomSheet from '@/components/BottomSheet';
 import {
   BEFORE_OPTIONS,
   BEFORE_OPTIONS_LABEL,
   USER_WECHAT_SUBSCRIPTION_STATUS,
-} from "@/constants";
-import FloatingAddReminder from "@/components/FloatingAddReminder";
-import ReminderForm from "@/components/ReminderForm";
-import { useTabScrollToTop } from "@/hooks/useTabScrollToTop";
-import { useReminderSheet } from "@/hooks/useReminderSheet";
-import { useProfileStats } from "@/hooks/useReminders";
+  SHARE_IMAGE,
+  SHARE_PATH
+} from '@/constants';
+import FloatingAddReminder from '@/components/FloatingAddReminder';
+import ReminderForm from '@/components/ReminderForm';
+import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
+import { useReminderSheet } from '@/hooks/useReminderSheet';
+import { useProfileStats } from '@/hooks/useReminders';
 import {
   getUserId,
   getUserProfile,
   refreshUserProfile,
   updateProfile,
-  updateWechatSubscriptionStatus,
-} from "@/services/auth";
-import { requestWechatReminderSubscription } from "@/services/wechatReminder";
-import { loadSettings, saveSettings } from "@/utils/storage";
-import type { AppSettings } from "@/utils/storage";
+  updateWechatSubscriptionStatus
+} from '@/services/auth';
+import { requestWechatReminderSubscription } from '@/services/wechatReminder';
+import { loadSettings, saveSettings } from '@/utils/storage';
+import type { AppSettings } from '@/utils/storage';
 
-import "./index.scss";
+import './index.scss';
 
 type TimePickerEvent = BaseEventOrig<PickerTimeProps.ChangeEventDetail>;
 type SelectorPickerEvent = BaseEventOrig<PickerSelectorProps.ChangeEventDetail>;
@@ -41,23 +47,23 @@ function getSubscriptionSummary(status?: string) {
   if (status === USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE) {
     return {
       enabled: true,
-      label: "已获得下一次提醒授权",
-      desc: "下一条命中的提醒会消耗这次微信发送授权",
+      label: '已获得下一次提醒授权',
+      desc: '下一条命中的提醒会消耗这次微信发送授权'
     };
   }
 
   if (status === USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED) {
     return {
       enabled: false,
-      label: "尚未获得提醒授权",
-      desc: "你之前拒绝过授权，需要重新发起订阅请求",
+      label: '尚未获得提醒授权',
+      desc: '你之前拒绝过授权，需要重新发起订阅请求'
     };
   }
 
   return {
     enabled: false,
-    label: "尚未获得提醒授权",
-    desc: "一次性订阅消息发送后会自动失效，需要再次授权",
+    label: '尚未获得提醒授权',
+    desc: '一次性订阅消息发送后会自动失效，需要再次授权'
   };
 }
 
@@ -77,25 +83,41 @@ export default function Profile() {
     closeSheet,
     handleFormSuccess,
     handleSheetExited,
-    openCreate,
+    openCreate
   } = useReminderSheet();
   const [profile, setProfile] = useState(getUserProfile);
   const [nickName, setNickName] = useState(
-    () => getUserProfile()?.nickName ?? "",
+    () => getUserProfile()?.nickName ?? ''
   );
 
   useLoad(() => {
+    Taro.showShareMenu({
+      withShareTicket: true,
+      showShareItems: ['shareAppMessage', 'shareTimeline']
+    });
     setSettings(loadSettings());
     const p = getUserProfile();
     setProfile(p);
-    setNickName(p?.nickName ?? "");
+    setNickName(p?.nickName ?? '');
   });
+
+  useShareAppMessage(() => ({
+    title: '愈程记：把开药提醒管理得更清楚',
+    path: SHARE_PATH,
+    imageUrl: SHARE_IMAGE
+  }));
+
+  useShareTimeline(() => ({
+    title: '愈程记：长期用药提醒整理工具',
+    query: 'from=list-timeline',
+    imageUrl: SHARE_IMAGE
+  }));
 
   useDidShow(() => {
     void refreshUserProfile().then((nextProfile) => {
       if (!nextProfile) return;
       setProfile(nextProfile);
-      setNickName(nextProfile.nickName ?? "");
+      setNickName(nextProfile.nickName ?? '');
     });
   });
 
@@ -108,25 +130,25 @@ export default function Profile() {
   };
 
   const handleChooseAvatar = async (
-    e: BaseEventOrig<{ avatarUrl: string }>,
+    e: BaseEventOrig<{ avatarUrl: string }>
   ) => {
     const tmpPath = e.detail.avatarUrl;
     // tmp 路径跨会话失效，必须先上传到云存储获取永久 fileID
     try {
-      Taro.showLoading({ title: "上传中…", mask: true });
-      const ext = tmpPath.split(".").pop() ?? "jpg";
+      Taro.showLoading({ title: '上传中…', mask: true });
+      const ext = tmpPath.split('.').pop() ?? 'jpg';
       const { fileID } = await Taro.cloud.uploadFile({
         cloudPath: `avatars/${getUserId()}.${ext}`,
-        filePath: tmpPath,
+        filePath: tmpPath
       });
       await updateProfile(nickName, fileID);
       setProfile(getUserProfile());
     } catch (err) {
-      console.error("[profile] 头像上传失败：", err);
+      console.error('[profile] 头像上传失败：', err);
       Taro.showToast({
-        title: "头像上传失败，请重试",
-        icon: "none",
-        duration: 1500,
+        title: '头像上传失败，请重试',
+        icon: 'none',
+        duration: 1500
       });
     } finally {
       Taro.hideLoading();
@@ -134,17 +156,17 @@ export default function Profile() {
   };
 
   const handleNicknameInput = (
-    e: BaseEventOrig<InputProps.inputValueEventDetail>,
+    e: BaseEventOrig<InputProps.inputValueEventDetail>
   ) => {
     setNickName(e.detail.value);
   };
 
   const handleNicknameBlur = (
-    e: BaseEventOrig<InputProps.inputValueEventDetail>,
+    e: BaseEventOrig<InputProps.inputValueEventDetail>
   ) => {
     const value = e.detail.value.trim();
     if (!value || value === profile?.nickName) return;
-    updateProfile(value, profile?.avatarUrl ?? "").then(() => {
+    updateProfile(value, profile?.avatarUrl ?? '').then(() => {
       setProfile(getUserProfile());
     });
   };
@@ -155,9 +177,9 @@ export default function Profile() {
       USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
     ) {
       Taro.showToast({
-        title: "已获得下一次提醒授权",
-        icon: "none",
-        duration: 1500,
+        title: '已获得下一次提醒授权',
+        icon: 'none',
+        duration: 1500
       });
       return;
     }
@@ -166,30 +188,30 @@ export default function Profile() {
 
     if (result.enabled) {
       const nextProfile = await updateWechatSubscriptionStatus(
-        USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE,
+        USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
       );
       setProfile(nextProfile ?? getUserProfile());
       Taro.showToast({
         title: result.message,
-        icon: "success",
-        duration: 1800,
+        icon: 'success',
+        duration: 1800
       });
       return;
     }
 
     if (result.status === USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED) {
       const nextProfile = await updateWechatSubscriptionStatus(
-        USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED,
+        USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED
       );
       setProfile(nextProfile ?? getUserProfile());
     }
 
     if (result.shouldOpenSetting) {
       const modalRes = await Taro.showModal({
-        title: "订阅未开启",
+        title: '订阅未开启',
         content: result.message,
-        confirmText: "去设置",
-        cancelText: "知道了",
+        confirmText: '去设置',
+        cancelText: '知道了'
       });
 
       if (modalRes.confirm) {
@@ -200,8 +222,8 @@ export default function Profile() {
 
     Taro.showToast({
       title: result.message,
-      icon: "none",
-      duration: 2200,
+      icon: 'none',
+      duration: 2200
     });
   };
 
@@ -209,17 +231,17 @@ export default function Profile() {
     updateSettings({ defaultTime: e.detail.value });
     Taro.showToast({
       title: `默认提醒时间已设为 ${e.detail.value}`,
-      icon: "none",
-      duration: 1200,
+      icon: 'none',
+      duration: 1200
     });
   };
 
   const beforeIdx = BEFORE_OPTIONS.indexOf(
-    settings.defaultBefore as (typeof BEFORE_OPTIONS)[number],
+    settings.defaultBefore as (typeof BEFORE_OPTIONS)[number]
   );
   const safeBeforeIdx = beforeIdx >= 0 ? beforeIdx : 0;
   const subscriptionSummary = getSubscriptionSummary(
-    profile?.wechatSubscriptionStatus,
+    profile?.wechatSubscriptionStatus
   );
 
   const handleBeforeChange = (e: SelectorPickerEvent) => {
@@ -228,8 +250,8 @@ export default function Profile() {
     updateSettings({ defaultBefore: days });
     Taro.showToast({
       title: `默认提前天数已设为 ${days} 天`,
-      icon: "none",
-      duration: 1200,
+      icon: 'none',
+      duration: 1200
     });
   };
 
@@ -334,7 +356,7 @@ export default function Profile() {
               </Text>
             </View>
             <View
-              className={`profile-page__switch${subscriptionSummary.enabled ? " profile-page__switch--on" : ""}`}
+              className={`profile-page__switch${subscriptionSummary.enabled ? ' profile-page__switch--on' : ''}`}
               onClick={handleToggleSubscribe}
               role="switch"
               aria-checked={subscriptionSummary.enabled}
@@ -396,7 +418,7 @@ export default function Profile() {
         onClose={closeSheet}
         onAfterClose={handleSheetExited}
       >
-        {sheetMode === "form" ? (
+        {sheetMode === 'form' ? (
           <ReminderForm
             key={formKey}
             reminderId={editReminderId}

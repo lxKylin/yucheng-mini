@@ -1,7 +1,7 @@
-import { callCloudFn } from "./cloud";
+import { callCloudFn } from './cloud';
 
-import { USER_WECHAT_SUBSCRIPTION_STATUS } from "@/constants";
-import type { UserWechatSubscriptionStatus } from "@/types";
+import { USER_WECHAT_SUBSCRIPTION_STATUS } from '@/constants';
+import type { UserWechatSubscriptionStatus } from '@/types';
 
 interface AuthResult {
   success: boolean;
@@ -28,12 +28,12 @@ function toUserProfile(result: AuthResult): UserProfile | null {
 
   return {
     openid: result.openid,
-    nickName: result.nickName ?? "",
-    avatarUrl: result.avatarUrl ?? "",
+    nickName: result.nickName ?? '',
+    avatarUrl: result.avatarUrl ?? '',
     wechatSubscriptionStatus:
       result.wechatSubscriptionStatus ??
       USER_WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
-    wechatSubscriptionUpdatedAt: result.wechatSubscriptionUpdatedAt ?? "",
+    wechatSubscriptionUpdatedAt: result.wechatSubscriptionUpdatedAt ?? ''
   };
 }
 
@@ -45,17 +45,17 @@ export async function login(): Promise<UserProfile | null> {
   if (cachedProfile) return cachedProfile;
 
   try {
-    const result = await callCloudFn<AuthResult>("auth");
-    console.log("[auth] 登录结果：", result);
+    const result = await callCloudFn<AuthResult>('auth');
+    console.log('[auth] 登录结果：', result);
     const profile = toUserProfile(result);
     if (profile) {
       cachedProfile = profile;
       return cachedProfile;
     }
-    console.warn("[auth] 登录失败：", result.error);
+    console.warn('[auth] 登录失败：', result.error);
     return null;
   } catch (err) {
-    console.error("[auth] 云函数调用异常：", err);
+    console.error('[auth] 云函数调用异常：', err);
     return null;
   }
 }
@@ -66,27 +66,27 @@ export async function login(): Promise<UserProfile | null> {
  */
 export async function updateProfile(
   nickName: string,
-  avatarUrl: string,
+  avatarUrl: string
 ): Promise<void> {
   try {
-    console.log("[auth] 更新用户信息：", { nickName, avatarUrl });
-    const result = await callCloudFn<AuthResult>("auth", {
+    console.log('[auth] 更新用户信息：', { nickName, avatarUrl });
+    const result = await callCloudFn<AuthResult>('auth', {
       nickName,
-      avatarUrl,
+      avatarUrl
     });
-    console.log("[auth] 更新结果：", result);
+    console.log('[auth] 更新结果：', result);
     const profile = toUserProfile(result);
     if (profile) {
       cachedProfile = profile;
     }
   } catch (err) {
-    console.error("[auth] 更新用户信息失败：", err);
+    console.error('[auth] 更新用户信息失败：', err);
   }
 }
 
 export async function refreshUserProfile(): Promise<UserProfile | null> {
   try {
-    const result = await callCloudFn<AuthResult>("auth");
+    const result = await callCloudFn<AuthResult>('auth');
     const profile = toUserProfile(result);
     if (profile) {
       cachedProfile = profile;
@@ -94,17 +94,17 @@ export async function refreshUserProfile(): Promise<UserProfile | null> {
     }
     return cachedProfile;
   } catch (err) {
-    console.error("[auth] 刷新用户信息失败：", err);
+    console.error('[auth] 刷新用户信息失败：', err);
     return cachedProfile;
   }
 }
 
 export async function updateWechatSubscriptionStatus(
-  status: UserWechatSubscriptionStatus,
+  status: UserWechatSubscriptionStatus
 ): Promise<UserProfile | null> {
   try {
-    const result = await callCloudFn<AuthResult>("auth", {
-      wechatSubscriptionStatus: status,
+    const result = await callCloudFn<AuthResult>('auth', {
+      wechatSubscriptionStatus: status
     });
     const profile = toUserProfile(result);
     if (profile) {
@@ -113,7 +113,7 @@ export async function updateWechatSubscriptionStatus(
     }
     return cachedProfile;
   } catch (err) {
-    console.error("[auth] 更新微信订阅资格失败：", err);
+    console.error('[auth] 更新微信订阅资格失败：', err);
     return cachedProfile;
   }
 }

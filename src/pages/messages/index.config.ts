@@ -1,1 +1,1 @@
-export default definePageConfig({ navigationBarTitleText: "提醒中心" })
+export default definePageConfig({ navigationBarTitleText: '提醒中心' });

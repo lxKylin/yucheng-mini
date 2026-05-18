@@ -1,28 +1,23 @@
-import { useState } from "react";
-import { Text, View } from "@tarojs/components";
+import { useState } from 'react';
+import { Text, View } from '@tarojs/components';
 import Taro, {
   useLoad,
   useShareAppMessage,
-  useShareTimeline,
-} from "@tarojs/taro";
+  useShareTimeline
+} from '@tarojs/taro';
 
-import { REMINDER_STATUS } from "@/constants";
-import BottomSheet from "@/components/BottomSheet";
-import DoneDateSheet from "@/components/DoneDateSheet";
-import FloatingAddReminder from "@/components/FloatingAddReminder";
-import MedicineCard from "@/components/MedicineCard";
-import ReminderDetail from "@/components/ReminderDetail";
-import ReminderForm from "@/components/ReminderForm";
-import { useDerivedList, useReminderActions } from "@/hooks/useReminders";
-import { useTabScrollToTop } from "@/hooks/useTabScrollToTop";
-import { useReminderSheet } from "@/hooks/useReminderSheet";
+import { REMINDER_STATUS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
+import BottomSheet from '@/components/BottomSheet';
+import DoneDateSheet from '@/components/DoneDateSheet';
+import FloatingAddReminder from '@/components/FloatingAddReminder';
+import MedicineCard from '@/components/MedicineCard';
+import ReminderDetail from '@/components/ReminderDetail';
+import ReminderForm from '@/components/ReminderForm';
+import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
+import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
+import { useReminderSheet } from '@/hooks/useReminderSheet';
 
-import "./index.scss";
-
-const HOME_SHARE_TITLE = "我在用愈程记管理长期用药提醒，也分享给你";
-const HOME_SHARE_PATH = "/pages/home/index";
-const HOME_SHARE_IMAGE =
-  "https://636c-cloud1-d3gqjwfefe40e4dba-1319087750.tcb.qcloud.la/avatars/logo%E6%97%A0%E6%8D%9F.png?sign=4980dfb686f6b75f077e6dea05d0b215&t=1779097484";
+import './index.scss';
 
 export default function Home() {
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
@@ -41,7 +36,7 @@ export default function Home() {
     handleSheetExited,
     openCreate,
     openDetail,
-    openEdit,
+    openEdit
   } = useReminderSheet();
   const allItems = useDerivedList();
   const { markDone } = useReminderActions();
@@ -52,10 +47,10 @@ export default function Home() {
       : (allItems.find((item) => item.id === doneReminderId) ?? null);
 
   const overdueCount = allItems.filter(
-    (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft < 0,
+    (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft < 0
   ).length;
   const todayCount = allItems.filter(
-    (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft === 0,
+    (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft === 0
   ).length;
   const total = allItems.length;
   const hasDanger = overdueCount > 0 || todayCount > 0;
@@ -77,11 +72,11 @@ export default function Home() {
     }
 
     Taro.showModal({
-      title: "确认已开药",
+      title: '确认已开药',
       content: `确认已完成「${target.medicineName}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
-      confirmText: "确认",
-      cancelText: "取消",
-      confirmColor: "#157a66",
+      confirmText: '确认',
+      cancelText: '取消',
+      confirmColor: '#157a66',
       success: async (res) => {
         if (!res.confirm) {
           return;
@@ -91,22 +86,22 @@ export default function Home() {
           await markDone(id);
           Taro.showToast({
             title: `${target.medicineName} 已进入下一轮周期`,
-            icon: "success",
-            duration: 1500,
+            icon: 'success',
+            duration: 1500
           });
         } catch {
           Taro.showToast({
-            title: "更新失败，请稍后重试",
-            icon: "none",
-            duration: 1800,
+            title: '更新失败，请稍后重试',
+            icon: 'none',
+            duration: 1800
           });
         }
-      },
+      }
     });
   };
 
   const handleViewAll = () => {
-    Taro.switchTab({ url: "/pages/list/index" });
+    Taro.switchTab({ url: '/pages/list/index' });
   };
 
   const closeDoneSheet = () => {
@@ -116,34 +111,34 @@ export default function Home() {
   useLoad(() => {
     Taro.showShareMenu({
       withShareTicket: true,
-      showShareItems: ["shareAppMessage", "shareTimeline"],
+      showShareItems: ['shareAppMessage', 'shareTimeline']
     });
-    console.log("home page loaded");
+    console.log('home page loaded');
   });
 
   useShareAppMessage(() => ({
-    title: HOME_SHARE_TITLE,
-    path: HOME_SHARE_PATH,
-    imageUrl: HOME_SHARE_IMAGE,
+    title: '我在用愈程记管理长期用药提醒，也分享给你',
+    path: SHARE_PATH,
+    imageUrl: SHARE_IMAGE
   }));
 
   useShareTimeline(() => ({
-    title: "愈程记：开药提醒小程序",
-    query: "from=timeline",
-    imageUrl: HOME_SHARE_IMAGE,
+    title: '愈程记：开药提醒小程序',
+    query: 'from=timeline',
+    imageUrl: SHARE_IMAGE
   }));
 
   return (
     <View className="home-page">
-      <View className={`home-hero${hasDanger ? " home-hero--danger" : ""}`}>
+      <View className={`home-hero${hasDanger ? ' home-hero--danger' : ''}`}>
         <Text className="home-hero__eyebrow">今日待办</Text>
         <Text className="home-hero__title">
           {overdueCount} 个已逾期，{todayCount} 个今天到期
         </Text>
         <Text className="home-hero__desc">
           {hasDanger
-            ? "建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。"
-            : "近期没有紧急开药任务，继续保持当前记录节奏。"}
+            ? '建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。'
+            : '近期没有紧急开药任务，继续保持当前记录节奏。'}
         </Text>
       </View>
 
@@ -186,15 +181,15 @@ export default function Home() {
         ) : (
           <View className="home-empty home-empty--card">
             <Text className="home-empty__badge">
-              {hasRecords ? "当前节奏稳定" : "开始建立提醒"}
+              {hasRecords ? '当前节奏稳定' : '开始建立提醒'}
             </Text>
             <Text className="home-empty__title">
-              {hasRecords ? "暂无待处理提醒" : "还没有开药提醒"}
+              {hasRecords ? '暂无待处理提醒' : '还没有开药提醒'}
             </Text>
             <Text className="home-empty__desc">
               {hasRecords
-                ? "你最近没有需要立即处理的任务，下一次临近提醒会优先显示在这里。"
-                : "新增第一条提醒后，这里会显示最近需要处理的开药任务。"}
+                ? '你最近没有需要立即处理的任务，下一次临近提醒会优先显示在这里。'
+                : '新增第一条提醒后，这里会显示最近需要处理的开药任务。'}
             </Text>
             {!hasRecords ? (
               <Text className="home-empty__hint">
@@ -213,14 +208,14 @@ export default function Home() {
         onClose={closeSheet}
         onAfterClose={handleSheetExited}
       >
-        {sheetMode === "detail" && detailId ? (
+        {sheetMode === 'detail' && detailId ? (
           <ReminderDetail
             reminderId={detailId}
             onClose={closeSheet}
             onEdit={openEdit}
           />
         ) : null}
-        {sheetMode === "form" ? (
+        {sheetMode === 'form' ? (
           <ReminderForm
             key={formKey}
             reminderId={editReminderId}

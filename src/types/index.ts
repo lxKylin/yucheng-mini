@@ -1,8 +1,8 @@
 import {
   REMINDER_LEVEL,
   REMINDER_STATUS,
-  USER_WECHAT_SUBSCRIPTION_STATUS,
-} from "@/constants";
+  USER_WECHAT_SUBSCRIPTION_STATUS
+} from '@/constants';
 
 /** 提醒状态 */
 export type ReminderStatus =

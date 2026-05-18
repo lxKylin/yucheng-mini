@@ -1,6 +1,6 @@
-import { Text, View } from "@tarojs/components";
+import { Text, View } from '@tarojs/components';
 
-import "./index.scss";
+import './index.scss';
 
 interface FloatingAddReminderProps {
   hidden?: boolean;
@@ -9,7 +9,7 @@ interface FloatingAddReminderProps {
 
 export default function FloatingAddReminder({
   hidden = false,
-  onClick,
+  onClick
 }: FloatingAddReminderProps) {
   if (hidden) {
     return null;

@@ -1,26 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
-import { Picker, Text, View } from "@tarojs/components";
+import { useEffect, useMemo, useState } from 'react';
+import { Picker, Text, View } from '@tarojs/components';
 import type {
   BaseEventOrig,
   PickerDateProps,
   PickerSelectorProps,
-  PickerTimeProps,
-} from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { Button, Input, Textarea } from "@taroify/core";
+  PickerTimeProps
+} from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { Button, Input, Textarea } from '@taroify/core';
 
 import {
   BEFORE_OPTIONS,
   DEFAULT_BEFORE,
   DEFAULT_INTERVAL,
   DEFAULT_REMIND_TIME,
-  REMINDER_STATUS,
-} from "@/constants";
-import { useDerivedById, useReminderActions } from "@/hooks/useReminders";
-import { calcNextDate, calcRemindDate, today } from "@/utils/dateUtils";
-import { loadSettings } from "@/utils/storage";
+  REMINDER_STATUS
+} from '@/constants';
+import { useDerivedById, useReminderActions } from '@/hooks/useReminders';
+import { calcNextDate, calcRemindDate, today } from '@/utils/dateUtils';
+import { loadSettings } from '@/utils/storage';
 
-import "./index.scss";
+import './index.scss';
 
 interface ReminderFormProps {
   reminderId?: string;
@@ -42,13 +42,13 @@ function makeDefaults(): FormValues {
   const settings = loadSettings();
 
   return {
-    medicineName: "",
-    medicineSpec: "",
+    medicineName: '',
+    medicineSpec: '',
     currentPrescriptionDate: today(),
     remindTime: settings.defaultTime || DEFAULT_REMIND_TIME,
     intervalDays: DEFAULT_INTERVAL,
     remindAdvanceDays: settings.defaultBefore || DEFAULT_BEFORE,
-    note: "",
+    note: ''
   };
 }
 
@@ -61,16 +61,16 @@ type TimePickerEvent = BaseEventOrig<PickerTimeProps.ChangeEventDetail>;
 export default function ReminderForm({
   reminderId,
   onSuccess,
-  onCancel,
+  onCancel
 }: ReminderFormProps) {
   void onCancel;
   const isEdit = Boolean(reminderId);
-  const existingItem = useDerivedById(reminderId ?? "");
+  const existingItem = useDerivedById(reminderId ?? '');
   const { addReminder, updateReminder } = useReminderActions();
 
   const [values, setValues] = useState<FormValues>(makeDefaults);
   const [intervalInput, setIntervalInput] = useState(() =>
-    String(DEFAULT_INTERVAL),
+    String(DEFAULT_INTERVAL)
   );
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function ReminderForm({
         remindTime: existingItem.remindTime,
         intervalDays: existingItem.intervalDays,
         remindAdvanceDays: existingItem.remindAdvanceDays,
-        note: existingItem.note,
+        note: existingItem.note
       });
       setIntervalInput(String(existingItem.intervalDays));
       return;
@@ -97,12 +97,12 @@ export default function ReminderForm({
 
   const calcText = useMemo(() => {
     if (values.intervalDays < 1 || values.intervalDays > 365) {
-      return "请输入 1-365 之间的下次开药间隔天数";
+      return '请输入 1-365 之间的下次开药间隔天数';
     }
 
     const nextDate = calcNextDate(
       values.currentPrescriptionDate,
-      values.intervalDays,
+      values.intervalDays
     );
     const remindDate = calcRemindDate(nextDate, values.remindAdvanceDays);
     return `预计下次开药日期为 ${nextDate}，提醒时间为 ${remindDate} ${values.remindTime}`;
@@ -110,16 +110,16 @@ export default function ReminderForm({
     values.remindAdvanceDays,
     values.intervalDays,
     values.currentPrescriptionDate,
-    values.remindTime,
+    values.remindTime
   ]);
 
   const beforeIndex = useMemo(
     () =>
       Math.max(
         0,
-        BEFORE_OPTIONS.findIndex((value) => value === values.remindAdvanceDays),
+        BEFORE_OPTIONS.findIndex((value) => value === values.remindAdvanceDays)
       ),
-    [values.remindAdvanceDays],
+    [values.remindAdvanceDays]
   );
 
   const setField = (field: keyof FormValues, value: string | number) => {
@@ -127,22 +127,22 @@ export default function ReminderForm({
   };
 
   const handleIntervalChange = (e: InputEvent) => {
-    const nextValue = e.detail.value.replace(/\D/g, "");
+    const nextValue = e.detail.value.replace(/\D/g, '');
     setIntervalInput(nextValue);
-    setField("intervalDays", nextValue ? Number(nextValue) : 0);
+    setField('intervalDays', nextValue ? Number(nextValue) : 0);
   };
 
   const handleSubmit = async () => {
     if (!values.medicineName.trim()) {
-      Taro.showToast({ title: "请填写药物名称", icon: "none", duration: 1500 });
+      Taro.showToast({ title: '请填写药物名称', icon: 'none', duration: 1500 });
       return;
     }
 
     if (values.intervalDays < 1 || values.intervalDays > 365) {
       Taro.showToast({
-        title: "间隔天数需在 1-365 之间",
-        icon: "none",
-        duration: 1500,
+        title: '间隔天数需在 1-365 之间',
+        icon: 'none',
+        duration: 1500
       });
       return;
     }
@@ -154,38 +154,38 @@ export default function ReminderForm({
       remindTime: values.remindTime,
       intervalDays: values.intervalDays,
       remindAdvanceDays: values.remindAdvanceDays,
-      note: values.note.trim(),
+      note: values.note.trim()
     };
 
     try {
       if (isEdit && reminderId) {
         await updateReminder(reminderId, payload);
         Taro.showToast({
-          title: "提醒已更新",
-          icon: "success",
-          duration: 1500,
+          title: '提醒已更新',
+          icon: 'success',
+          duration: 1500
         });
       } else {
         await addReminder({
           ...payload,
-          lastWechatReminderDate: "",
-          lastWechatReminderAt: "",
+          lastWechatReminderDate: '',
+          lastWechatReminderAt: '',
           status: REMINDER_STATUS.ACTIVE,
-          prescriptionHistory: [values.currentPrescriptionDate],
+          prescriptionHistory: [values.currentPrescriptionDate]
         });
         Taro.showToast({
-          title: "提醒已创建",
-          icon: "success",
-          duration: 1500,
+          title: '提醒已创建',
+          icon: 'success',
+          duration: 1500
         });
       }
 
       onSuccess();
     } catch {
       Taro.showToast({
-        title: "保存失败，请稍后重试",
-        icon: "none",
-        duration: 1800,
+        title: '保存失败，请稍后重试',
+        icon: 'none',
+        duration: 1800
       });
     }
   };
@@ -213,7 +213,7 @@ export default function ReminderForm({
             placeholder="例如：洛拉替尼"
             clearable
             onChange={(e: InputEvent) =>
-              setField("medicineName", e.detail.value)
+              setField('medicineName', e.detail.value)
             }
           />
         </View>
@@ -228,7 +228,7 @@ export default function ReminderForm({
             placeholder="例如：20mg"
             clearable
             onChange={(e: InputEvent) =>
-              setField("medicineSpec", e.detail.value)
+              setField('medicineSpec', e.detail.value)
             }
           />
         </View>
@@ -244,7 +244,7 @@ export default function ReminderForm({
             mode="date"
             value={values.currentPrescriptionDate}
             onChange={(e: DatePickerEvent) =>
-              setField("currentPrescriptionDate", e.detail.value)
+              setField('currentPrescriptionDate', e.detail.value)
             }
           >
             <View className="reminder-form__picker">
@@ -285,8 +285,8 @@ export default function ReminderForm({
             value={beforeIndex}
             onChange={(e: SelectorPickerEvent) => {
               setField(
-                "remindAdvanceDays",
-                BEFORE_OPTIONS[Number(e.detail.value)],
+                'remindAdvanceDays',
+                BEFORE_OPTIONS[Number(e.detail.value)]
               );
             }}
           >
@@ -307,7 +307,7 @@ export default function ReminderForm({
             mode="time"
             value={values.remindTime}
             onChange={(e: TimePickerEvent) =>
-              setField("remindTime", e.detail.value)
+              setField('remindTime', e.detail.value)
             }
           >
             <View className="reminder-form__picker">
@@ -327,7 +327,7 @@ export default function ReminderForm({
             value={values.note}
             placeholder="医院、复诊事项、注意事项"
             limit={100}
-            onChange={(e: TextareaEvent) => setField("note", e.detail.value)}
+            onChange={(e: TextareaEvent) => setField('note', e.detail.value)}
           />
         </View>
       </View>
@@ -341,7 +341,7 @@ export default function ReminderForm({
         color="primary"
         onClick={handleSubmit}
       >
-        {isEdit ? "保存修改" : "保存并开启提醒"}
+        {isEdit ? '保存修改' : '保存并开启提醒'}
       </Button>
     </View>
   );

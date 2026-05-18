@@ -1,6 +1,6 @@
-import Taro from "@tarojs/taro";
-import type { Reminder } from "@/types";
-import { STORAGE_KEY_REMINDERS, STORAGE_KEY_SETTINGS } from "@/constants";
+import Taro from '@tarojs/taro';
+import type { Reminder } from '@/types';
+import { STORAGE_KEY_REMINDERS, STORAGE_KEY_SETTINGS } from '@/constants';
 
 /** 从本地存储读取提醒列表，不存在时返回空数组 */
 export function loadReminders(): Reminder[] {
@@ -29,16 +29,16 @@ export interface AppSettings {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  defaultTime: "09:00",
+  defaultTime: '09:00',
   defaultBefore: 7,
-  subscribeEnabled: false,
+  subscribeEnabled: false
 };
 
 /** 读取应用设置，不存在时返回默认值 */
 export function loadSettings(): AppSettings {
   try {
     const data = Taro.getStorageSync(STORAGE_KEY_SETTINGS);
-    if (data && typeof data === "object") {
+    if (data && typeof data === 'object') {
       return { ...DEFAULT_SETTINGS, ...data };
     }
     return { ...DEFAULT_SETTINGS };

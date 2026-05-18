@@ -6,6 +6,6 @@
     // 将 'single' 改为 'double'，或者设置为 'off' 禁用此检查
     "jsx-quotes": ["error", "double"],
     // 如果普通字符串也想用双引号，确保 quotes 规则也一致
-    "quotes": ["error", "double", { "avoidEscape": true }],
-  },
+    "quotes": ["error", "double", { "avoidEscape": true }]
+  }
 }

@@ -1,8 +1,8 @@
-import { View } from "@tarojs/components";
+import { View } from '@tarojs/components';
 
-import type { ReminderLevel } from "@/types";
+import type { ReminderLevel } from '@/types';
 
-import "./index.scss";
+import './index.scss';
 
 interface ProgressBarProps {
   progress: number;

@@ -1,43 +1,43 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-export type ReminderSheetMode = "detail" | "form";
+export type ReminderSheetMode = 'detail' | 'form';
 
 export function useReminderSheet() {
   const [formKey, setFormKey] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetActive, setSheetActive] = useState(false);
-  const [sheetMode, setSheetMode] = useState<ReminderSheetMode>("form");
-  const [detailId, setDetailId] = useState("");
+  const [sheetMode, setSheetMode] = useState<ReminderSheetMode>('form');
+  const [detailId, setDetailId] = useState('');
   const [editReminderId, setEditReminderId] = useState<string | undefined>();
 
   const sheetTitle =
-    sheetMode === "detail"
-      ? "提醒详情"
+    sheetMode === 'detail'
+      ? '提醒详情'
       : editReminderId
-        ? "编辑提醒"
-        : "新增提醒";
+        ? '编辑提醒'
+        : '新增提醒';
 
   const openDetail = (id: string) => {
     setEditReminderId(undefined);
     setDetailId(id);
-    setSheetMode("detail");
+    setSheetMode('detail');
     setSheetActive(true);
     setSheetOpen(true);
   };
 
   const openCreate = () => {
     setFormKey((current) => current + 1);
-    setDetailId("");
+    setDetailId('');
     setEditReminderId(undefined);
-    setSheetMode("form");
+    setSheetMode('form');
     setSheetActive(true);
     setSheetOpen(true);
   };
 
   const openEdit = (id: string) => {
-    setDetailId("");
+    setDetailId('');
     setEditReminderId(id);
-    setSheetMode("form");
+    setSheetMode('form');
     setSheetActive(true);
     setSheetOpen(true);
   };
@@ -56,7 +56,7 @@ export function useReminderSheet() {
 
   const handleSheetExited = () => {
     setSheetActive(false);
-    setDetailId("");
+    setDetailId('');
     setEditReminderId(undefined);
   };
 
@@ -73,6 +73,6 @@ export function useReminderSheet() {
     handleSheetExited,
     openCreate,
     openDetail,
-    openEdit,
+    openEdit
   };
 }

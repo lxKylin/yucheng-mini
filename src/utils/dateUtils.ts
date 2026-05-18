@@ -1,19 +1,19 @@
-import type { Reminder, DerivedReminder, ReminderLevel } from "@/types";
-import { LEVEL_ORDER, REMINDER_LEVEL, REMINDER_STATUS } from "@/constants";
+import type { Reminder, DerivedReminder, ReminderLevel } from '@/types';
+import { LEVEL_ORDER, REMINDER_LEVEL, REMINDER_STATUS } from '@/constants';
 
 // ─── 基础日期工具 ─────────────────────────────────────────────────
 
 /** 将 YYYY-MM-DD 字符串解析为本地零时 Date，避免时区偏移 */
 export function parseDate(dateStr: string): Date {
-  const [y, m, d] = dateStr.split("-").map(Number);
+  const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d);
 }
 
 /** 格式化 Date 为 YYYY-MM-DD */
 export function formatDate(date: Date): string {
   const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
 
@@ -41,7 +41,7 @@ export function addDays(dateStr: string, days: number): string {
 export function diffDays(from: string, to: string): number {
   const msPerDay = 86400000;
   return Math.round(
-    (parseDate(to).getTime() - parseDate(from).getTime()) / msPerDay,
+    (parseDate(to).getTime() - parseDate(from).getTime()) / msPerDay
   );
 }
 
@@ -65,7 +65,7 @@ export function calcRemindDate(nextDate: string, before: number): string {
 function calcProgress(
   lastDate: string,
   nextDate: string,
-  todayStr: string,
+  todayStr: string
 ): number {
   const total = diffDays(lastDate, nextDate);
   if (total <= 0) return 100;
@@ -82,7 +82,7 @@ function calcProgress(
  */
 function calcLevel(
   daysLeft: number,
-  status: Reminder["status"],
+  status: Reminder['status']
 ): ReminderLevel {
   if (status === REMINDER_STATUS.PAUSED) return REMINDER_LEVEL.PAUSED;
   if (daysLeft <= 0) return REMINDER_LEVEL.DANGER;
@@ -95,8 +95,8 @@ function calcLevel(
  * 示例："-2" → "逾期 2 天"，"0" → "今日"，"5" → "5 天后"，paused → "已暂停"
  */
 function calcLevelLabel(daysLeft: number, level: ReminderLevel): string {
-  if (level === REMINDER_LEVEL.PAUSED) return "已暂停";
-  if (daysLeft === 0) return "今日";
+  if (level === REMINDER_LEVEL.PAUSED) return '已暂停';
+  if (daysLeft === 0) return '今日';
   if (daysLeft < 0) return `逾期 ${Math.abs(daysLeft)} 天`;
   return `${daysLeft} 天后`;
 }
@@ -106,11 +106,11 @@ export function derive(reminder: Reminder): DerivedReminder {
   const todayStr = today();
   const nextPrescriptionDate = calcNextDate(
     reminder.currentPrescriptionDate,
-    reminder.intervalDays,
+    reminder.intervalDays
   );
   const nextRemindDate = calcRemindDate(
     nextPrescriptionDate,
-    reminder.remindAdvanceDays,
+    reminder.remindAdvanceDays
   );
   const daysLeft = diffDays(todayStr, nextPrescriptionDate);
   const level = calcLevel(daysLeft, reminder.status);
@@ -118,7 +118,7 @@ export function derive(reminder: Reminder): DerivedReminder {
   const progress = calcProgress(
     reminder.currentPrescriptionDate,
     nextPrescriptionDate,
-    todayStr,
+    todayStr
   );
 
   return {
@@ -128,7 +128,7 @@ export function derive(reminder: Reminder): DerivedReminder {
     daysLeft,
     level,
     levelLabel,
-    progress,
+    progress
   };
 }
 

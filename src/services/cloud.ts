@@ -1,4 +1,4 @@
-import Taro from "@tarojs/taro";
+import Taro from '@tarojs/taro';
 
 let initialized = false;
 
@@ -20,7 +20,7 @@ export function getCollection(name: string) {
 /** 调用云函数的通用封装 */
 export async function callCloudFn<T = unknown>(
   name: string,
-  data?: Record<string, unknown>,
+  data?: Record<string, unknown>
 ): Promise<T> {
   const res = await Taro.cloud.callFunction({ name, data: data ?? {} });
   return res.result as T;

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
-import { Text, View } from "@tarojs/components";
-import Taro from "@tarojs/taro";
-import { Popup } from "@taroify/core";
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { Text, View } from '@tarojs/components';
+import Taro from '@tarojs/taro';
+import { Popup } from '@taroify/core';
 
-import "./index.scss";
+import './index.scss';
 
 let activeSheetCount = 0;
 
@@ -35,7 +35,7 @@ export default function BottomSheet({
   onClose,
   onAfterOpen,
   onAfterClose,
-  children,
+  children
 }: BottomSheetProps) {
   const registeredRef = useRef(false);
   const [backdropMounted, setBackdropMounted] = useState(open);
