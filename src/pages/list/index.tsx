@@ -18,7 +18,8 @@ import { useReminderSheet } from "@/hooks/useReminderSheet";
 import "./index.scss";
 
 const LIST_SHARE_TITLE = "愈程记：把开药提醒管理得更清楚";
-const LIST_SHARE_IMAGE = "/assets/images/logo.png";
+const LIST_SHARE_IMAGE =
+  "https://636c-cloud1-d3gqjwfefe40e4dba-1319087750.tcb.qcloud.la/avatars/logo%E6%97%A0%E6%8D%9F.png?sign=4980dfb686f6b75f077e6dea05d0b215&t=1779097484";
 
 type FilterKey = "all" | ReminderLevel;
 

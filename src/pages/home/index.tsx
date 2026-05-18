@@ -21,7 +21,8 @@ import "./index.scss";
 
 const HOME_SHARE_TITLE = "我在用愈程记管理长期用药提醒，也分享给你";
 const HOME_SHARE_PATH = "/pages/home/index";
-const HOME_SHARE_IMAGE = "/assets/images/logo.png";
+const HOME_SHARE_IMAGE =
+  "https://636c-cloud1-d3gqjwfefe40e4dba-1319087750.tcb.qcloud.la/avatars/logo%E6%97%A0%E6%8D%9F.png?sign=4980dfb686f6b75f077e6dea05d0b215&t=1779097484";
 
 export default function Home() {
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
