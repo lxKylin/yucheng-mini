@@ -41,22 +41,22 @@ function getSubscriptionSummary(status?: string) {
   if (status === USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE) {
     return {
       enabled: true,
-      label: "已获得下一次提醒资格",
-      desc: "下一条命中的提醒会消耗这次微信发送资格",
+      label: "已获得下一次提醒授权",
+      desc: "下一条命中的提醒会消耗这次微信发送授权",
     };
   }
 
   if (status === USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED) {
     return {
       enabled: false,
-      label: "尚未获得提醒资格",
+      label: "尚未获得提醒授权",
       desc: "你之前拒绝过授权，需要重新发起订阅请求",
     };
   }
 
   return {
     enabled: false,
-    label: "尚未获得提醒资格",
+    label: "尚未获得提醒授权",
     desc: "一次性订阅消息发送后会自动失效，需要再次授权",
   };
 }
@@ -155,7 +155,7 @@ export default function Profile() {
       USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
     ) {
       Taro.showToast({
-        title: "已获得下一次提醒资格",
+        title: "已获得下一次提醒授权",
         icon: "none",
         duration: 1500,
       });
@@ -328,7 +328,7 @@ export default function Profile() {
         <View className="profile-page__menu">
           <View className="profile-page__menu-item">
             <View className="profile-page__menu-copy">
-              <Text className="profile-page__menu-label">订阅消息资格</Text>
+              <Text className="profile-page__menu-label">订阅消息授权</Text>
               <Text className="profile-page__menu-desc">
                 {subscriptionSummary.label} · {subscriptionSummary.desc}
               </Text>
