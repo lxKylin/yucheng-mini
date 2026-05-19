@@ -1,4 +1,4 @@
-@use "@/styles/variables" as *;
+@use '@/assets/styles/variables' as *;
 
 page {
   min-height: 100vh;
@@ -7,7 +7,7 @@ page {
   font-size: $text-base;
   line-height: 1.5;
   box-sizing: border-box;
-  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
 }
 
 *,

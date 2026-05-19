@@ -1,4 +1,4 @@
-@use "@/styles/variables" as *;
+@use '@/assets/styles/variables' as *;
 
 .profile-page {
   min-height: 100vh;
@@ -261,7 +261,7 @@
     box-sizing: border-box;
 
     &::before {
-      content: "";
+      content: '';
       display: block;
       width: 42px;
       height: 42px;
