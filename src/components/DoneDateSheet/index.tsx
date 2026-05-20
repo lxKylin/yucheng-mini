@@ -41,12 +41,13 @@ export default function DoneDateSheet({
     return null;
   }
 
+  const startDate = item.currentPrescriptionDate || item.nextPrescriptionDate;
   const endDate = today();
 
   const handleConfirm = async () => {
-    if (selectedDate < item.nextPrescriptionDate) {
+    if (selectedDate > endDate) {
       Taro.showToast({
-        title: '实际日期不能早于计划开药日',
+        title: '实际日期不能晚于今天',
         icon: 'none',
         duration: 1800
       });
@@ -101,7 +102,7 @@ export default function DoneDateSheet({
           <Text className="done-date-sheet__label">实际开药日期</Text>
           <Picker
             mode="date"
-            start={item.nextPrescriptionDate}
+            start={startDate}
             end={endDate}
             value={selectedDate}
             onChange={(event: DatePickerEvent) =>

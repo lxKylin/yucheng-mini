@@ -168,6 +168,7 @@ export default function ReminderForm({
       } else {
         await addReminder({
           ...payload,
+          reminderEnabled: true,
           lastWechatReminderDate: '',
           lastWechatReminderAt: '',
           status: REMINDER_STATUS.ACTIVE,

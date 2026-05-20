@@ -1,12 +1,18 @@
 import Taro from '@tarojs/taro';
 
-import { REMINDER_STATUS } from '@/constants';
+import {
+  DEFAULT_BEFORE,
+  DEFAULT_INTERVAL,
+  DEFAULT_REMIND_TIME,
+  REMINDER_STATUS
+} from '@/constants';
 import type {
   DosageUnit,
   Medicine,
   MedicineForm,
   MedicineSchedule
 } from '@/types';
+import { today } from '@/utils/dateUtils';
 import { getCollection } from './cloud';
 import { getUserId } from './auth';
 
@@ -69,10 +75,16 @@ function toNumber(value: unknown, fallback: number): number {
   return Number.isFinite(next) ? next : fallback;
 }
 
+function toArray(value: unknown): string[] {
+  return Array.isArray(value) ? value : [];
+}
+
 export function migrateMedicine(raw: any): Medicine {
   const id = raw.id ?? raw._id ?? '';
   const name = raw.name ?? raw.medicineName ?? '';
   const spec = raw.spec ?? raw.medicineSpec ?? '';
+  const currentPrescriptionDate =
+    raw.currentPrescriptionDate || raw.lastDate || today();
 
   return {
     id,
@@ -87,12 +99,15 @@ export function migrateMedicine(raw: any): Medicine {
     scheduleTiming: normalizeScheduleTiming(raw.scheduleTiming ?? raw.timing),
     scheduleTime: raw.scheduleTime ?? raw.timingTime ?? '',
     reminderEnabled: raw.reminderEnabled ?? true,
-    currentPrescriptionDate: raw.currentPrescriptionDate ?? raw.lastDate ?? '',
-    intervalDays: toNumber(raw.intervalDays ?? raw.interval, 30),
-    remindAdvanceDays: toNumber(raw.remindAdvanceDays ?? raw.before, 7),
-    remindTime: raw.remindTime ?? '09:00',
+    currentPrescriptionDate,
+    intervalDays: toNumber(raw.intervalDays ?? raw.interval, DEFAULT_INTERVAL),
+    remindAdvanceDays: toNumber(
+      raw.remindAdvanceDays ?? raw.before,
+      DEFAULT_BEFORE
+    ),
+    remindTime: raw.remindTime || raw.time || DEFAULT_REMIND_TIME,
     status: raw.status ?? REMINDER_STATUS.ACTIVE,
-    prescriptionHistory: raw.prescriptionHistory ?? raw.history ?? [],
+    prescriptionHistory: toArray(raw.prescriptionHistory ?? raw.history),
     lastWechatReminderDate: raw.lastWechatReminderDate ?? '',
     lastWechatReminderAt: raw.lastWechatReminderAt ?? '',
     createdAt: raw.createdAt ?? '',
@@ -111,6 +126,26 @@ function toCloudMedicinePayload(
 
   if (typeof medicine.spec !== 'undefined') {
     payload.medicineSpec = medicine.spec;
+  }
+
+  if (typeof medicine.currentPrescriptionDate !== 'undefined') {
+    payload.lastDate = medicine.currentPrescriptionDate;
+  }
+
+  if (typeof medicine.intervalDays !== 'undefined') {
+    payload.interval = medicine.intervalDays;
+  }
+
+  if (typeof medicine.remindAdvanceDays !== 'undefined') {
+    payload.before = medicine.remindAdvanceDays;
+  }
+
+  if (typeof medicine.remindTime !== 'undefined') {
+    payload.time = medicine.remindTime;
+  }
+
+  if (typeof medicine.prescriptionHistory !== 'undefined') {
+    payload.history = medicine.prescriptionHistory;
   }
 
   return payload;

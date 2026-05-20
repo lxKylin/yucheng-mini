@@ -96,6 +96,16 @@ function safeText(value, max = 20) {
     .slice(0, max);
 }
 
+function getReminderFields(medicine) {
+  return {
+    currentPrescriptionDate:
+      medicine.currentPrescriptionDate || medicine.lastDate || formatDate(),
+    intervalDays: medicine.intervalDays || medicine.interval || 30,
+    remindAdvanceDays: medicine.remindAdvanceDays || medicine.before || 7,
+    remindTime: medicine.remindTime || medicine.time || '09:00'
+  };
+}
+
 function assertWechatConfig() {
   if (!APP_ID) {
     throw new Error('未配置小程序 APP_ID，请设置 ENV_APP_ID 或 WX_APP_ID');
@@ -342,12 +352,16 @@ exports.main = async () => {
         /**
          * 计算日期
          */
+        const reminderFields = getReminderFields(medicine);
         const nextDate = calcNextDate(
-          medicine.currentPrescriptionDate,
-          medicine.intervalDays
+          reminderFields.currentPrescriptionDate,
+          reminderFields.intervalDays
         );
 
-        const remindDate = calcRemindDate(nextDate, medicine.remindAdvanceDays);
+        const remindDate = calcRemindDate(
+          nextDate,
+          reminderFields.remindAdvanceDays
+        );
 
         console.log(
           `[reminder] 药品=${medicineName} remindDate=${remindDate} nextDate=${nextDate}`
@@ -364,9 +378,9 @@ exports.main = async () => {
         /**
          * 时间未命中
          */
-        if (!isTimeMatched(medicine.remindTime || '09:00')) {
+        if (!isTimeMatched(reminderFields.remindTime)) {
           console.log(
-            `[reminder] 时间未命中 remindTime=${medicine.remindTime}`
+            `[reminder] 时间未命中 remindTime=${reminderFields.remindTime}`
           );
 
           results.skipped++;

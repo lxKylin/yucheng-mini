@@ -85,7 +85,11 @@ export function useProfileStats() {
       (r) => r.status !== REMINDER_STATUS.DELETED
     );
     const historyTotal = visibleList.reduce(
-      (sum, r) => sum + r.prescriptionHistory.length,
+      (sum, r) =>
+        sum +
+        (Array.isArray(r.prescriptionHistory)
+          ? r.prescriptionHistory.length
+          : 0),
       0
     );
 
