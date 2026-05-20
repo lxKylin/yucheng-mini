@@ -1,0 +1,1714 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>愈程记 ui6.1 可交互原型</title>
+    <style>
+      :root {
+        --bg: #eaf7f3;
+        --paper: #ffffff;
+        --paper-soft: #f6fffb;
+        --ink: #14312f;
+        --muted: #617b79;
+        --line: #d6ebe5;
+        --primary: #0d8a6c;
+        --primary-deep: #076958;
+        --primary-soft: #d9f5eb;
+        --cyan: #0891b2;
+        --danger: #c84f43;
+        --danger-soft: #fff0ed;
+        --warning: #b86c1e;
+        --warning-soft: #fff5e4;
+        --shadow: 0 18px 42px rgba(12, 74, 62, 0.12);
+        --bar-h: 92px;
+        --radius: 18px;
+        font-family:
+          "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at 20% 10%, rgba(13, 138, 108, 0.12), transparent 28%),
+          linear-gradient(135deg, #f8fbfa 0%, #dff4ef 100%);
+        color: var(--ink);
+      }
+
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible,
+      select:focus-visible {
+        outline: 3px solid rgba(8, 145, 178, 0.45);
+        outline-offset: 2px;
+      }
+
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 16px;
+        z-index: 200;
+        transform: translateY(-120%);
+        border-radius: 999px;
+        background: var(--ink);
+        color: #fff;
+        padding: 10px 14px;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .stage {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .phone {
+        width: min(100%, 390px);
+        height: min(100dvh - 28px, 844px);
+        min-height: 720px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 34px;
+        background: var(--bg);
+        box-shadow:
+          0 0 0 8px #242626,
+          0 26px 70px rgba(10, 31, 29, 0.34);
+      }
+
+      .notch {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        z-index: 10;
+        width: 214px;
+        height: 47px;
+        transform: translateX(-50%);
+        border-radius: 0 0 24px 24px;
+        background: #000;
+      }
+
+      .status {
+        height: 44px;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        padding: 0 14px 8px;
+        font-size: 16px;
+        color: #0a1816;
+      }
+
+      .status__right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .battery {
+        width: 28px;
+        height: 13px;
+        border: 2px solid #101010;
+        border-radius: 3px;
+        position: relative;
+      }
+
+      .battery::before {
+        content: "";
+        position: absolute;
+        right: -5px;
+        top: 3px;
+        width: 3px;
+        height: 5px;
+        border-radius: 0 2px 2px 0;
+        background: #101010;
+      }
+
+      .battery::after {
+        content: "";
+        display: block;
+        width: 21px;
+        height: 7px;
+        margin: 1px;
+        border-radius: 1px;
+        background: #101010;
+      }
+
+      .appbar {
+        position: relative;
+        height: 84px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 12px;
+      }
+
+      .app-title {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .wechat-pill {
+        position: absolute;
+        right: 12px;
+        top: 26px;
+        width: 70px;
+        height: 38px;
+        border: 1px solid rgba(24, 48, 45, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 2px 8px rgba(25, 56, 51, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #050505;
+      }
+
+      .circle-dot {
+        width: 20px;
+        height: 20px;
+        border: 3px solid #060606;
+        border-radius: 50%;
+        position: relative;
+      }
+
+      .circle-dot::after {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border-radius: 50%;
+        background: #060606;
+      }
+
+      .screen {
+        position: absolute;
+        inset: 128px 0 var(--bar-h);
+        overflow-y: auto;
+        padding: 0 14px 24px;
+        opacity: 0;
+        transform: translateX(10px);
+        pointer-events: none;
+        transition: opacity 180ms ease, transform 220ms ease;
+        scrollbar-width: none;
+      }
+
+      .screen::-webkit-scrollbar {
+        display: none;
+      }
+
+      .screen.is-active {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      .hero {
+        margin-top: 8px;
+        border-radius: 18px;
+        padding: 18px 16px;
+        color: #fff;
+        background:
+          linear-gradient(135deg, rgba(24, 161, 118, 0.95), rgba(5, 96, 82, 1)),
+          linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.12));
+        box-shadow: 0 16px 28px rgba(10, 118, 91, 0.22);
+      }
+
+      .hero.is-danger {
+        background: linear-gradient(135deg, #d46355, #7e2827);
+      }
+
+      .eyebrow {
+        display: block;
+        font-size: 15px;
+        font-weight: 800;
+        opacity: 0.9;
+      }
+
+      .hero h1 {
+        margin: 6px 0;
+        font-size: 22px;
+        line-height: 1.25;
+      }
+
+      .hero p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.55;
+        opacity: 0.92;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 12px 0 22px;
+      }
+
+      .metric {
+        min-height: 72px;
+        border: 1px solid rgba(213, 233, 226, 0.95);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 8px 18px rgba(35, 90, 79, 0.06);
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 4px;
+      }
+
+      .metric strong {
+        font-size: 22px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 0 10px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .section-head p {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .link-btn {
+        min-height: 44px;
+        padding: 0 4px;
+        color: var(--primary-deep);
+        background: transparent;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .cards {
+        display: grid;
+        gap: 12px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.97);
+        padding: 16px 14px;
+        box-shadow: 0 10px 22px rgba(16, 74, 91, 0.06);
+      }
+
+      .med-card {
+        position: relative;
+      }
+
+      .med-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .med-name {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      .tag {
+        min-height: 28px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-size: 14px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .tag.danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+
+      .tag.warning {
+        background: var(--warning-soft);
+        color: var(--warning);
+      }
+
+      .tag.paused {
+        background: #eef3f3;
+        color: #667a7a;
+      }
+
+      .meta {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 650;
+        line-height: 1.45;
+      }
+
+      .meta.accent {
+        color: var(--primary);
+        font-weight: 900;
+      }
+
+      .meta.danger {
+        color: var(--danger);
+      }
+
+      .meta.warning {
+        color: var(--warning);
+      }
+
+      .progress {
+        height: 6px;
+        margin: 12px 0 14px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: #e5f0ed;
+      }
+
+      .progress > span {
+        display: block;
+        width: var(--value);
+        height: 100%;
+        border-radius: inherit;
+        background: var(--primary);
+      }
+
+      .danger .progress > span {
+        background: var(--danger);
+      }
+
+      .warning .progress > span {
+        background: var(--warning);
+      }
+
+      .card-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .action {
+        min-height: 50px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 17px;
+        font-weight: 900;
+        transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+      }
+
+      .action:active {
+        transform: scale(0.97);
+      }
+
+      .action.secondary {
+        background: #d8f2eb;
+        color: var(--primary-deep);
+      }
+
+      .action.warning {
+        background: var(--warning);
+      }
+
+      .action.danger {
+        background: var(--danger);
+      }
+
+      .action[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .icon {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .search {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding-top: 8px;
+        background: linear-gradient(var(--bg) 72%, rgba(234, 247, 243, 0));
+      }
+
+      .search-field {
+        height: 58px;
+        border: 0;
+        border-radius: 14px;
+        background: #fff;
+        color: var(--ink);
+        width: 100%;
+        padding: 0 16px 0 46px;
+        box-shadow: inset 0 0 0 1px rgba(220, 236, 231, 0.8);
+        font-size: 16px;
+      }
+
+      .search-wrap {
+        position: relative;
+      }
+
+      .search-wrap .icon {
+        position: absolute;
+        left: 16px;
+        top: 19px;
+        color: #7f9895;
+      }
+
+      .filters {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        margin: 12px 0;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+
+      .filters::-webkit-scrollbar {
+        display: none;
+      }
+
+      .chip {
+        min-height: 42px;
+        border-radius: 999px;
+        padding: 0 14px;
+        background: #fff;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .chip.is-active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+
+      .profile-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 108px;
+      }
+
+      .avatar {
+        width: 62px;
+        height: 62px;
+        border-radius: 22px;
+        background:
+          linear-gradient(135deg, rgba(8, 145, 178, 0.08), rgba(13, 138, 108, 0.2)),
+          url("../src/assets/images/logo-无文字.png") center / cover no-repeat;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+      }
+
+      .profile-name {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .menu {
+        display: grid;
+        gap: 10px;
+      }
+
+      .menu-item {
+        min-height: 76px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .menu-label {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 900;
+      }
+
+      .menu-desc {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .switch {
+        width: 58px;
+        height: 34px;
+        border-radius: 999px;
+        background: #d6e1df;
+        padding: 4px;
+        transition: background 180ms ease;
+      }
+
+      .switch::after {
+        content: "";
+        display: block;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        transition: transform 180ms ease;
+      }
+
+      .switch.is-on {
+        background: var(--primary);
+      }
+
+      .switch.is-on::after {
+        transform: translateX(24px);
+      }
+
+      .value-btn {
+        min-height: 44px;
+        background: transparent;
+        color: var(--ink);
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 36px 18px;
+      }
+
+      .empty strong {
+        display: block;
+        font-size: 20px;
+      }
+
+      .empty p {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .fab {
+        position: absolute;
+        right: 16px;
+        bottom: 98px;
+        z-index: 20;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        background: linear-gradient(145deg, #0e9174, #08745f);
+        box-shadow: 0 18px 34px rgba(5, 87, 72, 0.28);
+        font-size: 28px;
+      }
+
+      .tabbar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 18;
+        height: var(--bar-h);
+        border-top: 1px solid rgba(220, 230, 229, 0.85);
+        background: rgba(255, 255, 255, 0.98);
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        padding: 8px 12px 18px;
+      }
+
+      .tab {
+        min-height: 56px;
+        border-radius: 16px;
+        background: transparent;
+        color: #8aa0a7;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 3px;
+        font-size: 12px;
+      }
+
+      .tab .icon {
+        width: 24px;
+        height: 24px;
+      }
+
+      .tab.is-active {
+        color: var(--primary);
+        font-weight: 850;
+      }
+
+      .home-indicator {
+        position: absolute;
+        left: 50%;
+        bottom: 6px;
+        z-index: 30;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 5px;
+        border-radius: 999px;
+        background: #0a0a0a;
+      }
+
+      .sheet-mask {
+        position: absolute;
+        inset: 0;
+        z-index: 40;
+        display: none;
+        background: rgba(7, 28, 26, 0.48);
+      }
+
+      .sheet-mask.is-open {
+        display: block;
+      }
+
+      .sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        max-height: 78%;
+        border-radius: 26px 26px 0 0;
+        background: var(--paper);
+        transform: translateY(105%);
+        transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        box-shadow: 0 -20px 50px rgba(4, 40, 35, 0.24);
+        overflow: hidden;
+      }
+
+      .sheet.is-open {
+        transform: translateY(0);
+      }
+
+      .sheet-head {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sheet-title {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .close {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        color: var(--muted);
+        background: #eff7f5;
+        font-size: 24px;
+      }
+
+      .sheet-body {
+        max-height: calc(78vh - 60px);
+        overflow-y: auto;
+        padding: 16px 16px 28px;
+      }
+
+      .detail-summary {
+        padding: 0 2px 4px;
+      }
+
+      .detail-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .detail-title {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.18;
+      }
+
+      .detail-spec {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .detail-note {
+        margin: 5px 0 0;
+        color: #7a9491;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .days-big {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-top: 16px;
+        color: var(--primary);
+      }
+
+      .days-big strong {
+        font-size: 56px;
+        line-height: 0.95;
+        font-weight: 950;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .days-big span {
+        font-size: 16px;
+        font-weight: 900;
+      }
+
+      .detail-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 14px 0 12px;
+      }
+
+      .detail-actions .action {
+        min-height: 58px;
+      }
+
+      .detail-actions .action.secondary {
+        background: #f2f8f6;
+        color: #173b37;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 12px 0;
+      }
+
+      .info {
+        border-radius: 14px;
+        background: #f5fbf9;
+        padding: 11px 10px;
+      }
+
+      .info span {
+        display: block;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 850;
+      }
+
+      .info strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 17px;
+        line-height: 1.25;
+      }
+
+      .detail-notice {
+        border-radius: 16px;
+        background: #d8f5eb;
+        border: 1px solid #b7eadc;
+        padding: 12px;
+        color: #4d837b;
+        line-height: 1.55;
+        font-size: 12px;
+      }
+
+      .detail-notice strong {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--primary-deep);
+        font-size: 15px;
+      }
+
+      .detail-footer-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 12px 0 10px;
+      }
+
+      .detail-footer-actions .action {
+        min-height: 58px;
+      }
+
+      .action.delete {
+        background: #ffe9e5;
+        color: var(--danger);
+      }
+
+      .history-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+      }
+
+      .history-head h3 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .history-head span {
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .history-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      .history-row span {
+        font-size: 13px;
+        text-align: right;
+      }
+
+      .notice {
+        border-radius: 16px;
+        background: #f0fbf7;
+        border: 1px solid var(--line);
+        padding: 14px;
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 13px;
+      }
+
+      .form {
+        display: grid;
+        gap: 12px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        color: #557b75;
+        font-size: 15px;
+        font-weight: 900;
+      }
+
+      .required {
+        color: var(--danger);
+        margin-left: 2px;
+      }
+
+      .field input,
+      .field textarea,
+      .field select {
+        min-height: 52px;
+        width: 100%;
+        border: 1px solid #d7e6e1;
+        border-radius: 14px;
+        background: #fff;
+        color: var(--ink);
+        padding: 0 13px;
+        font-size: 16px;
+        font-weight: 750;
+        box-shadow: inset 0 0 0 1px rgba(10, 63, 54, 0.02);
+      }
+
+      .field input::placeholder,
+      .field textarea::placeholder {
+        color: #c4cecc;
+        font-weight: 750;
+      }
+
+      .field select {
+        appearance: none;
+        background-image:
+          linear-gradient(45deg, transparent 50%, #8aa7a1 50%),
+          linear-gradient(135deg, #8aa7a1 50%, transparent 50%);
+        background-position:
+          calc(100% - 18px) 22px,
+          calc(100% - 12px) 22px;
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+      }
+
+      .field textarea {
+        min-height: 106px;
+        padding-top: 12px;
+        resize: vertical;
+      }
+
+      .form-notice {
+        border-radius: 16px;
+        background: #d7f5ec;
+        border: 1px solid #b8e8dd;
+        padding: 13px 14px;
+        color: #4a8179;
+        line-height: 1.45;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .form-notice strong {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--primary-deep);
+        font-size: 16px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .input-suffix {
+        position: relative;
+      }
+
+      .input-suffix input {
+        padding-right: 42px;
+      }
+
+      .input-suffix span {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #7e9f99;
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      .textarea-wrap {
+        position: relative;
+      }
+
+      .textarea-count {
+        position: absolute;
+        right: 12px;
+        bottom: 10px;
+        color: #8aa7a1;
+        font-size: 12px;
+        font-weight: 850;
+      }
+
+      .calc-pill {
+        min-height: 44px;
+        border-radius: 14px;
+        background: #d7f5ec;
+        color: #4c8179;
+        display: flex;
+        align-items: center;
+        padding: 10px 13px;
+        font-size: 12px;
+        line-height: 1.4;
+        font-weight: 850;
+      }
+
+      .form-submit {
+        min-height: 62px;
+        border-radius: 999px;
+        margin-top: 4px;
+        font-size: 17px;
+      }
+
+      .toast {
+        position: absolute;
+        left: 50%;
+        bottom: 120px;
+        z-index: 80;
+        transform: translate(-50%, 18px);
+        opacity: 0;
+        max-width: 84%;
+        border-radius: 999px;
+        background: rgba(14, 38, 35, 0.92);
+        color: #fff;
+        padding: 12px 16px;
+        font-size: 14px;
+        text-align: center;
+        pointer-events: none;
+        transition: opacity 180ms ease, transform 180ms ease;
+      }
+
+      .toast.is-show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      @media (max-width: 420px) {
+        .stage {
+          padding: 0;
+        }
+
+        .phone {
+          width: 100vw;
+          height: 100dvh;
+          min-height: 100dvh;
+          border-radius: 0;
+          box-shadow: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <main class="stage">
+      <section class="phone" aria-label="愈程记微信小程序 ui6.1 原型">
+        <div class="notch" aria-hidden="true"></div>
+        <div class="status" aria-hidden="true">
+          <span>11:55</span>
+          <span class="status__right">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0" /><path d="M8.5 16a5 5 0 0 1 7 0" /><path d="M12 19h.01" /></svg>
+            <span class="battery"></span>
+          </span>
+        </div>
+        <header class="appbar">
+          <strong class="app-title" id="appTitle">首页</strong>
+          <div class="wechat-pill" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="circle-dot"></span>
+          </div>
+        </header>
+
+        <section class="screen is-active" data-screen="home" id="main" tabindex="-1"></section>
+        <section class="screen" data-screen="list" tabindex="-1"></section>
+        <section class="screen" data-screen="profile" tabindex="-1"></section>
+
+        <button class="fab" type="button" aria-label="新增开药提醒" id="fab">+</button>
+
+        <nav class="tabbar" aria-label="底部导航">
+          <button class="tab is-active" type="button" data-nav="home" aria-label="首页">
+            <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8" /><path d="M5 10v10h14V10" /><path d="M9 20v-6h6v6" /></svg>
+            <span>首页</span>
+          </button>
+          <button class="tab" type="button" data-nav="list" aria-label="提醒列表">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" /></svg>
+            <span>提醒</span>
+          </button>
+          <button class="tab" type="button" data-nav="profile" aria-label="我的">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M19 21a7 7 0 0 0-14 0" /><circle cx="12" cy="8" r="4" /></svg>
+            <span>我的</span>
+          </button>
+        </nav>
+        <div class="home-indicator" aria-hidden="true"></div>
+
+        <div class="sheet-mask" id="sheetMask"></div>
+        <aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+          <div class="sheet-head">
+            <h2 class="sheet-title" id="sheetTitle">详情</h2>
+            <button class="close" type="button" aria-label="关闭弹层" id="closeSheet">×</button>
+          </div>
+          <div class="sheet-body" id="sheetBody"></div>
+        </aside>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script>
+      const today = "2026-05-20";
+      const state = {
+        tab: "home",
+        filter: "all",
+        search: "",
+        subscription: true,
+        defaultTime: "09:00",
+        defaultBefore: 7,
+        reminders: [
+          {
+            id: "r1",
+            medicineName: "瑞舒伐他汀",
+            medicineSpec: "10mg",
+            currentPrescriptionDate: "2026-05-05",
+            intervalDays: 28,
+            remindAdvanceDays: 5,
+            remindTime: "09:00",
+            note: "晚间服用，复查血脂时带上上次报告。",
+            status: "active",
+            prescriptionHistory: ["2026-05-05", "2026-04-07", "2026-03-10"]
+          },
+          {
+            id: "r2",
+            medicineName: "洛拉替尼",
+            medicineSpec: "100mg",
+            currentPrescriptionDate: "2026-05-15",
+            intervalDays: 30,
+            remindAdvanceDays: 7,
+            remindTime: "09:00",
+            note: "靶向药，提前联系医生确认续方。",
+            status: "active",
+            prescriptionHistory: ["2026-05-15", "2026-04-15", "2026-03-16"]
+          },
+          {
+            id: "r3",
+            medicineName: "地舒单抗",
+            medicineSpec: "120ml",
+            currentPrescriptionDate: "2026-05-18",
+            intervalDays: 28,
+            remindAdvanceDays: 7,
+            remindTime: "09:00",
+            note: "注意冷链与注射预约。",
+            status: "active",
+            prescriptionHistory: ["2026-05-18", "2026-04-20"]
+          },
+          {
+            id: "r4",
+            medicineName: "左甲状腺素钠",
+            medicineSpec: "50ug",
+            currentPrescriptionDate: "2026-04-30",
+            intervalDays: 45,
+            remindAdvanceDays: 14,
+            remindTime: "08:30",
+            note: "空腹服用，复查甲功。",
+            status: "active",
+            prescriptionHistory: ["2026-04-30", "2026-03-16"]
+          }
+        ]
+      };
+
+      const titles = {
+        home: "首页",
+        list: "提醒列表",
+        profile: "我的"
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+      function parseDate(value) {
+        const [y, m, d] = value.split("-").map(Number);
+        return new Date(y, m - 1, d);
+      }
+
+      function formatDate(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+
+      function addDays(date, days) {
+        const d = parseDate(date);
+        d.setDate(d.getDate() + Number(days));
+        return formatDate(d);
+      }
+
+      function diffDays(from, to) {
+        return Math.round((parseDate(to) - parseDate(from)) / 86400000);
+      }
+
+      function derive(item) {
+        const nextPrescriptionDate = addDays(item.currentPrescriptionDate, item.intervalDays);
+        const nextRemindDate = addDays(nextPrescriptionDate, -item.remindAdvanceDays);
+        const daysLeft = diffDays(today, nextPrescriptionDate);
+        const elapsed = diffDays(item.currentPrescriptionDate, today);
+        const progress = Math.max(0, Math.min(100, Math.round((elapsed / item.intervalDays) * 100)));
+        let level = "good";
+        if (item.status === "paused") level = "paused";
+        else if (daysLeft <= 0) level = "danger";
+        else if (daysLeft <= 7) level = "warning";
+        const levelLabel = level === "paused" ? "已暂停" : daysLeft === 0 ? "今日" : daysLeft < 0 ? `逾期 ${Math.abs(daysLeft)} 天` : `${daysLeft} 天后`;
+        return { ...item, nextPrescriptionDate, nextRemindDate, daysLeft, progress, level, levelLabel };
+      }
+
+      function derivedList() {
+        const order = { danger: 0, warning: 1, good: 2, paused: 3 };
+        return state.reminders
+          .filter((item) => item.status !== "deleted")
+          .map(derive)
+          .sort((a, b) => order[a.level] - order[b.level] || a.nextPrescriptionDate.localeCompare(b.nextPrescriptionDate));
+      }
+
+      function icon(name) {
+        const icons = {
+          check: '<svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+          eye: '<svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>',
+          search: '<svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
+        };
+        return icons[name] || "";
+      }
+
+      function card(item, compact = false) {
+        const accent = item.level === "danger" ? "danger" : item.level === "warning" ? "warning" : item.level === "paused" ? "paused" : "";
+        return `
+          <article class="card med-card ${accent}" data-card="${item.id}">
+            <div class="med-head">
+              <h3 class="med-name">${item.medicineName}</h3>
+              <span class="tag ${accent}">${item.levelLabel}</span>
+            </div>
+            <p class="meta">规格: ${item.medicineSpec || "-"} · 周期: ${item.intervalDays} 天</p>
+            <p class="meta">最近一盒开始时间: ${item.currentPrescriptionDate}</p>
+            <p class="meta accent ${accent}">下一盒开始时间: ${item.nextPrescriptionDate}</p>
+            <p class="meta accent ${accent}">提醒时间: ${item.nextRemindDate} ${item.remindTime}</p>
+            <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${item.progress}" aria-label="${item.medicineName} 周期进度">
+              <span style="--value:${item.progress}%"></span>
+            </div>
+            ${compact ? "" : `
+              <div class="card-actions">
+                <button class="action ${accent}" type="button" data-done="${item.id}" ${item.level === "paused" ? "disabled" : ""}>${icon("check")}已开药</button>
+                <button class="action secondary" type="button" data-detail="${item.id}">${icon("eye")}查看详情</button>
+              </div>
+            `}
+          </article>
+        `;
+      }
+
+      function renderHome() {
+        const list = derivedList();
+        const overdue = list.filter((i) => i.status !== "paused" && i.daysLeft < 0).length;
+        const todayCount = list.filter((i) => i.status !== "paused" && i.daysLeft === 0).length;
+        const hasDanger = overdue > 0 || todayCount > 0;
+        $('[data-screen="home"]').innerHTML = `
+          <section class="hero ${hasDanger ? "is-danger" : ""}">
+            <span class="eyebrow">今日待办</span>
+            <h1>${overdue} 个已逾期，${todayCount} 个今天到期</h1>
+            <p>${hasDanger ? "建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。" : "近期没有紧急开药任务，继续保持当前记录节奏。"}</p>
+          </section>
+          <section class="metrics" aria-label="今日统计">
+            <div class="metric"><strong>${overdue}</strong><span>已逾期</span></div>
+            <div class="metric"><strong>${todayCount}</strong><span>今日处理</span></div>
+            <div class="metric"><strong>${list.length}</strong><span>药物数</span></div>
+          </section>
+          <div class="section-head">
+            <div><h2>最近提醒</h2><p>仅展示最近 3 条，更多提醒请查看全部</p></div>
+            <button class="link-btn" type="button" data-jump="list">查看全部</button>
+          </div>
+          <div class="cards">${list.slice(0, 3).map((item) => card(item)).join("")}</div>
+        `;
+      }
+
+      function renderList() {
+        const all = derivedList();
+        const counts = {
+          all: all.length,
+          danger: all.filter((i) => i.level === "danger").length,
+          warning: all.filter((i) => i.level === "warning").length,
+          good: all.filter((i) => i.level === "good").length,
+          paused: all.filter((i) => i.level === "paused").length
+        };
+        const tabs = [
+          ["all", "全部"],
+          ["danger", "逾期·今日"],
+          ["warning", "7天内"],
+          ["good", "正常"],
+          ["paused", "暂停"]
+        ];
+        const term = state.search.trim().toLowerCase();
+        const filtered = all.filter((item) => {
+          const byFilter = state.filter === "all" || item.level === state.filter;
+          const bySearch = !term || item.medicineName.toLowerCase().includes(term) || item.medicineSpec.toLowerCase().includes(term);
+          return byFilter && bySearch;
+        });
+        $('[data-screen="list"]').innerHTML = `
+          <div class="search">
+            <div class="search-wrap">
+              ${icon("search")}
+              <input class="search-field" id="searchField" value="${state.search}" placeholder="搜索药物名称或规格" aria-label="搜索药物名称或规格" />
+            </div>
+            <div class="filters" role="tablist" aria-label="提醒状态筛选">
+              ${tabs.map(([key, label]) => `<button class="chip ${state.filter === key ? "is-active" : ""}" type="button" data-filter="${key}">${label} ${counts[key]}</button>`).join("")}
+            </div>
+          </div>
+          <div class="cards">${filtered.length ? filtered.map((item) => card(item)).join("") : `<div class="card empty"><strong>没有符合条件的提醒</strong><p>换个关键词或筛选项试试，也可以点击右下角新增提醒。</p></div>`}</div>
+        `;
+        $("#searchField").addEventListener("input", (event) => {
+          state.search = event.target.value;
+          renderList();
+        });
+      }
+
+      function renderProfile() {
+        $('[data-screen="profile"]').innerHTML = `
+          <div class="card profile-card">
+            <div class="avatar" role="img" aria-label="用户头像"></div>
+            <div>
+              <h2 class="profile-name">晚风予星</h2>
+              <p class="meta">共有 ${derivedList().length} 个药物</p>
+            </div>
+          </div>
+          <div style="height:12px"></div>
+          <div class="menu">
+            <article class="card menu-item">
+              <div><h3 class="menu-label">订阅消息授权</h3><p class="menu-desc">${state.subscription ? "已获得下一次提醒授权 · 下一条命中的提醒会消耗这次微信发送授权" : "尚未获得提醒授权 · 一次性订阅消息发送后会自动失效"}</p></div>
+              <button class="switch ${state.subscription ? "is-on" : ""}" type="button" role="switch" aria-checked="${state.subscription}" aria-label="切换订阅消息授权" id="subSwitch"></button>
+            </article>
+            <article class="card menu-item">
+              <div><h3 class="menu-label">默认提醒时间</h3><p class="menu-desc">新建提醒时自动带入</p></div>
+              <button class="value-btn" type="button" data-setting="time">${state.defaultTime}</button>
+            </article>
+            <article class="card menu-item">
+              <div><h3 class="menu-label">默认提醒前天数</h3><p class="menu-desc">建议首次使用默认 7 天</p></div>
+              <button class="value-btn" type="button" data-setting="before">${state.defaultBefore} 天</button>
+            </article>
+          </div>
+        `;
+        $("#subSwitch").addEventListener("click", () => {
+          state.subscription = !state.subscription;
+          toast(state.subscription ? "已获得下一次提醒授权" : "已关闭本次授权展示");
+          renderProfile();
+        });
+      }
+
+      function detailContent(item) {
+        const daysNumber = item.daysLeft === 0 ? "" : Math.abs(item.daysLeft);
+        const daysText = item.daysLeft < 0 ? "天 · 已逾期" : item.daysLeft === 0 ? "今日需要开药" : "天后预计需要重新开药";
+        const doneTone = item.level === "danger" ? "danger" : item.level === "warning" ? "warning" : "";
+        return `
+          <div class="detail-summary ${item.level}">
+            <div class="detail-top">
+              <div>
+                <h3 class="detail-title">${item.medicineName}</h3>
+                <span class="detail-spec">${item.medicineSpec || "-"}</span>
+                <p class="detail-note">${item.note || "暂无备注"}</p>
+              </div>
+              <span class="tag ${item.level}">${item.levelLabel}</span>
+            </div>
+            <div class="days-big">
+              ${daysNumber === "" ? "" : `<strong>${daysNumber}</strong>`}
+              <span>${daysText}</span>
+            </div>
+            <div class="progress" role="progressbar" aria-label="详情周期进度" aria-valuenow="${item.progress}" aria-valuemin="0" aria-valuemax="100">
+              <span style="--value:${item.progress}%"></span>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button class="action ${doneTone}" type="button" data-done="${item.id}" ${item.level === "paused" ? "disabled" : ""}>本次已开药</button>
+            <button class="action secondary" type="button" data-pause="${item.id}">${item.status === "paused" ? "重新启用" : "暂停提醒"}</button>
+          </div>
+          <div class="info-grid">
+            <div class="info"><span>最近开药日期</span><strong>${item.currentPrescriptionDate}</strong></div>
+            <div class="info"><span>开药间隔</span><strong>${item.intervalDays} 天</strong></div>
+            <div class="info"><span>下次开药日期</span><strong>${item.nextPrescriptionDate}</strong></div>
+            <div class="info"><span>提醒设置</span><strong>提前 ${item.remindAdvanceDays} 天 ${item.remindTime}</strong></div>
+          </div>
+          <p class="detail-notice"><strong>推荐操作</strong>如果今天已经完成挂号或续方，点击「本次已开药」，系统会更新最近开药日期并推算下一次提醒。</p>
+          <div class="detail-footer-actions">
+            <button class="action" type="button" data-edit="${item.id}">编辑提醒</button>
+            <button class="action delete" type="button" data-delete="${item.id}">删除提醒</button>
+          </div>
+          <div class="history-head">
+            <h3>开药历史记录</h3>
+            <span>最近 ${item.prescriptionHistory.length} 次</span>
+          </div>
+          ${item.prescriptionHistory.map((date) => `<div class="info history-row"><strong>${date}</strong><span>周期 ${item.intervalDays} 天 · 提前 ${item.remindAdvanceDays} 天提醒</span></div>`).join("")}
+        `;
+      }
+
+      function formContent(editItem) {
+        const startDate = editItem?.currentPrescriptionDate || today;
+        const interval = editItem?.intervalDays || 30;
+        const before = editItem?.remindAdvanceDays || state.defaultBefore;
+        const remindTime = editItem?.remindTime || state.defaultTime;
+        const nextDate = addDays(startDate, interval);
+        const remindDate = addDays(nextDate, -before);
+        const beforeOptions = [1, 3, 7, 14, 30]
+          .map((value) => `<option value="${value}" ${value === before ? "selected" : ""}>${value}天</option>`)
+          .join("");
+        return `
+          <form class="form" id="reminderForm" ${editItem ? `data-editing="${editItem.id}"` : ""}>
+            <div class="form-notice"><strong>保存后自动推算下次开药</strong>系统会使用最近开药日期、间隔天数和提前提醒量生成下一次提醒。</div>
+            <div class="field"><label for="medicineName">药物名称<span class="required">*</span></label><input id="medicineName" name="medicineName" required placeholder="例如：洛拉替尼" value="${editItem?.medicineName || ""}" /></div>
+            <div class="field"><label for="medicineSpec">药物规格</label><input id="medicineSpec" name="medicineSpec" placeholder="例如：20mg" value="${editItem?.medicineSpec || ""}" /></div>
+            <div class="form-grid">
+              <div class="field"><label for="startDate">最近开药日期<span class="required">*</span></label><input id="startDate" name="startDate" type="date" required value="${startDate}" /></div>
+              <div class="field"><label for="intervalDays">下次开药间隔<span class="required">*</span></label><div class="input-suffix"><input id="intervalDays" name="intervalDays" type="number" min="1" max="365" required value="${interval}" /><span>天</span></div></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label for="beforeDays">提前提醒<span class="required">*</span></label><select id="beforeDays" name="beforeDays">${beforeOptions}</select></div>
+              <div class="field"><label for="remindTime">提醒时间<span class="required">*</span></label><input id="remindTime" name="remindTime" type="time" value="${remindTime}" /></div>
+            </div>
+            <div class="field"><label for="note">备注</label><div class="textarea-wrap"><textarea id="note" name="note" maxlength="100" placeholder="医院、复诊事项、注意事项">${editItem?.note || ""}</textarea><span class="textarea-count" id="noteCount">${(editItem?.note || "").length}/100</span></div></div>
+            <div class="calc-pill" id="calcText">预计下次开药日期为 ${nextDate}，提醒时间为 ${remindDate} ${remindTime}</div>
+            <button class="action form-submit" type="submit">${editItem ? "保存修改" : "保存并开启提醒"}</button>
+          </form>
+        `;
+      }
+
+      function doneContent(item) {
+        return `
+          <form class="form" id="doneForm" data-id="${item.id}">
+            <p class="notice">当前已逾期 ${Math.abs(item.daysLeft)} 天。请确认这次实际开药日期，系统会按此日期进入下一周期。</p>
+            <div class="info-grid">
+              <div class="info"><span>计划开药日期</span><strong>${item.nextPrescriptionDate}</strong></div>
+              <div class="info"><span>默认记录日期</span><strong>今天</strong></div>
+            </div>
+            <div class="field"><label for="doneDate">实际开药日期</label><input id="doneDate" type="date" min="${item.nextPrescriptionDate}" max="${today}" value="${today}" /></div>
+            <button class="action" type="submit">按此日期记录</button>
+          </form>
+        `;
+      }
+
+      function settingContent(type) {
+        if (type === "time") {
+          return `<form class="form" id="timeForm"><div class="field"><label for="newTime">默认提醒时间</label><input id="newTime" type="time" value="${state.defaultTime}" /></div><button class="action" type="submit">保存时间</button></form>`;
+        }
+        return `<form class="form" id="beforeForm"><div class="field"><label for="newBefore">默认提前天数</label><select id="newBefore"><option>1</option><option>3</option><option selected>7</option><option>14</option><option>30</option></select></div><button class="action" type="submit">保存提前天数</button></form>`;
+      }
+
+      function openSheet(title, body) {
+        $("#sheetTitle").textContent = title;
+        $("#sheetBody").innerHTML = body;
+        attachFormLiveCalc();
+        $("#sheetMask").classList.add("is-open");
+        $("#sheet").classList.add("is-open");
+      }
+
+      function attachFormLiveCalc() {
+        const form = $("#reminderForm");
+        if (!form) return;
+        const start = $("#startDate");
+        const interval = $("#intervalDays");
+        const before = $("#beforeDays");
+        const time = $("#remindTime");
+        const calcText = $("#calcText");
+        const note = $("#note");
+        const noteCount = $("#noteCount");
+
+        const updateCalc = () => {
+          const days = Number(interval.value);
+          if (!start.value || !days || days < 1 || days > 365) {
+            calcText.textContent = "请输入 1-365 之间的下次开药间隔天数";
+            return;
+          }
+          const nextDate = addDays(start.value, days);
+          const remindDate = addDays(nextDate, -Number(before.value));
+          calcText.textContent = `预计下次开药日期为 ${nextDate}，提醒时间为 ${remindDate} ${time.value}`;
+        };
+
+        const updateNoteCount = () => {
+          noteCount.textContent = `${note.value.length}/100`;
+        };
+
+        [start, interval, before, time].forEach((element) => element.addEventListener("input", updateCalc));
+        [start, interval, before, time].forEach((element) => element.addEventListener("change", updateCalc));
+        note.addEventListener("input", updateNoteCount);
+      }
+
+      function closeSheet() {
+        $("#sheetMask").classList.remove("is-open");
+        $("#sheet").classList.remove("is-open");
+      }
+
+      function toast(message) {
+        const el = $("#toast");
+        el.textContent = message;
+        el.classList.add("is-show");
+        window.clearTimeout(toast.timer);
+        toast.timer = window.setTimeout(() => el.classList.remove("is-show"), 1800);
+      }
+
+      function switchTab(tab) {
+        state.tab = tab;
+        $("#appTitle").textContent = titles[tab];
+        $$(".screen").forEach((screen) => screen.classList.toggle("is-active", screen.dataset.screen === tab));
+        $$(".tab").forEach((button) => button.classList.toggle("is-active", button.dataset.nav === tab));
+        render();
+        const active = $(`[data-screen="${tab}"]`);
+        active.scrollTop = 0;
+        active.focus({ preventScroll: true });
+      }
+
+      function markDone(id, explicitDate) {
+        const target = state.reminders.find((item) => item.id === id);
+        if (!target) return;
+        const derived = derive(target);
+        target.currentPrescriptionDate = explicitDate || derived.nextPrescriptionDate;
+        target.prescriptionHistory = [target.currentPrescriptionDate, ...target.prescriptionHistory].slice(0, 5);
+        toast(`${target.medicineName} 已进入下一轮周期`);
+        closeSheet();
+        render();
+      }
+
+      function render() {
+        renderHome();
+        renderList();
+        renderProfile();
+      }
+
+      document.addEventListener("click", (event) => {
+        const nav = event.target.closest("[data-nav]");
+        if (nav) switchTab(nav.dataset.nav);
+
+        const jump = event.target.closest("[data-jump]");
+        if (jump) switchTab(jump.dataset.jump);
+
+        const filter = event.target.closest("[data-filter]");
+        if (filter) {
+          state.filter = filter.dataset.filter;
+          renderList();
+        }
+
+        const detail = event.target.closest("[data-detail]");
+        if (detail) {
+          const item = derivedList().find((i) => i.id === detail.dataset.detail);
+          if (item) openSheet("提醒详情", detailContent(item));
+        }
+
+        const done = event.target.closest("[data-done]");
+        if (done) {
+          const item = derivedList().find((i) => i.id === done.dataset.done);
+          if (!item || item.level === "paused") return;
+          if (item.daysLeft < 0) openSheet("记录实际开药日期", doneContent(item));
+          else markDone(item.id);
+        }
+
+        const pause = event.target.closest("[data-pause]");
+        if (pause) {
+          const target = state.reminders.find((i) => i.id === pause.dataset.pause);
+          if (target) {
+            target.status = target.status === "paused" ? "active" : "paused";
+            toast(target.status === "paused" ? "提醒已暂停" : "提醒已重新启用");
+            closeSheet();
+            render();
+          }
+        }
+
+        const edit = event.target.closest("[data-edit]");
+        if (edit) {
+          const item = state.reminders.find((i) => i.id === edit.dataset.edit);
+          if (item) openSheet("编辑提醒", formContent(item));
+        }
+
+        const deleteBtn = event.target.closest("[data-delete]");
+        if (deleteBtn) {
+          const item = state.reminders.find((i) => i.id === deleteBtn.dataset.delete);
+          if (item) {
+            item.status = "deleted";
+            toast(`${item.medicineName} 已删除`);
+            closeSheet();
+            render();
+          }
+        }
+
+        const setting = event.target.closest("[data-setting]");
+        if (setting) openSheet(setting.dataset.setting === "time" ? "默认提醒时间" : "默认提前天数", settingContent(setting.dataset.setting));
+      });
+
+      $("#fab").addEventListener("click", () => openSheet("新增开药提醒", formContent()));
+      $("#closeSheet").addEventListener("click", closeSheet);
+      $("#sheetMask").addEventListener("click", closeSheet);
+
+      document.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (event.target.id === "reminderForm") {
+          const data = new FormData(event.target);
+          const name = String(data.get("medicineName") || "").trim();
+          if (!name) {
+            toast("请填写药物名称");
+            return;
+          }
+          const intervalDays = Number(data.get("intervalDays"));
+          if (intervalDays < 1 || intervalDays > 365) {
+            toast("间隔天数需在 1-365 之间");
+            return;
+          }
+          const editingId = event.target.dataset.editing;
+          const payload = {
+            medicineName: name,
+            medicineSpec: String(data.get("medicineSpec") || "").trim(),
+            currentPrescriptionDate: String(data.get("startDate")),
+            intervalDays,
+            remindAdvanceDays: Number(data.get("beforeDays")),
+            remindTime: String(data.get("remindTime")),
+            note: String(data.get("note") || "").trim(),
+            status: "active"
+          };
+          if (editingId) {
+            const target = state.reminders.find((item) => item.id === editingId);
+            if (target) Object.assign(target, payload);
+            toast("提醒已更新");
+          } else {
+            state.reminders.push({
+              id: `r${Date.now()}`,
+              ...payload,
+              prescriptionHistory: [String(data.get("startDate"))]
+            });
+            toast("提醒已创建");
+          }
+          closeSheet();
+          render();
+        }
+
+        if (event.target.id === "doneForm") {
+          markDone(event.target.dataset.id, $("#doneDate").value);
+        }
+
+        if (event.target.id === "timeForm") {
+          state.defaultTime = $("#newTime").value;
+          toast(`默认提醒时间已设为 ${state.defaultTime}`);
+          closeSheet();
+          renderProfile();
+        }
+
+        if (event.target.id === "beforeForm") {
+          state.defaultBefore = Number($("#newBefore").value);
+          toast(`默认提前天数已设为 ${state.defaultBefore} 天`);
+          closeSheet();
+          renderProfile();
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>
