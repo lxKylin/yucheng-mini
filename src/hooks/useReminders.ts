@@ -2,7 +2,7 @@ import { useMemo, useSyncExternalStore } from 'react';
 
 import { REMINDER_LEVEL, REMINDER_STATUS } from '@/constants';
 import { reminderStore } from '@/store/reminderStore';
-import { deriveAll } from '@/utils/dateUtils';
+import { derive, deriveAll, deriveAllMedicines } from '@/utils/dateUtils';
 
 function useReminderStore() {
   return useSyncExternalStore(
@@ -18,6 +18,12 @@ export function useDerivedList() {
   return useMemo(() => deriveAll(reminders), [reminders]);
 }
 
+/** 获取药箱视角全部派生药品（已过滤删除项） */
+export function useAllDerivedMedicines() {
+  const reminders = useReminderStore().reminders;
+  return useMemo(() => deriveAllMedicines(reminders), [reminders]);
+}
+
 /** 获取单条派生数据 */
 export function useDerivedById(id: string) {
   const reminders = useReminderStore().reminders;
@@ -27,7 +33,7 @@ export function useDerivedById(id: string) {
       (reminder) =>
         reminder.id === id && reminder.status !== REMINDER_STATUS.DELETED
     );
-    return item ? (deriveAll([item])[0] ?? null) : null;
+    return item ? derive(item) : null;
   }, [id, reminders]);
 }
 
@@ -72,9 +78,13 @@ export function useProfileStats() {
 
   return useMemo(() => {
     const activeList = reminders.filter(
-      (r) => r.status === REMINDER_STATUS.ACTIVE
+      (r) =>
+        r.status === REMINDER_STATUS.ACTIVE && r.reminderEnabled === true
     );
-    const historyTotal = reminders.reduce(
+    const visibleList = reminders.filter(
+      (r) => r.status !== REMINDER_STATUS.DELETED
+    );
+    const historyTotal = visibleList.reduce(
       (sum, r) => sum + r.prescriptionHistory.length,
       0
     );
@@ -82,8 +92,7 @@ export function useProfileStats() {
     return {
       activeCount: activeList.length,
       historyTotal,
-      total: reminders.filter((r) => r.status !== REMINDER_STATUS.DELETED)
-        .length,
+      total: visibleList.length,
       unreadCount: 0
     };
   }, [reminders]);

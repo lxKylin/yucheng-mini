@@ -1,12 +1,13 @@
 import Taro from '@tarojs/taro';
 import type { Reminder } from '@/types';
 import { STORAGE_KEY_REMINDERS, STORAGE_KEY_SETTINGS } from '@/constants';
+import { migrateMedicine } from '@/services/reminder';
 
 /** 从本地存储读取提醒列表，不存在时返回空数组 */
 export function loadReminders(): Reminder[] {
   try {
     const data = Taro.getStorageSync(STORAGE_KEY_REMINDERS);
-    if (Array.isArray(data)) return data;
+    if (Array.isArray(data)) return data.map((item) => migrateMedicine(item));
     return [];
   } catch {
     return [];

@@ -1,7 +1,12 @@
 import Taro from '@tarojs/taro';
 
 import { REMINDER_STATUS } from '@/constants';
-import type { Reminder } from '@/types';
+import type {
+  DosageUnit,
+  Medicine,
+  MedicineForm,
+  MedicineSchedule
+} from '@/types';
 import { getCollection } from './cloud';
 import { getUserId } from './auth';
 
@@ -11,28 +16,104 @@ const QUERYABLE_REMINDER_STATUSES = [
   REMINDER_STATUS.PAUSED
 ];
 
-/**
- * 将云端旧字段格式迁移为新字段格式（兼容字段重命名前的数据）
- * 旧字段：name / spec / lastDate / interval / before / time / history
- * 新字段：medicineName / medicineSpec / currentPrescriptionDate / intervalDays / remindAdvanceDays / remindTime / prescriptionHistory
- */
-function migrateReminder(raw: any): Reminder {
+const DOSAGE_UNITS: DosageUnit[] = ['片', '粒', 'ml', '支', '贴', '滴'];
+const SCHEDULE_TIMINGS: MedicineSchedule[] = [
+  '饭前',
+  '饭后',
+  '随餐',
+  '空腹',
+  '睡前',
+  '固定时间',
+  '按医嘱'
+];
+
+function normalizeMedicineForm(value: unknown): MedicineForm {
+  if (
+    value === 'tablet' ||
+    value === 'capsule' ||
+    value === 'liquid' ||
+    value === 'injection' ||
+    value === 'external' ||
+    value === 'patch' ||
+    value === 'drops' ||
+    value === 'other'
+  ) {
+    return value;
+  }
+
+  const text = String(value || '');
+  if (text === '片剂') return 'tablet';
+  if (text === '胶囊') return 'capsule';
+  if (text === '注射剂' || text === '注射液') return 'injection';
+  if (text === '滴剂') return 'drops';
+  if (text === '液体' || text === '口服液') return 'liquid';
+  if (text === '外用') return 'external';
+  if (text === '贴剂') return 'patch';
+  return 'other';
+}
+
+function normalizeDosageUnit(value: unknown): DosageUnit {
+  return DOSAGE_UNITS.includes(value as DosageUnit)
+    ? (value as DosageUnit)
+    : '片';
+}
+
+function normalizeScheduleTiming(value: unknown): MedicineSchedule {
+  return SCHEDULE_TIMINGS.includes(value as MedicineSchedule)
+    ? (value as MedicineSchedule)
+    : '饭后';
+}
+
+function toNumber(value: unknown, fallback: number): number {
+  const next = Number(value);
+  return Number.isFinite(next) ? next : fallback;
+}
+
+export function migrateMedicine(raw: any): Medicine {
+  const id = raw.id ?? raw._id ?? '';
+  const name = raw.name ?? raw.medicineName ?? '';
+  const spec = raw.spec ?? raw.medicineSpec ?? '';
+
   return {
-    id: raw._id ?? '',
-    medicineName: raw.medicineName ?? '',
-    medicineSpec: raw.medicineSpec ?? '',
-    currentPrescriptionDate: raw.currentPrescriptionDate ?? '',
-    intervalDays: raw.intervalDays ?? 30,
-    remindAdvanceDays: raw.remindAdvanceDays ?? 7,
+    id,
+    name,
+    spec,
+    form: normalizeMedicineForm(raw.form ?? raw.dosageForm ?? 'tablet'),
+    expiryDate: raw.expiryDate ?? '',
+    note: raw.note ?? raw.notes ?? '',
+    dosagePerUse: toNumber(raw.dosagePerUse ?? raw.dosePerTime, 1),
+    dosageUnit: normalizeDosageUnit(raw.dosageUnit ?? raw.doseUnit),
+    timesPerDay: toNumber(raw.timesPerDay, 1),
+    scheduleTiming: normalizeScheduleTiming(raw.scheduleTiming ?? raw.timing),
+    scheduleTime: raw.scheduleTime ?? raw.timingTime ?? '',
+    reminderEnabled: raw.reminderEnabled ?? true,
+    currentPrescriptionDate: raw.currentPrescriptionDate ?? raw.lastDate ?? '',
+    intervalDays: toNumber(raw.intervalDays ?? raw.interval, 30),
+    remindAdvanceDays: toNumber(raw.remindAdvanceDays ?? raw.before, 7),
     remindTime: raw.remindTime ?? '09:00',
+    status: raw.status ?? REMINDER_STATUS.ACTIVE,
+    prescriptionHistory: raw.prescriptionHistory ?? raw.history ?? [],
     lastWechatReminderDate: raw.lastWechatReminderDate ?? '',
     lastWechatReminderAt: raw.lastWechatReminderAt ?? '',
-    status: raw.status ?? REMINDER_STATUS.ACTIVE,
-    note: raw.note ?? '',
-    prescriptionHistory: raw.prescriptionHistory ?? [],
     createdAt: raw.createdAt ?? '',
     updatedAt: raw.updatedAt ?? ''
   };
+}
+
+function toCloudMedicinePayload(
+  medicine: Partial<Medicine>
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = { ...medicine };
+
+  if (typeof medicine.name !== 'undefined') {
+    payload.medicineName = medicine.name;
+  }
+
+  if (typeof medicine.spec !== 'undefined') {
+    payload.medicineSpec = medicine.spec;
+  }
+
+  return payload;
 }
 
 async function queryUserReminders(field: '_openid' | 'userId', userId: string) {
@@ -47,7 +128,7 @@ async function queryUserReminders(field: '_openid' | 'userId', userId: string) {
 }
 
 /** 拉取当前用户的全部提醒（排除 deleted） */
-export async function fetchReminders(): Promise<Reminder[]> {
+export async function fetchReminders(): Promise<Medicine[]> {
   const userId = getUserId();
   console.log('[reminderService] 当前用户 ID：', userId);
   if (!userId) return [];
@@ -63,7 +144,7 @@ export async function fetchReminders(): Promise<Reminder[]> {
     }
 
     // 兼容旧字段格式，迁移后返回
-    return data.map((item: any) => migrateReminder(item));
+    return data.map((item: any) => migrateMedicine(item));
   } catch (err) {
     console.error('[reminderService] 拉取失败：', err);
     throw err;
@@ -71,12 +152,14 @@ export async function fetchReminders(): Promise<Reminder[]> {
 }
 
 /** 新增提醒（本地 id 作为 id 字段存入云文档） */
-export async function addReminderToCloud(reminder: Reminder): Promise<void> {
+export async function addReminderToCloud(medicine: Medicine): Promise<void> {
   const userId = getUserId();
   if (!userId) return;
 
   try {
-    await getCollection(COL).add({ data: { ...reminder, userId } });
+    await getCollection(COL).add({
+      data: { ...toCloudMedicinePayload(medicine), userId }
+    });
   } catch (err) {
     console.error('[reminderService] 新增失败：', err);
     throw err;
@@ -86,7 +169,7 @@ export async function addReminderToCloud(reminder: Reminder): Promise<void> {
 /** 更新提醒（通过 where id 定位） */
 export async function updateReminderInCloud(
   id: string,
-  payload: Partial<Reminder>
+  payload: Partial<Medicine>
 ): Promise<void> {
   if (!getUserId()) return;
 
@@ -96,11 +179,15 @@ export async function updateReminderInCloud(
     if (existing.data.length > 0) {
       const docId = existing.data[0]?._id;
       if (!docId) return;
-      await getCollection(COL).doc(docId).update({ data: payload });
+      await getCollection(COL)
+        .doc(docId)
+        .update({ data: toCloudMedicinePayload(payload) });
       return;
     }
 
-    await getCollection(COL).doc(id).update({ data: payload });
+    await getCollection(COL)
+      .doc(id)
+      .update({ data: toCloudMedicinePayload(payload) });
   } catch (err) {
     console.error('[reminderService] 更新失败：', err);
     throw err;

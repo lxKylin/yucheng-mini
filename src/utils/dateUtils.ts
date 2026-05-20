@@ -1,4 +1,8 @@
-import type { Reminder, DerivedReminder, ReminderLevel } from '@/types';
+import type {
+  DerivedMedicine,
+  Medicine,
+  ReminderLevel
+} from '@/types';
 import { LEVEL_ORDER, REMINDER_LEVEL, REMINDER_STATUS } from '@/constants';
 
 // ─── 基础日期工具 ─────────────────────────────────────────────────
@@ -80,10 +84,7 @@ function calcProgress(
  * good：7 天以上
  * paused：已暂停
  */
-function calcLevel(
-  daysLeft: number,
-  status: Reminder['status']
-): ReminderLevel {
+function calcLevel(daysLeft: number, status: Medicine['status']): ReminderLevel {
   if (status === REMINDER_STATUS.PAUSED) return REMINDER_LEVEL.PAUSED;
   if (daysLeft <= 0) return REMINDER_LEVEL.DANGER;
   if (daysLeft <= 7) return REMINDER_LEVEL.WARNING;
@@ -101,34 +102,48 @@ function calcLevelLabel(daysLeft: number, level: ReminderLevel): string {
   return `${daysLeft} 天后`;
 }
 
-/** 核心派生函数：将单条 Reminder 计算为 DerivedReminder */
-export function derive(reminder: Reminder): DerivedReminder {
+function buildScheduleLabel(medicine: Medicine): string {
+  if (medicine.scheduleTiming === '固定时间' && medicine.scheduleTime) {
+    return `固定时间 ${medicine.scheduleTime}`;
+  }
+
+  return medicine.scheduleTiming || '服用时机未填';
+}
+
+/** 核心派生函数：将单条 Medicine 计算为 DerivedMedicine */
+export function derive(medicine: Medicine): DerivedMedicine {
   const todayStr = today();
+  const currentPrescriptionDate =
+    medicine.currentPrescriptionDate || todayStr;
   const nextPrescriptionDate = calcNextDate(
-    reminder.currentPrescriptionDate,
-    reminder.intervalDays
+    currentPrescriptionDate,
+    medicine.intervalDays
   );
   const nextRemindDate = calcRemindDate(
     nextPrescriptionDate,
-    reminder.remindAdvanceDays
+    medicine.remindAdvanceDays
   );
   const daysLeft = diffDays(todayStr, nextPrescriptionDate);
-  const level = calcLevel(daysLeft, reminder.status);
-  const levelLabel = calcLevelLabel(daysLeft, level);
-  const progress = calcProgress(
-    reminder.currentPrescriptionDate,
-    nextPrescriptionDate,
-    todayStr
-  );
+  const level = medicine.reminderEnabled
+    ? calcLevel(daysLeft, medicine.status)
+    : REMINDER_LEVEL.PAUSED;
+  const levelLabel = medicine.reminderEnabled
+    ? calcLevelLabel(daysLeft, level)
+    : '未开启提醒';
+  const progress = medicine.reminderEnabled
+    ? calcProgress(currentPrescriptionDate, nextPrescriptionDate, todayStr)
+    : 0;
 
   return {
-    ...reminder,
+    ...medicine,
+    currentPrescriptionDate,
     nextPrescriptionDate,
     nextRemindDate,
     daysLeft,
     level,
     levelLabel,
-    progress
+    progress,
+    scheduleLabel: buildScheduleLabel(medicine)
   };
 }
 
@@ -137,14 +152,32 @@ export function derive(reminder: Reminder): DerivedReminder {
  * 排序规则：danger < warning < good < paused，同级按 nextDate 升序
  * 已删除（status=deleted）的条目过滤掉
  */
-export function deriveAll(reminders: Reminder[]): DerivedReminder[] {
-  return reminders
-    .filter((r) => r.status !== REMINDER_STATUS.DELETED)
+export function deriveAll(medicines: Medicine[]): DerivedMedicine[] {
+  return medicines
+    .filter(
+      (medicine) =>
+        medicine.status !== REMINDER_STATUS.DELETED &&
+        medicine.reminderEnabled === true
+    )
     .map(derive)
     .sort((a, b) => {
       const levelDiff =
         (LEVEL_ORDER[a.level] ?? 99) - (LEVEL_ORDER[b.level] ?? 99);
       if (levelDiff !== 0) return levelDiff;
       return a.nextPrescriptionDate.localeCompare(b.nextPrescriptionDate);
+    });
+}
+
+/** 药箱视角：展示所有未删除药品，未开启提醒的药品也保留 */
+export function deriveAllMedicines(medicines: Medicine[]): DerivedMedicine[] {
+  return medicines
+    .filter((medicine) => medicine.status !== REMINDER_STATUS.DELETED)
+    .map(derive)
+    .sort((a, b) => {
+      if (a.reminderEnabled !== b.reminderEnabled) {
+        return a.reminderEnabled ? -1 : 1;
+      }
+
+      return a.name.localeCompare(b.name, 'zh-Hans-CN');
     });
 }

@@ -29,8 +29,8 @@ interface ReminderFormProps {
 }
 
 interface FormValues {
-  medicineName: string;
-  medicineSpec: string;
+  name: string;
+  spec: string;
   currentPrescriptionDate: string;
   remindTime: string;
   intervalDays: number;
@@ -42,8 +42,8 @@ function makeDefaults(): FormValues {
   const settings = loadSettings();
 
   return {
-    medicineName: '',
-    medicineSpec: '',
+    name: '',
+    spec: '',
     currentPrescriptionDate: today(),
     remindTime: settings.defaultTime || DEFAULT_REMIND_TIME,
     intervalDays: DEFAULT_INTERVAL,
@@ -76,8 +76,8 @@ export default function ReminderForm({
   useEffect(() => {
     if (isEdit && existingItem) {
       setValues({
-        medicineName: existingItem.medicineName,
-        medicineSpec: existingItem.medicineSpec,
+        name: existingItem.name,
+        spec: existingItem.spec,
         currentPrescriptionDate: existingItem.currentPrescriptionDate,
         remindTime: existingItem.remindTime,
         intervalDays: existingItem.intervalDays,
@@ -133,7 +133,7 @@ export default function ReminderForm({
   };
 
   const handleSubmit = async () => {
-    if (!values.medicineName.trim()) {
+    if (!values.name.trim()) {
       Taro.showToast({ title: '请填写药物名称', icon: 'none', duration: 1500 });
       return;
     }
@@ -148,8 +148,8 @@ export default function ReminderForm({
     }
 
     const payload = {
-      medicineName: values.medicineName.trim(),
-      medicineSpec: values.medicineSpec.trim(),
+      name: values.name.trim(),
+      spec: values.spec.trim(),
       currentPrescriptionDate: values.currentPrescriptionDate,
       remindTime: values.remindTime,
       intervalDays: values.intervalDays,
@@ -209,11 +209,11 @@ export default function ReminderForm({
         <View className="reminder-form__input-row">
           <Input
             className="reminder-form__input"
-            value={values.medicineName}
+            value={values.name}
             placeholder="例如：洛拉替尼"
             clearable
             onChange={(e: InputEvent) =>
-              setField('medicineName', e.detail.value)
+              setField('name', e.detail.value)
             }
           />
         </View>
@@ -224,11 +224,11 @@ export default function ReminderForm({
         <View className="reminder-form__input-row">
           <Input
             className="reminder-form__input"
-            value={values.medicineSpec}
+            value={values.spec}
             placeholder="例如：20mg"
             clearable
             onChange={(e: InputEvent) =>
-              setField('medicineSpec', e.detail.value)
+              setField('spec', e.detail.value)
             }
           />
         </View>

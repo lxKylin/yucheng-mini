@@ -1,3 +1,5 @@
+import type { DosageUnit, MedicineSchedule } from '@/types';
+
 /** 快捷间隔选项（天） */
 export const INTERVAL_OPTIONS = [7, 14, 28, 30, 45, 60, 90] as const;
 
@@ -12,6 +14,38 @@ export const DEFAULT_INTERVAL = 30;
 
 /** 默认提前提醒天数 */
 export const DEFAULT_BEFORE = 7;
+
+export const MEDICINE_FORM_OPTIONS = [
+  { value: 'tablet', label: '片剂' },
+  { value: 'capsule', label: '胶囊' },
+  { value: 'liquid', label: '液体/口服液' },
+  { value: 'injection', label: '注射液' },
+  { value: 'external', label: '外用' },
+  { value: 'patch', label: '贴剂' },
+  { value: 'drops', label: '滴剂' },
+  { value: 'other', label: '其他' }
+] as const;
+
+export const DOSAGE_UNIT_OPTIONS: DosageUnit[] = [
+  '片',
+  '粒',
+  'ml',
+  '支',
+  '贴',
+  '滴'
+];
+
+export const SCHEDULE_OPTIONS: MedicineSchedule[] = [
+  '饭前',
+  '饭后',
+  '随餐',
+  '空腹',
+  '睡前',
+  '固定时间',
+  '按医嘱'
+];
+
+export const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4] as const;
 
 /** 提醒状态 */
 export const REMINDER_STATUS = {

@@ -56,7 +56,7 @@ export default function DoneDateSheet({
     try {
       await markDone(item.id, selectedDate);
       Taro.showToast({
-        title: `${item.medicineName} 已按实际日期更新`,
+        title: `${item.name} 已按实际日期更新`,
         icon: 'success',
         duration: 1500
       });
@@ -79,7 +79,7 @@ export default function DoneDateSheet({
             当前已逾期 {Math.abs(item.daysLeft)} 天
           </Text>
           <Text className="done-date-sheet__notice-desc">
-            「{item.medicineName}
+            「{item.name}
             」不能直接按计划日期进入下一周期，请确认这次实际开药日期。
           </Text>
         </View>

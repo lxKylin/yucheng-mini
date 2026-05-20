@@ -188,6 +188,8 @@ async function getAccessToken() {
  */
 async function sendSubscribeMessage({ openId, medicine, nextDate }) {
   const accessToken = await getAccessToken();
+  const medicineName = medicine.name || medicine.medicineName || '开药提醒';
+  const note = medicine.note || medicine.notes || '复诊开药';
 
   return requestJson({
     method: 'POST',
@@ -202,18 +204,13 @@ async function sendSubscribeMessage({ openId, medicine, nextDate }) {
       lang: 'zh_CN',
       data: {
         thing2: {
-          value: safeText(
-            medicine.medicineName
-              ? `请及时处理 ${medicine.medicineName} 开药`
-              : '开药提醒',
-            20
-          )
+          value: safeText(`请及时处理 ${medicineName} 开药`, 20)
         },
         time23: {
           value: nextDate
         },
         thing11: {
-          value: safeText(`${medicine.notes || '复诊开药'}`, 20)
+          value: safeText(note, 20)
         }
       }
     }
@@ -295,6 +292,7 @@ exports.main = async () => {
     const { data: medicines } = await db
       .collection('medicines')
       .where({
+        reminderEnabled: true,
         status: 'active'
       })
       .limit(1000)
@@ -303,14 +301,15 @@ exports.main = async () => {
     console.log(`[reminder] 获取到 ${medicines.length} 条记录`);
 
     for (const medicine of medicines) {
+      const medicineName = medicine.name || medicine.medicineName || '开药提醒';
+      let openId = '';
+
       try {
         /**
          * 防止一天重复发送
          */
         if (medicine.lastWechatReminderDate === today) {
-          console.log(
-            `[reminder] 跳过重复发送 medicine=${medicine.medicineName}`
-          );
+          console.log(`[reminder] 跳过重复发送 medicine=${medicineName}`);
           results.skipped++;
           continue;
         }
@@ -318,7 +317,7 @@ exports.main = async () => {
         /**
          * openid 校验
          */
-        const openId = getOpenId(medicine);
+        openId = getOpenId(medicine);
 
         if (!openId) {
           console.error(`[reminder] 缺少 openid id=${medicine._id}`);
@@ -334,7 +333,7 @@ exports.main = async () => {
             USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
         ) {
           console.log(
-            `[reminder] 用户暂无可用订阅资格 medicine=${medicine.medicineName}`
+            `[reminder] 用户暂无可用订阅资格 medicine=${medicineName}`
           );
           results.skipped++;
           continue;
@@ -351,7 +350,7 @@ exports.main = async () => {
         const remindDate = calcRemindDate(nextDate, medicine.remindAdvanceDays);
 
         console.log(
-          `[reminder] 药品=${medicine.medicineName} remindDate=${remindDate} nextDate=${nextDate}`
+          `[reminder] 药品=${medicineName} remindDate=${remindDate} nextDate=${nextDate}`
         );
 
         /**
@@ -393,12 +392,12 @@ exports.main = async () => {
           userCache
         );
 
-        console.log(`[reminder] 发送成功 medicine=${medicine.medicineName}`);
+        console.log(`[reminder] 发送成功 medicine=${medicineName}`);
 
         results.sent++;
       } catch (err) {
         console.error(
-          `[reminder] 单条处理失败 medicine=${medicine.medicineName} err=${err.errMsg || err.message}`
+          `[reminder] 单条处理失败 medicine=${medicineName} err=${err.errMsg || err.message}`
         );
 
         /**

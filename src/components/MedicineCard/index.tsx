@@ -41,11 +41,11 @@ export default function MedicineCard({
       className={`medicine-card medicine-card--${accentColor}${item.status === REMINDER_STATUS.PAUSED ? ' medicine-card--paused' : ''}`}
     >
       <View className="medicine-card__header">
-        <Text className="medicine-card__name">{item.medicineName}</Text>
+        <Text className="medicine-card__name">{item.name}</Text>
         <StatusTag level={item.level} label={item.levelLabel} />
       </View>
       <Text className="medicine-card__meta">
-        规格: {item.medicineSpec || '-'} · 周期: {item.intervalDays} 天
+        规格: {item.spec || '-'} · 周期: {item.intervalDays} 天
       </Text>
       <Text className="medicine-card__meta">
         最近一盒开始时间: {item.currentPrescriptionDate}

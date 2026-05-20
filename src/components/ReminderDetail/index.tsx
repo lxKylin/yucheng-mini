@@ -61,7 +61,7 @@ export default function ReminderDetail({
 
     Taro.showModal({
       title: '确认本次已开药',
-      content: `确认已完成「${displayItem.medicineName}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
+      content: `确认已完成「${displayItem.name}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
       confirmText: '确认',
       cancelText: '取消',
       confirmColor: '#157a66',
@@ -73,7 +73,7 @@ export default function ReminderDetail({
         try {
           await markDone(displayItem.id);
           Taro.showToast({
-            title: `${displayItem.medicineName} 已进入下一轮周期`,
+            title: `${displayItem.name} 已进入下一轮周期`,
             icon: 'success',
             duration: 1500
           });
@@ -93,7 +93,7 @@ export default function ReminderDetail({
     if (displayItem.status === REMINDER_STATUS.PAUSED) {
       Taro.showModal({
         title: '重新启用提醒',
-        content: `确定重新启用「${displayItem.medicineName}」的提醒吗？恢复后会继续按照当前周期推送提醒。`,
+        content: `确定重新启用「${displayItem.name}」的提醒吗？恢复后会继续按照当前周期推送提醒。`,
         confirmText: '启用',
         cancelText: '取消',
         confirmColor: '#157a66',
@@ -124,7 +124,7 @@ export default function ReminderDetail({
 
     Taro.showModal({
       title: '暂停提醒',
-      content: `确定暂停「${displayItem.medicineName}」的提醒吗？暂停后将不会继续提示，直到你重新启用。`,
+      content: `确定暂停「${displayItem.name}」的提醒吗？暂停后将不会继续提示，直到你重新启用。`,
       confirmText: '暂停',
       cancelText: '取消',
       confirmColor: '#b86c1e',
@@ -155,7 +155,7 @@ export default function ReminderDetail({
   const handleDelete = () => {
     Taro.showModal({
       title: '删除提醒',
-      content: `确定要删除「${displayItem.medicineName}」的开药提醒吗？此操作不可撤销。`,
+      content: `确定要删除「${displayItem.name}」的开药提醒吗？此操作不可撤销。`,
       confirmText: '删除',
       cancelText: '取消',
       confirmColor: '#ca4e41',
@@ -164,7 +164,7 @@ export default function ReminderDetail({
           try {
             await deleteReminder(displayItem.id);
             Taro.showToast({
-              title: `${displayItem.medicineName} 已删除`,
+              title: `${displayItem.name} 已删除`,
               icon: 'none',
               duration: 1500
             });
@@ -186,11 +186,11 @@ export default function ReminderDetail({
       <View className="reminder-detail__header">
         <View className="reminder-detail__header-main">
           <Text className="reminder-detail__name">
-            {displayItem.medicineName}
+            {displayItem.name}
           </Text>
-          {displayItem.medicineSpec ? (
+          {displayItem.spec ? (
             <Text className="reminder-detail__spec">
-              {displayItem.medicineSpec}
+              {displayItem.spec}
             </Text>
           ) : null}
           {displayItem.note ? (
