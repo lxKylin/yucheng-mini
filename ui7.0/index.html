@@ -1,0 +1,2321 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>愈程记 ui7.0 可交互原型</title>
+    <style>
+      :root {
+        --bg: #eaf7f3;
+        --bg-strong: #dbeee9;
+        --surface: #ffffff;
+        --surface-soft: #f6fffb;
+        --ink: #14312f;
+        --muted: #617b79;
+        --line: #d6ebe5;
+        --primary: #0d8a6c;
+        --primary-deep: #076958;
+        --primary-soft: #d9f5eb;
+        --cta: #0891b2;
+        --danger: #c84f43;
+        --danger-soft: #fff1f0;
+        --warning: #b26412;
+        --warning-soft: #fff7e8;
+        --good: #18845d;
+        --good-soft: #e8f8f1;
+        --paused: #5f67b8;
+        --unknown: #64748b;
+        --bar-h: 92px;
+        --radius: 16px;
+        color-scheme: light;
+        font-family:
+          'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(
+            circle at 20% 10%,
+            rgba(13, 138, 108, 0.12),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 82% 82%,
+            rgba(8, 145, 178, 0.1),
+            transparent 28%
+          ),
+          linear-gradient(135deg, #f8fbfa 0%, #dff4ef 100%);
+        background-size: auto, auto, auto;
+        color: var(--ink);
+      }
+
+      body,
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid rgba(8, 145, 178, 0.45);
+        outline-offset: 2px;
+      }
+
+      .skip-link {
+        position: fixed;
+        left: 16px;
+        top: 16px;
+        z-index: 200;
+        transform: translateY(-130%);
+        border-radius: 999px;
+        background: var(--ink);
+        color: #fff;
+        padding: 10px 14px;
+        font-weight: 800;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .stage {
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .phone {
+        position: relative;
+        width: min(100%, 402px);
+        height: min(100dvh - 28px, 860px);
+        min-height: 720px;
+        overflow: hidden;
+        border-radius: 34px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.82),
+            rgba(234, 247, 243, 0.92)
+          ),
+          var(--bg);
+        box-shadow:
+          0 0 0 8px #151923,
+          0 34px 80px rgba(10, 31, 29, 0.34);
+      }
+
+      .notch {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        z-index: 20;
+        width: 214px;
+        height: 46px;
+        transform: translateX(-50%);
+        border-radius: 0 0 24px 24px;
+        background: #05070b;
+      }
+
+      .status {
+        height: 44px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding: 0 16px 8px;
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .status__right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .signal {
+        width: 20px;
+        height: 12px;
+        background: linear-gradient(to top, #111 0 35%, transparent 35% 100%);
+        clip-path: polygon(0 100%, 100% 100%, 100% 0);
+      }
+
+      .battery {
+        width: 28px;
+        height: 13px;
+        border: 2px solid #111;
+        border-radius: 4px;
+        position: relative;
+      }
+
+      .battery::before {
+        content: '';
+        position: absolute;
+        right: -5px;
+        top: 3px;
+        width: 3px;
+        height: 5px;
+        background: #111;
+        border-radius: 0 2px 2px 0;
+      }
+
+      .battery::after {
+        content: '';
+        display: block;
+        width: 20px;
+        height: 7px;
+        margin: 1px;
+        border-radius: 2px;
+        background: #111;
+      }
+
+      .appbar {
+        height: 84px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding-top: 12px;
+      }
+
+      .brand-mark {
+        position: absolute;
+        left: 16px;
+        top: 24px;
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background:
+          linear-gradient(
+            135deg,
+            rgba(8, 145, 178, 0.08),
+            rgba(13, 138, 108, 0.2)
+          ),
+          url('../src/assets/images/logo-无文字.png') center / cover no-repeat;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.86);
+      }
+
+      .app-title {
+        font-size: 18px;
+        font-weight: 900;
+      }
+
+      .wechat-pill {
+        position: absolute;
+        right: 12px;
+        top: 26px;
+        width: 70px;
+        height: 38px;
+        border: 1px solid rgba(22, 34, 53, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.92);
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+      }
+
+      .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #050505;
+        box-shadow:
+          9px 0 #050505,
+          18px 0 #050505;
+      }
+
+      .circle-dot {
+        width: 20px;
+        height: 20px;
+        border: 3px solid #050505;
+        border-radius: 50%;
+        position: relative;
+      }
+
+      .circle-dot::after {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        border-radius: 50%;
+        background: #050505;
+      }
+
+      .screen {
+        position: absolute;
+        inset: 128px 0 var(--bar-h);
+        overflow-y: auto;
+        padding: 0 14px 28px;
+        opacity: 0;
+        transform: translateX(10px);
+        pointer-events: none;
+        transition:
+          opacity 180ms ease,
+          transform 220ms ease;
+        scrollbar-width: none;
+      }
+
+      .screen::-webkit-scrollbar {
+        display: none;
+      }
+
+      .screen.is-active {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      .screen[data-screen='medicines'] {
+        padding-bottom: 148px;
+      }
+
+      .hero {
+        margin-top: 8px;
+        border-radius: 20px;
+        padding: 18px;
+        color: #fff;
+        background:
+          linear-gradient(135deg, rgba(24, 161, 118, 0.95), rgba(5, 96, 82, 1)),
+          linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.16));
+        box-shadow: 0 18px 32px rgba(10, 118, 91, 0.22);
+      }
+
+      .hero.is-danger {
+        background: linear-gradient(135deg, #d74d43, #8f2025);
+        box-shadow: 0 18px 32px rgba(201, 64, 64, 0.24);
+      }
+
+      .eyebrow {
+        display: block;
+        font-size: 14px;
+        font-weight: 900;
+        opacity: 0.9;
+      }
+
+      .hero h1 {
+        margin: 6px 0 8px;
+        font-size: 25px;
+        line-height: 1.2;
+      }
+
+      .hero p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.6;
+        opacity: 0.94;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 12px 0 20px;
+      }
+
+      .metric,
+      .card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 10px 24px rgba(16, 74, 91, 0.07);
+      }
+
+      .metric {
+        min-height: 76px;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 4px;
+      }
+
+      .metric strong {
+        font-size: 23px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 0 10px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .section-head p {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .link-btn,
+      .value-btn {
+        min-height: 44px;
+        background: transparent;
+        color: var(--primary-deep);
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .cards {
+        display: grid;
+        gap: 12px;
+      }
+
+      .card {
+        padding: 15px 14px;
+      }
+
+      .med-card {
+        position: relative;
+      }
+
+      .med-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 16px;
+        bottom: 16px;
+        width: 4px;
+        border-radius: 0 999px 999px 0;
+        background: var(--good);
+      }
+
+      .med-card.danger::before {
+        background: var(--danger);
+      }
+
+      .med-card.warning::before {
+        background: var(--warning);
+      }
+
+      .med-card.paused::before {
+        background: var(--paused);
+      }
+
+      .med-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        padding-left: 5px;
+      }
+
+      .med-name {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      .tag {
+        min-height: 28px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--good-soft);
+        color: var(--good);
+        font-size: 13px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .tag.danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+
+      .tag.warning {
+        background: var(--warning-soft);
+        color: var(--warning);
+      }
+
+      .tag.paused {
+        background: #eef0ff;
+        color: var(--paused);
+      }
+
+      .tag.unknown {
+        background: #eef2f7;
+        color: var(--unknown);
+      }
+
+      .tag.primary {
+        background: var(--primary-soft);
+        color: var(--primary);
+      }
+
+      .meta {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      .meta strong {
+        color: var(--ink);
+      }
+
+      .accent.good {
+        color: var(--good);
+      }
+
+      .accent.danger {
+        color: var(--danger);
+      }
+
+      .accent.warning {
+        color: var(--warning);
+      }
+
+      .progress {
+        height: 7px;
+        margin: 12px 0 14px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e5f0ed;
+      }
+
+      .progress > span {
+        display: block;
+        width: var(--value);
+        height: 100%;
+        border-radius: inherit;
+        background: var(--good);
+      }
+
+      .danger .progress > span {
+        background: var(--danger);
+      }
+
+      .warning .progress > span {
+        background: var(--warning);
+      }
+
+      .card-actions,
+      .detail-actions,
+      .detail-footer-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .action {
+        min-height: 50px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 900;
+        transition:
+          transform 160ms ease,
+          opacity 160ms ease,
+          background 160ms ease;
+      }
+
+      .action:active {
+        transform: scale(0.97);
+      }
+
+      .action.secondary {
+        background: var(--primary-soft);
+        color: var(--primary-deep);
+      }
+
+      .action.danger {
+        background: var(--danger);
+      }
+
+      .action.warning {
+        background: var(--warning);
+      }
+
+      .action.good {
+        background: var(--good);
+      }
+
+      .action.delete {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+
+      .action[disabled] {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .icon {
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2;
+      }
+
+      .search {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding-top: 8px;
+        background: linear-gradient(var(--bg) 78%, rgba(234, 247, 243, 0));
+      }
+
+      .search-wrap {
+        position: relative;
+      }
+
+      .search-wrap .icon {
+        position: absolute;
+        left: 16px;
+        top: 19px;
+        color: #7f9895;
+      }
+
+      .search-field {
+        width: 100%;
+        height: 58px;
+        border: 0;
+        border-radius: 16px;
+        background: #fff;
+        color: var(--ink);
+        padding: 0 16px 0 46px;
+        box-shadow: inset 0 0 0 1px rgba(220, 236, 231, 0.95);
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .filters {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        margin: 12px 0;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+
+      .filters::-webkit-scrollbar {
+        display: none;
+      }
+
+      .chip {
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--muted);
+        padding: 0 14px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .chip.is-active {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .inventory-card {
+        display: grid;
+        gap: 11px;
+        padding: 14px;
+      }
+
+      .inventory-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .inventory-card .med-name {
+        font-size: 19px;
+      }
+
+      .inventory-card .meta {
+        margin-top: 6px;
+      }
+
+      .inventory-dose {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 9px;
+      }
+
+      .mini-pill {
+        border-radius: 999px;
+        background: #f1fbf7;
+        color: #4d837b;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 850;
+      }
+
+      .inventory-state {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .inventory-state .meta {
+        margin: 0;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .inventory-edit {
+        min-height: 42px;
+        min-width: 108px;
+        border-radius: 999px;
+        padding: 0 14px;
+        flex: 0 0 auto;
+        font-size: 14px;
+      }
+
+      .profile-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 110px;
+      }
+
+      .avatar {
+        width: 62px;
+        height: 62px;
+        border-radius: 20px;
+        background:
+          linear-gradient(
+            135deg,
+            rgba(8, 145, 178, 0.08),
+            rgba(13, 138, 108, 0.2)
+          ),
+          url('../src/assets/images/logo-无文字.png') center / cover no-repeat;
+      }
+
+      .profile-name {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .menu {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .menu-item {
+        min-height: 78px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .menu-label {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 900;
+      }
+
+      .menu-desc {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+        font-weight: 700;
+      }
+
+      .switch {
+        width: 58px;
+        height: 34px;
+        border-radius: 999px;
+        background: #d6e1df;
+        padding: 4px;
+        transition: background 180ms ease;
+      }
+
+      .switch::after {
+        content: '';
+        display: block;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+        transition: transform 180ms ease;
+      }
+
+      .switch.is-on {
+        background: var(--primary);
+      }
+
+      .switch.is-on::after {
+        transform: translateX(24px);
+      }
+
+      .fab {
+        position: absolute;
+        right: 16px;
+        bottom: 100px;
+        z-index: 25;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(145deg, #0e9174, #08745f);
+        color: #fff;
+        box-shadow: 0 18px 34px rgba(5, 87, 72, 0.28);
+      }
+
+      .fab .icon {
+        width: 30px;
+        height: 30px;
+        stroke-width: 2.4;
+      }
+
+      .tabbar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 18;
+        height: var(--bar-h);
+        border-top: 1px solid rgba(220, 230, 229, 0.9);
+        background: rgba(255, 255, 255, 0.98);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        padding: 8px 9px 18px;
+      }
+
+      .tab {
+        position: relative;
+        min-height: 56px;
+        border-radius: 16px;
+        background: transparent;
+        color: #8aa0a7;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 3px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .tab .icon {
+        width: 23px;
+        height: 23px;
+      }
+
+      .tab.is-active {
+        color: var(--primary);
+        background: #edf8f4;
+      }
+
+      .tab .badge {
+        position: absolute;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--danger);
+        color: #fff;
+        font-size: 11px;
+        line-height: 18px;
+        transform: translate(14px, -18px);
+      }
+
+      .home-indicator {
+        position: absolute;
+        left: 50%;
+        bottom: 6px;
+        z-index: 30;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 5px;
+        border-radius: 999px;
+        background: #0b0b0c;
+      }
+
+      .sheet-mask {
+        position: absolute;
+        inset: 0;
+        z-index: 40;
+        display: none;
+        background: rgba(7, 28, 26, 0.48);
+      }
+
+      .sheet-mask.is-open {
+        display: block;
+      }
+
+      .sheet {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        max-height: 82%;
+        overflow: hidden;
+        border-radius: 26px 26px 0 0;
+        background: var(--surface);
+        box-shadow: 0 -20px 50px rgba(4, 40, 35, 0.24);
+        transform: translateY(105%);
+        transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      .sheet.is-open {
+        transform: translateY(0);
+      }
+
+      .sheet-head {
+        height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sheet-title {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .close {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #eff7f5;
+        color: var(--muted);
+        display: grid;
+        place-items: center;
+      }
+
+      .sheet-body {
+        max-height: calc(82vh - 62px);
+        overflow-y: auto;
+        padding: 16px 16px 28px;
+      }
+
+      .detail-summary {
+        padding: 0 2px 4px;
+      }
+
+      .detail-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .detail-title {
+        margin: 0;
+        font-size: 23px;
+        line-height: 1.18;
+      }
+
+      .detail-spec,
+      .detail-note {
+        color: var(--muted);
+        font-weight: 750;
+      }
+
+      .detail-spec {
+        display: block;
+        margin-top: 4px;
+        font-size: 13px;
+      }
+
+      .detail-note {
+        margin: 6px 0 0;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .days-big {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-top: 16px;
+        color: var(--primary);
+      }
+
+      .days-big strong {
+        font-size: 58px;
+        line-height: 0.96;
+        font-weight: 950;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .days-big span {
+        font-size: 16px;
+        font-weight: 900;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 12px 0;
+      }
+
+      .info {
+        border-radius: 14px;
+        background: var(--surface-soft);
+        padding: 11px 10px;
+      }
+
+      .info span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 850;
+      }
+
+      .info strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 16px;
+        line-height: 1.25;
+      }
+
+      .detail-notice,
+      .form-notice,
+      .calc-pill,
+      .notice {
+        border: 1px solid #b8e8dd;
+        border-radius: 16px;
+        background: #d7f5ec;
+        color: #4a8179;
+        padding: 12px;
+        font-size: 13px;
+        font-weight: 750;
+        line-height: 1.55;
+      }
+
+      .detail-notice strong,
+      .form-notice strong {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--primary-deep);
+        font-size: 15px;
+      }
+
+      .history-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+      }
+
+      .history-head h3 {
+        margin: 0;
+        font-size: 19px;
+      }
+
+      .history-head span {
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .history-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      .history-row span {
+        text-align: right;
+      }
+
+      .form {
+        display: grid;
+        gap: 13px;
+      }
+
+      .form-section {
+        display: grid;
+        gap: 12px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fbfffd;
+      }
+
+      .form-section-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 950;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        color: #557b75;
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      .required {
+        margin-left: 2px;
+        color: var(--danger);
+      }
+
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        min-height: 52px;
+        border: 1px solid #d7e6e1;
+        border-radius: 14px;
+        background: #fff;
+        color: var(--ink);
+        padding: 0 13px;
+        font-size: 16px;
+        font-weight: 750;
+      }
+
+      .field textarea {
+        min-height: 96px;
+        padding-top: 12px;
+        resize: vertical;
+      }
+
+      .field input::placeholder,
+      .field textarea::placeholder {
+        color: #9cafc3;
+      }
+
+      .field select {
+        appearance: none;
+        background-image:
+          linear-gradient(45deg, transparent 50%, #8aa7a1 50%),
+          linear-gradient(135deg, #8aa7a1 50%, transparent 50%);
+        background-position:
+          calc(100% - 18px) 22px,
+          calc(100% - 12px) 22px;
+        background-size:
+          6px 6px,
+          6px 6px;
+        background-repeat: no-repeat;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .input-suffix {
+        position: relative;
+      }
+
+      .input-suffix input {
+        padding-right: 42px;
+      }
+
+      .input-suffix span {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        font-weight: 900;
+      }
+
+      .composer-switch {
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .composer-switch strong {
+        display: block;
+      }
+
+      .composer-switch span {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 750;
+      }
+
+      .reminder-fields.is-hidden {
+        display: none;
+      }
+
+      .timing-time-field.is-hidden {
+        display: none;
+      }
+
+      .form-submit {
+        min-height: 62px;
+        border-radius: 999px;
+        margin-top: 2px;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 36px 18px;
+      }
+
+      .empty strong {
+        display: block;
+        font-size: 20px;
+      }
+
+      .empty p {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .toast {
+        position: absolute;
+        left: 50%;
+        bottom: 120px;
+        z-index: 80;
+        max-width: 84%;
+        transform: translate(-50%, 18px);
+        opacity: 0;
+        border-radius: 999px;
+        background: rgba(14, 38, 35, 0.92);
+        color: #fff;
+        padding: 12px 16px;
+        font-size: 14px;
+        text-align: center;
+        pointer-events: none;
+        transition:
+          opacity 180ms ease,
+          transform 180ms ease;
+      }
+
+      .toast.is-show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      @media (max-width: 420px) {
+        .stage {
+          padding: 0;
+        }
+
+        .phone {
+          width: 100vw;
+          height: 100dvh;
+          min-height: 100dvh;
+          border-radius: 0;
+          box-shadow: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <main class="stage">
+      <section class="phone" aria-label="愈程记微信小程序 ui7.0 原型">
+        <div class="notch" aria-hidden="true"></div>
+        <div class="status" aria-hidden="true">
+          <span>09:41</span>
+          <span class="status__right"
+            ><span class="signal"></span><span>5G</span
+            ><span class="battery"></span
+          ></span>
+        </div>
+        <header class="appbar">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <strong class="app-title" id="appTitle">风险中心</strong>
+          <span class="wechat-pill" aria-hidden="true"
+            ><span class="dot"></span><span class="circle-dot"></span
+          ></span>
+        </header>
+
+        <section
+          class="screen is-active"
+          data-screen="home"
+          id="main"
+          tabindex="-1"
+        ></section>
+        <section class="screen" data-screen="list" tabindex="-1"></section>
+        <section class="screen" data-screen="medicines" tabindex="-1"></section>
+        <section class="screen" data-screen="profile" tabindex="-1"></section>
+
+        <button
+          class="fab"
+          type="button"
+          aria-label="新增药品或开药提醒"
+          id="fab"
+        ></button>
+
+        <nav class="tabbar" aria-label="底部导航">
+          <button
+            class="tab is-active"
+            type="button"
+            data-nav="home"
+            aria-label="风险中心"
+          ></button>
+          <button
+            class="tab"
+            type="button"
+            data-nav="list"
+            aria-label="提醒列表"
+          ></button>
+          <button
+            class="tab"
+            type="button"
+            data-nav="medicines"
+            aria-label="药箱"
+          ></button>
+          <button
+            class="tab"
+            type="button"
+            data-nav="profile"
+            aria-label="我的"
+          ></button>
+        </nav>
+        <div class="home-indicator" aria-hidden="true"></div>
+
+        <div class="sheet-mask" id="sheetMask"></div>
+        <aside
+          class="sheet"
+          id="sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sheetTitle"
+        >
+          <div class="sheet-head">
+            <h2 class="sheet-title" id="sheetTitle">详情</h2>
+            <button
+              class="close"
+              type="button"
+              aria-label="关闭弹层"
+              id="closeSheet"
+            ></button>
+          </div>
+          <div class="sheet-body" id="sheetBody"></div>
+        </aside>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script>
+      const today = '2026-05-20';
+      const state = {
+        tab: 'home',
+        reminderFilter: 'all',
+        medicineFilter: 'all',
+        search: '',
+        medicineSearch: '',
+        subscription: true,
+        secondReminder: true,
+        defaultTime: '09:00',
+        defaultBefore: 7,
+        medicines: [
+          {
+            id: 'm1',
+            name: '瑞舒伐他汀',
+            spec: '10mg',
+            dosageForm: '片剂',
+            expiryDate: '2027-02-28',
+            dosePerTime: 1,
+            doseUnit: '片',
+            timesPerDay: 1,
+            timing: '晚间',
+            timingTime: '',
+            stockPerPrescription: 28,
+            reminderEnabled: true,
+            currentPrescriptionDate: '2026-04-18',
+            intervalDays: 28,
+            remindAdvanceDays: 5,
+            remindTime: '09:00',
+            note: '晚间服用，复查血脂时带上上次报告。',
+            status: 'active',
+            prescriptionHistory: ['2026-04-18', '2026-03-21', '2026-02-22']
+          },
+          {
+            id: 'm2',
+            name: '洛拉替尼',
+            spec: '100mg',
+            dosageForm: '片剂',
+            expiryDate: '2027-08-31',
+            dosePerTime: 1,
+            doseUnit: '片',
+            timesPerDay: 1,
+            timing: '固定时间',
+            timingTime: '20:00',
+            stockPerPrescription: 30,
+            reminderEnabled: true,
+            currentPrescriptionDate: '2026-05-01',
+            intervalDays: 30,
+            remindAdvanceDays: 7,
+            remindTime: '09:00',
+            note: '靶向药，提前联系医生确认续方。',
+            status: 'active',
+            prescriptionHistory: ['2026-05-01', '2026-04-01', '2026-03-02']
+          },
+          {
+            id: 'm3',
+            name: '地舒单抗',
+            spec: '120mg',
+            dosageForm: '注射剂',
+            expiryDate: '2026-12-20',
+            dosePerTime: 1,
+            doseUnit: '支',
+            timesPerDay: 0,
+            timing: '按医嘱',
+            timingTime: '',
+            stockPerPrescription: 1,
+            reminderEnabled: true,
+            currentPrescriptionDate: '2026-05-18',
+            intervalDays: 28,
+            remindAdvanceDays: 7,
+            remindTime: '09:00',
+            note: '注意冷链与注射预约。',
+            status: 'active',
+            prescriptionHistory: ['2026-05-18', '2026-04-20']
+          },
+          {
+            id: 'm4',
+            name: '左甲状腺素钠',
+            spec: '50ug',
+            dosageForm: '片剂',
+            expiryDate: '2027-05-31',
+            dosePerTime: 1,
+            doseUnit: '片',
+            timesPerDay: 1,
+            timing: '空腹',
+            timingTime: '',
+            stockPerPrescription: 60,
+            reminderEnabled: true,
+            currentPrescriptionDate: '2026-04-30',
+            intervalDays: 45,
+            remindAdvanceDays: 14,
+            remindTime: '08:30',
+            note: '空腹服用，复查甲功。',
+            status: 'paused',
+            prescriptionHistory: ['2026-04-30', '2026-03-16']
+          },
+          {
+            id: 'm5',
+            name: '维生素D滴剂',
+            spec: '400IU',
+            dosageForm: '滴剂',
+            expiryDate: '2026-10-15',
+            dosePerTime: 1,
+            doseUnit: '滴',
+            timesPerDay: 1,
+            timing: '饭后',
+            timingTime: '',
+            stockPerPrescription: 0,
+            reminderEnabled: false,
+            currentPrescriptionDate: today,
+            intervalDays: 30,
+            remindAdvanceDays: 7,
+            remindTime: '09:00',
+            note: '仅作药箱备忘，暂不开启开药提醒。',
+            status: 'active',
+            prescriptionHistory: []
+          }
+        ]
+      };
+
+      const titles = {
+        home: '风险中心',
+        list: '提醒列表',
+        medicines: '药箱',
+        profile: '我的'
+      };
+
+      const $ = (selector) => document.querySelector(selector);
+      const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+      function parseDate(value) {
+        const [y, m, d] = value.split('-').map(Number);
+        return new Date(y, m - 1, d);
+      }
+
+      function formatDate(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+
+      function addDays(date, days) {
+        const d = parseDate(date);
+        d.setDate(d.getDate() + Number(days));
+        return formatDate(d);
+      }
+
+      function diffDays(from, to) {
+        return Math.round((parseDate(to) - parseDate(from)) / 86400000);
+      }
+
+      function icon(name) {
+        const icons = {
+          home: '<svg class="icon" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>',
+          list: '<svg class="icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+          box: '<svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16v13H4Z"/><path d="M7 7V4h10v3M9 13h6"/></svg>',
+          user: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.8-4 4.4-6 8-6s6.2 2 8 6"/></svg>',
+          plus: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+          check:
+            '<svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+          eye: '<svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>',
+          search:
+            '<svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+          x: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+          edit: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'
+        };
+        return icons[name] || '';
+      }
+
+      function derive(item) {
+        const nextPrescriptionDate = addDays(
+          item.currentPrescriptionDate,
+          item.intervalDays
+        );
+        const nextRemindDate = addDays(
+          nextPrescriptionDate,
+          -item.remindAdvanceDays
+        );
+        const daysLeft = diffDays(today, nextPrescriptionDate);
+        const elapsed = Math.max(
+          0,
+          diffDays(item.currentPrescriptionDate, today)
+        );
+        const progress = Math.max(
+          0,
+          Math.min(100, Math.round((elapsed / item.intervalDays) * 100))
+        );
+        let level = 'good';
+        if (item.status === 'paused') level = 'paused';
+        else if (daysLeft <= 0) level = 'danger';
+        else if (daysLeft <= 7) level = 'warning';
+        const levelLabel =
+          level === 'paused'
+            ? '已暂停'
+            : daysLeft === 0
+              ? '今日'
+              : daysLeft < 0
+                ? `逾期 ${Math.abs(daysLeft)} 天`
+                : `${daysLeft} 天后`;
+
+        const dailyUse =
+          Number(item.dosePerTime || 0) * Number(item.timesPerDay || 0);
+        let estimatedStock = null;
+        let stockDays = null;
+        let stockStatus = 'unknown';
+        if (
+          item.reminderEnabled &&
+          Number(item.stockPerPrescription) > 0 &&
+          dailyUse > 0
+        ) {
+          estimatedStock = Math.max(
+            0,
+            Math.round(
+              (Number(item.stockPerPrescription) - elapsed * dailyUse) * 10
+            ) / 10
+          );
+          stockDays = Math.floor(estimatedStock / dailyUse);
+          stockStatus =
+            estimatedStock <= 0
+              ? 'empty'
+              : stockDays <= 7
+                ? 'low'
+                : 'sufficient';
+        }
+        return {
+          ...item,
+          nextPrescriptionDate,
+          nextRemindDate,
+          daysLeft,
+          progress,
+          level,
+          levelLabel,
+          estimatedStock,
+          stockDays,
+          stockStatus
+        };
+      }
+
+      function allMedicines() {
+        return state.medicines
+          .filter((item) => item.status !== 'deleted')
+          .map(derive)
+          .sort(
+            (a, b) =>
+              Number(b.reminderEnabled) - Number(a.reminderEnabled) ||
+              a.name.localeCompare(b.name, 'zh-CN')
+          );
+      }
+
+      function reminderList() {
+        const order = { danger: 0, warning: 1, good: 2, paused: 3 };
+        return allMedicines()
+          .filter((item) => item.reminderEnabled)
+          .sort(
+            (a, b) =>
+              order[a.level] - order[b.level] ||
+              a.nextPrescriptionDate.localeCompare(b.nextPrescriptionDate)
+          );
+      }
+
+      function tone(item) {
+        return item.level === 'danger'
+          ? 'danger'
+          : item.level === 'warning'
+            ? 'warning'
+            : item.level === 'paused'
+              ? 'paused'
+              : 'good';
+      }
+
+      function stockLabel(item) {
+        if (item.stockStatus === 'unknown') return '未估算';
+        if (item.stockStatus === 'empty') return '已用尽';
+        if (item.stockStatus === 'low') return '库存偏低';
+        return '库存充足';
+      }
+
+      function medicineCard(item, compact = false, showStock = true) {
+        const accent = tone(item);
+        return `
+          <article class="card med-card ${accent}" data-card="${item.id}">
+            <div class="med-head">
+              <div>
+                <h3 class="med-name">${item.name}</h3>
+                <p class="meta">${item.spec || '未填写规格'} · ${item.dosageForm || '剂型未填'}</p>
+              </div>
+              <span class="tag ${accent}">${item.levelLabel}</span>
+            </div>
+            <p class="meta">最近一盒开始时间: ${item.currentPrescriptionDate} · 周期 ${item.intervalDays} 天</p>
+            <p class="meta accent ${accent}">下一盒开始时间: ${item.nextPrescriptionDate}</p>
+            <p class="meta accent ${accent}">提醒时间: ${item.nextRemindDate} ${item.remindTime}</p>
+            ${showStock && item.stockStatus !== 'unknown' ? `<p class="meta">预估剩余: <strong>${item.estimatedStock}${item.doseUnit}</strong> · 约 ${item.stockDays} 天</p>` : ''}
+            <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${item.progress}" aria-label="${item.name} 开药周期进度">
+              <span style="--value:${item.progress}%"></span>
+            </div>
+            ${
+              compact
+                ? ''
+                : `
+              <div class="card-actions">
+                <button class="action ${accent === 'danger' ? 'danger' : accent === 'warning' ? 'warning' : 'good'}" type="button" data-done="${item.id}" ${item.level === 'paused' ? 'disabled' : ''}>${icon('check')}已开药</button>
+                <button class="action secondary" type="button" data-detail="${item.id}">${icon('eye')}详情</button>
+              </div>
+            `
+            }
+          </article>
+        `;
+      }
+
+      function inventoryCard(item) {
+        const statusTag = item.reminderEnabled
+          ? `<span class="tag primary">提醒已启用</span>`
+          : `<span class="tag unknown">未启用提醒</span>`;
+        const reminderText = item.reminderEnabled
+          ? '已进入提醒列表'
+          : '仅药箱备忘，可编辑后开启提醒';
+        const timingLabel =
+          item.timing === '固定时间' && item.timingTime
+            ? `固定时间 ${item.timingTime}`
+            : item.timing || '服用时机未填';
+        const expiryLabel = item.expiryDate
+          ? ` · 过期 ${item.expiryDate}`
+          : '未填过期时间';
+        return `
+          <article class="card inventory-card" data-card="${item.id}">
+            <div class="inventory-top">
+              <div>
+                <h3 class="med-name">${item.name}</h3>
+                <p class="meta">${item.spec || '未填写规格'} · ${item.dosageForm || '剂型未填'}${expiryLabel}</p>
+                <div class="inventory-dose">
+                  <span class="mini-pill">每次 ${item.dosePerTime || '-'}${item.doseUnit || ''}</span>
+                  <span class="mini-pill">每日 ${item.timesPerDay || '-'} 次</span>
+                  <span class="mini-pill">${timingLabel}</span>
+                </div>
+              </div>
+            </div>
+            <div class="inventory-state">
+              <p class="meta">${statusTag} <span style="margin-left:6px">${reminderText}</span></p>
+              <button class="action secondary inventory-edit" type="button" data-edit="${item.id}">${icon('edit')}编辑</button>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderHome() {
+        const list = reminderList();
+        const overdue = list.filter(
+          (i) => i.status !== 'paused' && i.daysLeft < 0
+        ).length;
+        const todayCount = list.filter(
+          (i) => i.status !== 'paused' && i.daysLeft === 0
+        ).length;
+        const hasDanger = overdue > 0 || todayCount > 0;
+        $('[data-screen="home"]').innerHTML = `
+          <section class="hero ${hasDanger ? 'is-danger' : ''}">
+            <span class="eyebrow">今日待办</span>
+            <h1>${overdue} 个已逾期，${todayCount} 个今天到期</h1>
+            <p>${hasDanger ? '建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。' : '近期没有紧急开药任务，继续保持当前记录节奏。'}</p>
+          </section>
+          <section class="metrics" aria-label="今日统计">
+            <div class="metric"><strong>${overdue}</strong><span>已逾期</span></div>
+            <div class="metric"><strong>${todayCount}</strong><span>今日处理</span></div>
+            <div class="metric"><strong>${list.length}</strong><span>药物数</span></div>
+          </section>
+          <div class="section-head">
+            <div><h2>最近提醒</h2><p>仅展示最近 3 条，更多提醒请查看全部</p></div>
+            <button class="link-btn" type="button" data-jump="list">查看全部</button>
+          </div>
+          <div class="cards">${list
+            .slice(0, 3)
+            .map((item) => medicineCard(item, false, false))
+            .join('')}</div>
+        `;
+      }
+
+      function renderList() {
+        const all = reminderList();
+        const counts = {
+          all: all.length,
+          danger: all.filter((i) => i.level === 'danger').length,
+          warning: all.filter((i) => i.level === 'warning').length,
+          good: all.filter((i) => i.level === 'good').length,
+          paused: all.filter((i) => i.level === 'paused').length
+        };
+        const tabs = [
+          ['all', '全部'],
+          ['danger', '逾期·今日'],
+          ['warning', '7天内'],
+          ['good', '正常'],
+          ['paused', '暂停']
+        ];
+        const term = state.search.trim().toLowerCase();
+        const filtered = all.filter((item) => {
+          const byFilter =
+            state.reminderFilter === 'all' ||
+            item.level === state.reminderFilter;
+          const bySearch =
+            !term ||
+            item.name.toLowerCase().includes(term) ||
+            String(item.spec).toLowerCase().includes(term);
+          return byFilter && bySearch;
+        });
+        $('[data-screen="list"]').innerHTML = `
+          <div class="search">
+            <div class="search-wrap">${icon('search')}<input class="search-field" id="searchField" value="${state.search}" placeholder="搜索药品名称或规格" aria-label="搜索药品名称或规格" /></div>
+            <div class="filters" role="tablist" aria-label="提醒状态筛选">
+              ${tabs.map(([key, label]) => `<button class="chip ${state.reminderFilter === key ? 'is-active' : ''}" type="button" data-reminder-filter="${key}">${label} ${counts[key]}</button>`).join('')}
+            </div>
+          </div>
+          <div class="cards">${filtered.length ? filtered.map((item) => medicineCard(item)).join('') : `<div class="card empty"><strong>没有符合条件的提醒</strong><p>换个关键词或筛选项试试，也可以点击右下角新增提醒。</p></div>`}</div>
+        `;
+        $('#searchField').addEventListener('input', (event) => {
+          state.search = event.target.value;
+          renderList();
+        });
+      }
+
+      function renderMedicines() {
+        const all = allMedicines();
+        const term = state.medicineSearch.trim().toLowerCase();
+        const counts = {
+          all: all.length,
+          enabled: all.filter((i) => i.reminderEnabled).length,
+          disabled: all.filter((i) => !i.reminderEnabled).length
+        };
+        const tabs = [
+          ['all', '全部'],
+          ['enabled', '已开提醒'],
+          ['disabled', '未开提醒']
+        ];
+        const filtered = all.filter((item) => {
+          const bySearch =
+            !term ||
+            item.name.toLowerCase().includes(term) ||
+            String(item.spec).toLowerCase().includes(term) ||
+            String(item.dosageForm).toLowerCase().includes(term) ||
+            String(item.timing).toLowerCase().includes(term) ||
+            String(item.timingTime || '')
+              .toLowerCase()
+              .includes(term) ||
+            String(item.expiryDate || '')
+              .toLowerCase()
+              .includes(term);
+          if (!bySearch) return false;
+          if (state.medicineFilter === 'enabled') return item.reminderEnabled;
+          if (state.medicineFilter === 'disabled') return !item.reminderEnabled;
+          return true;
+        });
+        $('[data-screen="medicines"]').innerHTML = `
+          <div class="search">
+            <div class="search-wrap">${icon('search')}<input class="search-field" id="medicineSearchField" value="${state.medicineSearch}" placeholder="搜索药品名称、规格或服用时机" aria-label="搜索药品名称、规格或服用时机" /></div>
+          </div>
+          <div class="filters" role="tablist" aria-label="药箱筛选">
+            ${tabs.map(([key, label]) => `<button class="chip ${state.medicineFilter === key ? 'is-active' : ''}" type="button" data-medicine-filter="${key}">${label} ${counts[key]}</button>`).join('')}
+          </div>
+          <div class="cards">${filtered.length ? filtered.map((item) => inventoryCard(item)).join('') : `<div class="card empty"><strong>当前筛选下没有药品</strong><p>可以新增药品，或切换筛选查看全部药箱记录。</p></div>`}</div>
+        `;
+        $('#medicineSearchField').addEventListener('input', (event) => {
+          state.medicineSearch = event.target.value;
+          renderMedicines();
+          const nextField = $('#medicineSearchField');
+          nextField.focus({ preventScroll: true });
+          nextField.setSelectionRange(
+            nextField.value.length,
+            nextField.value.length
+          );
+        });
+      }
+
+      function renderProfile() {
+        const list = reminderList();
+        const histories = allMedicines().reduce(
+          (sum, item) => sum + item.prescriptionHistory.length,
+          0
+        );
+        $('[data-screen="profile"]').innerHTML = `
+          <div class="card profile-card">
+            <div class="avatar" role="img" aria-label="用户头像"></div>
+            <div>
+              <h2 class="profile-name">晚风予星</h2>
+              <p class="meta">管理 ${allMedicines().length} 个药品 · 历史 ${histories} 次开药</p>
+            </div>
+          </div>
+          <div class="menu">
+            <article class="card menu-item">
+              <div><h3 class="menu-label">订阅消息授权</h3><p class="menu-desc">${state.subscription ? '已获得下一次提醒授权，命中提醒时可发送微信订阅消息' : '未授权时，小程序内风险中心仍展示待处理任务'}</p></div>
+              <button class="switch ${state.subscription ? 'is-on' : ''}" type="button" role="switch" aria-checked="${state.subscription}" aria-label="切换订阅消息授权" id="subSwitch"></button>
+            </article>
+            <article class="card menu-item">
+              <div><h3 class="menu-label">逾期二次提醒</h3><p class="menu-desc">逾期 3 天内未处理，次日再次提醒一次</p></div>
+              <button class="switch ${state.secondReminder ? 'is-on' : ''}" type="button" role="switch" aria-checked="${state.secondReminder}" aria-label="切换逾期二次提醒" id="secondSwitch"></button>
+            </article>
+            <article class="card menu-item">
+              <div><h3 class="menu-label">默认提醒时间</h3><p class="menu-desc">新建开启提醒的药品时自动带入</p></div>
+              <button class="value-btn" type="button" data-setting="time">${state.defaultTime}</button>
+            </article>
+            <article class="card menu-item">
+              <div><h3 class="menu-label">默认提前天数</h3><p class="menu-desc">建议首次使用默认 7 天</p></div>
+              <button class="value-btn" type="button" data-setting="before">${state.defaultBefore} 天</button>
+            </article>
+            <article class="card menu-item">
+              <div><h3 class="menu-label">历史提醒记录</h3><p class="menu-desc">未读 2 条 · 点击查看近期发送记录</p></div>
+              <button class="value-btn" type="button" data-inbox>查看</button>
+            </article>
+          </div>
+        `;
+        $('#subSwitch').addEventListener('click', () => {
+          state.subscription = !state.subscription;
+          toast(state.subscription ? '已获得下一次提醒授权' : '已关闭授权展示');
+          renderProfile();
+        });
+        $('#secondSwitch').addEventListener('click', () => {
+          state.secondReminder = !state.secondReminder;
+          toast(
+            state.secondReminder ? '已开启逾期二次提醒' : '已关闭逾期二次提醒'
+          );
+          renderProfile();
+        });
+      }
+
+      function detailContent(item) {
+        const daysNumber = item.daysLeft === 0 ? '' : Math.abs(item.daysLeft);
+        const daysText =
+          item.daysLeft < 0
+            ? '天 · 已逾期'
+            : item.daysLeft === 0
+              ? '今日需要开药'
+              : '天后预计需要重新开药';
+        const doneTone =
+          item.level === 'danger'
+            ? 'danger'
+            : item.level === 'warning'
+              ? 'warning'
+              : 'good';
+        return `
+          <div class="detail-summary ${item.level}">
+            <div class="detail-top">
+              <div>
+                <h3 class="detail-title">${item.name}</h3>
+                <span class="detail-spec">${item.spec || '-'} · ${item.dosageForm || '剂型未填'}</span>
+                <p class="detail-note">${item.note || '暂无备注'}</p>
+              </div>
+              <span class="tag ${item.level}">${item.levelLabel}</span>
+            </div>
+            <div class="days-big">${daysNumber === '' ? '' : `<strong>${daysNumber}</strong>`}<span>${daysText}</span></div>
+            <div class="progress" role="progressbar" aria-label="详情开药周期进度" aria-valuenow="${item.progress}" aria-valuemin="0" aria-valuemax="100"><span style="--value:${item.progress}%"></span></div>
+          </div>
+          <div class="detail-actions">
+            <button class="action ${doneTone}" type="button" data-done="${item.id}" ${item.level === 'paused' ? 'disabled' : ''}>本次已开药</button>
+            <button class="action secondary" type="button" data-pause="${item.id}">${item.status === 'paused' ? '重新启用' : '暂停提醒'}</button>
+          </div>
+          <div class="info-grid">
+            <div class="info"><span>最近开药日期</span><strong>${item.currentPrescriptionDate}</strong></div>
+            <div class="info"><span>下次开药日期</span><strong>${item.nextPrescriptionDate}</strong></div>
+            <div class="info"><span>提醒设置</span><strong>提前 ${item.remindAdvanceDays} 天 ${item.remindTime}</strong></div>
+            <div class="info"><span>预估剩余</span><strong>${item.stockStatus === 'unknown' ? '未估算' : `${item.estimatedStock}${item.doseUnit} · ${item.stockDays}天`}</strong></div>
+          </div>
+          <p class="detail-notice"><strong>已开药闭环</strong>确认本次已开药后，系统会更新最近开药日期、推算下一次提醒，并同步刷新药箱里的预估剩余量。</p>
+          <div class="detail-footer-actions">
+            <button class="action secondary" type="button" data-edit="${item.id}">${icon('edit')}编辑药品</button>
+            <button class="action delete" type="button" data-delete="${item.id}">删除</button>
+          </div>
+          <div class="history-head"><h3>开药历史记录</h3><span>最近 ${item.prescriptionHistory.length} 次</span></div>
+          ${item.prescriptionHistory.length ? item.prescriptionHistory.map((date) => `<div class="info history-row"><strong>${date}</strong><span>周期 ${item.intervalDays} 天</span></div>`).join('') : `<div class="info history-row"><strong>暂无记录</strong><span>完成一次开药后自动生成</span></div>`}
+        `;
+      }
+
+      function composerContent(editItem, defaultReminderEnabled) {
+        const enabled = editItem
+          ? editItem.reminderEnabled
+          : defaultReminderEnabled;
+        const startDate = editItem?.currentPrescriptionDate || today;
+        const interval = editItem?.intervalDays || 30;
+        const before = editItem?.remindAdvanceDays || state.defaultBefore;
+        const remindTime = editItem?.remindTime || state.defaultTime;
+        const timingTime = editItem?.timingTime || '08:00';
+        const nextDate = addDays(startDate, interval);
+        const remindDate = addDays(nextDate, -before);
+        const option = (value, selected) =>
+          `<option value="${value}" ${value === selected ? 'selected' : ''}>${value}</option>`;
+        return `
+          <form class="form" id="medicineForm" ${editItem ? `data-editing="${editItem.id}"` : ''}>
+            <div class="form-notice"><strong>统一新增 / 编辑入口</strong>药品基础信息始终保存；开启开药提醒后，才进入首页风险中心和提醒列表。</div>
+            <section class="form-section">
+              <h3 class="form-section-title">基础信息</h3>
+              <div class="field"><label for="name">药品名称<span class="required">*</span></label><input id="name" name="name" required placeholder="例如：洛拉替尼" value="${editItem?.name || ''}" /></div>
+              <div class="form-grid">
+                <div class="field"><label for="spec">规格</label><input id="spec" name="spec" placeholder="例如：100mg" value="${editItem?.spec || ''}" /></div>
+                <div class="field"><label for="dosageForm">剂型</label><select id="dosageForm" name="dosageForm"><option ${editItem?.dosageForm === '片剂' ? 'selected' : ''}>片剂</option><option ${editItem?.dosageForm === '胶囊' ? 'selected' : ''}>胶囊</option><option ${editItem?.dosageForm === '注射剂' ? 'selected' : ''}>注射剂</option><option ${editItem?.dosageForm === '滴剂' ? 'selected' : ''}>滴剂</option></select></div>
+              </div>
+              <div class="field"><label for="expiryDate">过期时间</label><input id="expiryDate" name="expiryDate" type="date" value="${editItem?.expiryDate || ''}" /></div>
+            </section>
+            <section class="form-section">
+              <h3 class="form-section-title">服药信息</h3>
+              <div class="form-grid">
+                <div class="field"><label for="dosePerTime">每次用量</label><div class="input-suffix"><input id="dosePerTime" name="dosePerTime" type="number" min="0" step="0.5" value="${editItem?.dosePerTime ?? 1}" /><span id="doseUnitText">${editItem?.doseUnit || '片'}</span></div></div>
+                <div class="field"><label for="doseUnit">单位</label><select id="doseUnit" name="doseUnit"><option ${editItem?.doseUnit === '片' ? 'selected' : ''}>片</option><option ${editItem?.doseUnit === '粒' ? 'selected' : ''}>粒</option><option ${editItem?.doseUnit === '支' ? 'selected' : ''}>支</option><option ${editItem?.doseUnit === '滴' ? 'selected' : ''}>滴</option></select></div>
+              </div>
+              <div class="form-grid">
+                <div class="field"><label for="timesPerDay">每日次数</label><input id="timesPerDay" name="timesPerDay" type="number" min="0" max="12" value="${editItem?.timesPerDay ?? 1}" /></div>
+                <div class="field"><label for="timing">服用时机</label><select id="timing" name="timing"><option ${editItem?.timing === '饭后' ? 'selected' : ''}>饭后</option><option ${editItem?.timing === '饭前' ? 'selected' : ''}>饭前</option><option ${editItem?.timing === '随餐' ? 'selected' : ''}>随餐</option><option ${editItem?.timing === '空腹' ? 'selected' : ''}>空腹</option><option ${editItem?.timing === '固定时间' ? 'selected' : ''}>固定时间</option><option ${editItem?.timing === '按医嘱' ? 'selected' : ''}>按医嘱</option></select></div>
+              </div>
+              <div class="field timing-time-field ${editItem?.timing === '固定时间' ? '' : 'is-hidden'}" id="timingTimeField"><label for="timingTime">具体时间</label><input id="timingTime" name="timingTime" type="time" value="${timingTime}" /></div>
+            </section>
+            <section class="form-section">
+              <div class="composer-switch">
+                <div><strong>开药提醒</strong><span>开启后需要填写最近开药日期、开药间隔和提醒时间</span></div>
+                <button class="switch ${enabled ? 'is-on' : ''}" type="button" role="switch" aria-checked="${enabled}" aria-label="切换开药提醒" id="reminderSwitch"></button>
+              </div>
+              <input type="hidden" name="reminderEnabled" id="reminderEnabled" value="${enabled ? 'true' : 'false'}" />
+              <div class="reminder-fields ${enabled ? '' : 'is-hidden'}" id="reminderFields">
+                <div class="form-grid">
+                  <div class="field"><label for="startDate">最近开药日期<span class="required">*</span></label><input id="startDate" name="startDate" type="date" value="${startDate}" /></div>
+                  <div class="field"><label for="intervalDays">开药间隔<span class="required">*</span></label><div class="input-suffix"><input id="intervalDays" name="intervalDays" type="number" min="1" max="365" value="${interval}" /><span>天</span></div></div>
+                </div>
+                <div class="form-grid">
+                  <div class="field"><label for="beforeDays">提前提醒</label><select id="beforeDays" name="beforeDays">${[1, 3, 7, 14, 30].map((i) => option(i, before)).join('')}</select></div>
+                  <div class="field"><label for="remindTime">提醒时间</label><input id="remindTime" name="remindTime" type="time" value="${remindTime}" /></div>
+                </div>
+                <div class="calc-pill" id="calcText">预计下次开药日期为 ${nextDate}，提醒时间为 ${remindDate} ${remindTime}</div>
+              </div>
+            </section>
+            <div class="field"><label for="note">备注</label><textarea id="note" name="note" maxlength="100" placeholder="医院、复诊事项、注意事项">${editItem?.note || ''}</textarea></div>
+            <button class="action form-submit" type="submit">${editItem ? '保存修改' : enabled ? '保存并开启提醒' : '保存到药箱'}</button>
+          </form>
+        `;
+      }
+
+      function doneContent(item) {
+        return `
+          <form class="form" id="doneForm" data-id="${item.id}">
+            <p class="notice">请确认这次实际开药日期。系统将按此日期进入下一周期，并重置药箱里的剩余量估算。</p>
+            <div class="info-grid">
+              <div class="info"><span>计划开药日期</span><strong>${item.nextPrescriptionDate}</strong></div>
+              <div class="info"><span>默认记录日期</span><strong>今天</strong></div>
+            </div>
+            <div class="field"><label for="doneDate">实际开药日期</label><input id="doneDate" type="date" max="${today}" value="${today}" /></div>
+            <button class="action" type="submit">按此日期记录</button>
+          </form>
+        `;
+      }
+
+      function settingContent(type) {
+        if (type === 'time') {
+          return `<form class="form" id="timeForm"><div class="field"><label for="newTime">默认提醒时间</label><input id="newTime" type="time" value="${state.defaultTime}" /></div><button class="action" type="submit">保存时间</button></form>`;
+        }
+        return `<form class="form" id="beforeForm"><div class="field"><label for="newBefore">默认提前天数</label><select id="newBefore">${[1, 3, 7, 14, 30].map((i) => `<option value="${i}" ${i === state.defaultBefore ? 'selected' : ''}>${i}</option>`).join('')}</select></div><button class="action" type="submit">保存提前天数</button></form>`;
+      }
+
+      function inboxContent() {
+        const list = reminderList().slice(0, 3);
+        return `
+          <div class="cards">
+            ${list.map((item, index) => `<article class="card menu-item"><div><h3 class="menu-label">${index < 2 ? '未读' : '已读'} · 开药提醒</h3><p class="menu-desc">${item.name} ${item.levelLabel}，请进入详情确认是否已开药。</p></div><button class="value-btn" type="button" data-detail="${item.id}">查看</button></article>`).join('')}
+          </div>
+        `;
+      }
+
+      function openSheet(title, body) {
+        $('#sheetTitle').textContent = title;
+        $('#sheetBody').innerHTML = body;
+        attachComposerInteractions();
+        $('#sheetMask').classList.add('is-open');
+        $('#sheet').classList.add('is-open');
+      }
+
+      function attachComposerInteractions() {
+        const form = $('#medicineForm');
+        if (!form) return;
+        const switcher = $('#reminderSwitch');
+        const hidden = $('#reminderEnabled');
+        const fields = $('#reminderFields');
+        const submit = $('.form-submit');
+        switcher.addEventListener('click', () => {
+          const enabled = hidden.value !== 'true';
+          hidden.value = enabled ? 'true' : 'false';
+          switcher.classList.toggle('is-on', enabled);
+          switcher.setAttribute('aria-checked', String(enabled));
+          fields.classList.toggle('is-hidden', !enabled);
+          submit.textContent = form.dataset.editing
+            ? '保存修改'
+            : enabled
+              ? '保存并开启提醒'
+              : '保存到药箱';
+        });
+
+        const start = $('#startDate');
+        const interval = $('#intervalDays');
+        const before = $('#beforeDays');
+        const time = $('#remindTime');
+        const calcText = $('#calcText');
+        const unit = $('#doseUnit');
+        const unitText = $('#doseUnitText');
+        const timing = $('#timing');
+        const timingTimeField = $('#timingTimeField');
+        const timingTime = $('#timingTime');
+        const updateCalc = () => {
+          if (!calcText || !start.value || Number(interval.value) < 1) return;
+          const nextDate = addDays(start.value, Number(interval.value));
+          const remindDate = addDays(nextDate, -Number(before.value));
+          calcText.textContent = `预计下次开药日期为 ${nextDate}，提醒时间为 ${remindDate} ${time.value}`;
+        };
+        [start, interval, before, time].forEach((element) =>
+          element.addEventListener('input', updateCalc)
+        );
+        [start, interval, before, time].forEach((element) =>
+          element.addEventListener('change', updateCalc)
+        );
+        unit.addEventListener('change', () => {
+          unitText.textContent = unit.value;
+        });
+        timing.addEventListener('change', () => {
+          const fixed = timing.value === '固定时间';
+          timingTimeField.classList.toggle('is-hidden', !fixed);
+          if (fixed && !timingTime.value) timingTime.value = '08:00';
+        });
+      }
+
+      function closeSheet() {
+        $('#sheetMask').classList.remove('is-open');
+        $('#sheet').classList.remove('is-open');
+      }
+
+      function toast(message) {
+        const el = $('#toast');
+        el.textContent = message;
+        el.classList.add('is-show');
+        window.clearTimeout(toast.timer);
+        toast.timer = window.setTimeout(
+          () => el.classList.remove('is-show'),
+          2000
+        );
+      }
+
+      function switchTab(tab) {
+        state.tab = tab;
+        $('#appTitle').textContent = titles[tab];
+        $$('.screen').forEach((screen) =>
+          screen.classList.toggle('is-active', screen.dataset.screen === tab)
+        );
+        $$('.tab').forEach((button) =>
+          button.classList.toggle('is-active', button.dataset.nav === tab)
+        );
+        render();
+        const active = $(`[data-screen="${tab}"]`);
+        active.scrollTop = 0;
+        active.focus({ preventScroll: true });
+      }
+
+      function markDone(id, explicitDate) {
+        const target = state.medicines.find((item) => item.id === id);
+        if (!target) return;
+        const derived = derive(target);
+        target.currentPrescriptionDate =
+          explicitDate || derived.nextPrescriptionDate;
+        target.status = 'active';
+        target.prescriptionHistory = [
+          target.currentPrescriptionDate,
+          ...target.prescriptionHistory
+        ].slice(0, 5);
+        toast(`${target.name} 已进入下一轮周期`);
+        closeSheet();
+        render();
+      }
+
+      function renderNav() {
+        const danger = reminderList().filter(
+          (item) => item.level === 'danger'
+        ).length;
+        const tabs = {
+          home: `${icon('home')}<span>首页</span>${danger ? `<span class="badge">${danger}</span>` : ''}`,
+          list: `${icon('list')}<span>提醒</span>`,
+          medicines: `${icon('box')}<span>药箱</span>`,
+          profile: `${icon('user')}<span>我的</span>`
+        };
+        Object.entries(tabs).forEach(([key, html]) => {
+          const el = $(`[data-nav="${key}"]`);
+          el.innerHTML = html;
+          el.classList.toggle('is-active', state.tab === key);
+        });
+        $('#fab').innerHTML = icon('plus');
+        $('#closeSheet').innerHTML = icon('x');
+      }
+
+      function render() {
+        renderNav();
+        renderHome();
+        renderList();
+        renderMedicines();
+        renderProfile();
+      }
+
+      document.addEventListener('click', (event) => {
+        const nav = event.target.closest('[data-nav]');
+        if (nav) switchTab(nav.dataset.nav);
+
+        const jump = event.target.closest('[data-jump]');
+        if (jump) switchTab(jump.dataset.jump);
+
+        const reminderFilter = event.target.closest('[data-reminder-filter]');
+        if (reminderFilter) {
+          state.reminderFilter = reminderFilter.dataset.reminderFilter;
+          renderList();
+        }
+
+        const medicineFilter = event.target.closest('[data-medicine-filter]');
+        if (medicineFilter) {
+          state.medicineFilter = medicineFilter.dataset.medicineFilter;
+          renderMedicines();
+        }
+
+        const detail = event.target.closest('[data-detail]');
+        if (detail) {
+          const item = allMedicines().find(
+            (i) => i.id === detail.dataset.detail
+          );
+          if (item) openSheet('药品详情', detailContent(item));
+        }
+
+        const edit = event.target.closest('[data-edit]');
+        if (edit) {
+          const item = state.medicines.find((i) => i.id === edit.dataset.edit);
+          if (item)
+            openSheet('编辑药品', composerContent(item, item.reminderEnabled));
+        }
+
+        const done = event.target.closest('[data-done]');
+        if (done) {
+          const item = allMedicines().find((i) => i.id === done.dataset.done);
+          if (!item || item.level === 'paused') return;
+          openSheet('确认已开药', doneContent(item));
+        }
+
+        const pause = event.target.closest('[data-pause]');
+        if (pause) {
+          const target = state.medicines.find(
+            (i) => i.id === pause.dataset.pause
+          );
+          if (target) {
+            target.status = target.status === 'paused' ? 'active' : 'paused';
+            toast(target.status === 'paused' ? '提醒已暂停' : '提醒已重新启用');
+            closeSheet();
+            render();
+          }
+        }
+
+        const deleteBtn = event.target.closest('[data-delete]');
+        if (deleteBtn) {
+          const item = state.medicines.find(
+            (i) => i.id === deleteBtn.dataset.delete
+          );
+          if (item) {
+            item.status = 'deleted';
+            toast(`${item.name} 已删除`);
+            closeSheet();
+            render();
+          }
+        }
+
+        const setting = event.target.closest('[data-setting]');
+        if (setting)
+          openSheet(
+            setting.dataset.setting === 'time'
+              ? '默认提醒时间'
+              : '默认提前天数',
+            settingContent(setting.dataset.setting)
+          );
+
+        const inbox = event.target.closest('[data-inbox]');
+        if (inbox) openSheet('历史提醒记录', inboxContent());
+      });
+
+      $('#fab').addEventListener('click', () => {
+        const defaultReminderEnabled = state.tab !== 'medicines';
+        openSheet(
+          defaultReminderEnabled ? '新增开药提醒' : '新增药品',
+          composerContent(null, defaultReminderEnabled)
+        );
+      });
+      $('#closeSheet').addEventListener('click', closeSheet);
+      $('#sheetMask').addEventListener('click', closeSheet);
+
+      document.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (event.target.id === 'medicineForm') {
+          const data = new FormData(event.target);
+          const name = String(data.get('name') || '').trim();
+          if (!name) {
+            toast('请填写药品名称');
+            return;
+          }
+          const reminderEnabled =
+            String(data.get('reminderEnabled')) === 'true';
+          const intervalDays = Number(data.get('intervalDays') || 30);
+          if (reminderEnabled && (intervalDays < 1 || intervalDays > 365)) {
+            toast('开药间隔需在 1-365 天之间');
+            return;
+          }
+          const editingId = event.target.dataset.editing;
+          const editingItem = editingId
+            ? state.medicines.find((item) => item.id === editingId)
+            : null;
+          const payload = {
+            name,
+            spec: String(data.get('spec') || '').trim(),
+            dosageForm: String(data.get('dosageForm') || ''),
+            expiryDate: String(data.get('expiryDate') || ''),
+            dosePerTime: Number(data.get('dosePerTime') || 0),
+            doseUnit: String(data.get('doseUnit') || '片'),
+            timesPerDay: Number(data.get('timesPerDay') || 0),
+            timing: String(data.get('timing') || ''),
+            timingTime:
+              String(data.get('timing')) === '固定时间'
+                ? String(data.get('timingTime') || '08:00')
+                : '',
+            stockPerPrescription: editingItem?.stockPerPrescription || 0,
+            reminderEnabled,
+            currentPrescriptionDate: String(data.get('startDate') || today),
+            intervalDays,
+            remindAdvanceDays: Number(
+              data.get('beforeDays') || state.defaultBefore
+            ),
+            remindTime: String(data.get('remindTime') || state.defaultTime),
+            note: String(data.get('note') || '').trim(),
+            status: 'active'
+          };
+          if (editingId) {
+            if (editingItem) Object.assign(editingItem, payload);
+            toast('药品已更新');
+          } else {
+            state.medicines.push({
+              id: `m${Date.now()}`,
+              ...payload,
+              prescriptionHistory: reminderEnabled
+                ? [payload.currentPrescriptionDate]
+                : []
+            });
+            toast(reminderEnabled ? '开药提醒已创建' : '药品已保存到药箱');
+          }
+          closeSheet();
+          render();
+        }
+
+        if (event.target.id === 'doneForm') {
+          markDone(event.target.dataset.id, $('#doneDate').value);
+        }
+
+        if (event.target.id === 'timeForm') {
+          state.defaultTime = $('#newTime').value;
+          toast(`默认提醒时间已设为 ${state.defaultTime}`);
+          closeSheet();
+          renderProfile();
+        }
+
+        if (event.target.id === 'beforeForm') {
+          state.defaultBefore = Number($('#newBefore').value);
+          toast(`默认提前天数已设为 ${state.defaultBefore} 天`);
+          closeSheet();
+          renderProfile();
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>
