@@ -11,8 +11,8 @@ import BottomSheet from '@/components/BottomSheet';
 import DoneDateSheet from '@/components/DoneDateSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
 import MedicineCard from '@/components/MedicineCard';
+import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
-import ReminderForm from '@/components/ReminderForm';
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
@@ -200,7 +200,10 @@ export default function Home() {
         )}
       </View>
 
-      <FloatingAddReminder hidden={sheetActive} onClick={openCreate} />
+      <FloatingAddReminder
+        hidden={sheetActive}
+        onClick={() => openCreate(true)}
+      />
 
       <BottomSheet
         open={sheetOpen}
@@ -216,9 +219,10 @@ export default function Home() {
           />
         ) : null}
         {sheetMode === 'form' ? (
-          <ReminderForm
+          <MedicineComposer
             key={formKey}
-            reminderId={editReminderId}
+            medicineId={editReminderId}
+            defaultReminderEnabled={true}
             onSuccess={handleFormSuccess}
             onCancel={closeSheet}
           />

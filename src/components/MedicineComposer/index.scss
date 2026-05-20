@@ -1,0 +1,267 @@
+@use '@/assets/styles/variables' as *;
+
+.medicine-composer {
+  display: grid;
+  gap: $spacing-5;
+
+  &__notice {
+    padding: $spacing-4;
+    border: 1px solid rgba(21, 122, 102, 0.12);
+    border-radius: $radius;
+    background: $primary-soft;
+  }
+
+  &__notice-desc {
+    display: block;
+    margin-top: 4px;
+    color: $primary;
+    font-size: $text-sm;
+    line-height: 1.6;
+  }
+
+  &__section {
+    display: grid;
+    gap: $spacing-4;
+    padding: $spacing-4;
+    border: 1px solid $line-strong;
+    border-radius: $radius;
+    background: rgba(251, 255, 253, 0.94);
+    box-shadow: 0 10px 24px rgba(16, 59, 50, 0.04);
+  }
+
+  &__section-title {
+    color: $ink-strong;
+    font-size: $text-lg;
+    font-weight: 900;
+  }
+
+  &__field {
+    display: grid;
+    gap: $spacing-2;
+    min-width: 0;
+  }
+
+  &__label {
+    color: #385750;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__required {
+    margin-left: 6px;
+    color: $danger;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: $spacing-3;
+  }
+
+  &__input-row,
+  &__picker {
+    min-height: 60px;
+    border: 1px solid $line-strong;
+    border-radius: $radius;
+    background: #fff;
+  }
+
+  &__input-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: 0 $spacing-4;
+
+    .taroify-input__clear {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      margin-right: 0;
+      padding: 0;
+      line-height: 1;
+    }
+  }
+
+  &__input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0;
+    border: 0;
+    color: $ink;
+    background: transparent;
+    font-size: $text-md;
+    display: flex;
+    align-items: center;
+
+    .taroify-native-input {
+      width: 100%;
+      min-height: 52px;
+    }
+  }
+
+  &__suffix {
+    flex-shrink: 0;
+    color: $quiet;
+    font-size: $text-md;
+    font-weight: 700;
+  }
+
+  &__picker {
+    display: flex;
+    align-items: center;
+    padding: 0 $spacing-4;
+  }
+
+  &__picker-text {
+    min-width: 0;
+    color: $ink;
+    font-size: $text-md;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__picker-placeholder {
+    color: $quiet;
+  }
+
+  &__picker::after {
+    content: '';
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    margin-left: auto;
+    border-right: 2px solid $quiet;
+    border-bottom: 2px solid $quiet;
+    transform: translateY(-2px) rotate(45deg);
+  }
+
+  &__switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-4;
+    min-height: 72px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  &__switch-copy {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  &__switch-title {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__switch-desc {
+    color: $muted;
+    font-size: $text-xs;
+    line-height: 1.5;
+  }
+
+  &__switch-control {
+    --switch-checked-color: #{$primary};
+    --switch-checked-background-color: #{$primary};
+  }
+
+  &__reminder-fields {
+    display: grid;
+    gap: $spacing-4;
+  }
+
+  &__calc {
+    padding: $spacing-4;
+    border-radius: $radius;
+    background: $primary-soft;
+    color: $primary-deep;
+    font-size: $text-sm;
+    line-height: 1.65;
+  }
+
+  &__textarea {
+    width: 100%;
+    max-width: 100%;
+    min-height: 112px;
+    padding: $spacing-3 $spacing-4;
+    border: 1px solid $line-strong;
+    border-radius: $radius;
+    box-sizing: border-box;
+    display: grid;
+    background: #fff;
+
+    .taroify-textarea__wrapper {
+      display: grid;
+      gap: $spacing-2;
+      min-height: 80px;
+    }
+
+    .taroify-textarea__limit {
+      margin-top: 0;
+      color: $quiet;
+      font-size: $text-xs;
+      line-height: 1.4;
+    }
+  }
+
+  &__textarea-inner {
+    width: 100%;
+    min-height: 72px !important;
+    height: 80px !important;
+    max-height: 120px !important;
+    display: block;
+    overflow-y: auto;
+    color: $ink;
+    background: transparent;
+    font-size: $text-md;
+    line-height: 1.6;
+    padding: 0;
+    margin: 0;
+    resize: none;
+  }
+
+  &__actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: $spacing-3;
+    margin: $spacing-1 0 (-$spacing-8);
+    padding: $spacing-4 0 calc(#{$spacing-4} + env(safe-area-inset-bottom));
+    background: linear-gradient(
+      180deg,
+      rgba(248, 252, 250, 0),
+      $paper 22%,
+      $paper 100%
+    );
+  }
+
+  &__cancel,
+  &__submit {
+    min-height: 52px !important;
+    border-radius: $radius-pill !important;
+    font-size: $text-md !important;
+    font-weight: 900 !important;
+  }
+
+  &__cancel {
+    border: 1px solid $line-strong !important;
+    background: #fff !important;
+    color: $muted !important;
+  }
+
+  &__submit {
+    border: none !important;
+    background: $primary !important;
+    color: #fff !important;
+  }
+}

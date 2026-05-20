@@ -1,7 +1,7 @@
 import type { DosageUnit, MedicineSchedule } from '@/types';
 
 /** 快捷间隔选项（天） */
-export const INTERVAL_OPTIONS = [7, 14, 28, 30, 45, 60, 90] as const;
+export const INTERVAL_OPTIONS = [3, 7, 14, 28, 30, 45, 60, 90] as const;
 
 /** 快捷提前提醒天数选项（天） */
 export const BEFORE_OPTIONS = [1, 3, 7, 14, 30] as const;

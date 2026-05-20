@@ -23,7 +23,7 @@ import {
   SHARE_PATH
 } from '@/constants';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
-import ReminderForm from '@/components/ReminderForm';
+import MedicineComposer from '@/components/MedicineComposer';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
 import { useProfileStats } from '@/hooks/useReminders';
@@ -420,9 +420,10 @@ export default function Profile() {
         onAfterClose={handleSheetExited}
       >
         {sheetMode === 'form' ? (
-          <ReminderForm
+          <MedicineComposer
             key={formKey}
-            reminderId={editReminderId}
+            medicineId={editReminderId}
+            defaultReminderEnabled={true}
             onSuccess={handleFormSuccess}
             onCancel={closeSheet}
           />
@@ -431,7 +432,7 @@ export default function Profile() {
 
       <FloatingAddReminder
         hidden={inboxOpen || sheetActive}
-        onClick={openCreate}
+        onClick={() => openCreate(true)}
       />
     </View>
   );
