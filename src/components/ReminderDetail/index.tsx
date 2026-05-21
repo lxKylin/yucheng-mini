@@ -154,9 +154,9 @@ export default function ReminderDetail({
 
   const handleDelete = () => {
     Taro.showModal({
-      title: '删除提醒',
+      title: '关闭开药提醒',
       content: `确定要关闭「${displayItem.name}」的开药提醒吗？药品资料仍会保留在药箱。`,
-      confirmText: '删除',
+      confirmText: '关闭',
       cancelText: '取消',
       confirmColor: '#ca4e41',
       success: async (res) => {
@@ -174,7 +174,7 @@ export default function ReminderDetail({
             onClose();
           } catch {
             Taro.showToast({
-              title: '删除失败，请稍后重试',
+              title: '关闭失败，请稍后重试',
               icon: 'none',
               duration: 1800
             });
@@ -284,13 +284,13 @@ export default function ReminderDetail({
           className="reminder-detail__btn reminder-detail__btn--edit"
           onClick={() => onEdit(displayItem.id)}
         >
-          编辑提醒
+          编辑药品
         </Button>
         <Button
           className="reminder-detail__btn reminder-detail__btn--delete"
           onClick={handleDelete}
         >
-          删除提醒
+          关闭提醒
         </Button>
       </View>
 

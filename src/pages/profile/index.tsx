@@ -22,10 +22,7 @@ import {
   SHARE_IMAGE,
   SHARE_PATH
 } from '@/constants';
-import FloatingAddReminder from '@/components/FloatingAddReminder';
-import MedicineComposer from '@/components/MedicineComposer';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
-import { useReminderSheet } from '@/hooks/useReminderSheet';
 import { useProfileStats } from '@/hooks/useReminders';
 import {
   getUserId,
@@ -73,18 +70,6 @@ export default function Profile() {
   const [inboxOpen, setInboxOpen] = useState(false);
   useTabScrollToTop();
 
-  const {
-    editReminderId,
-    formKey,
-    sheetActive,
-    sheetMode,
-    sheetOpen,
-    sheetTitle,
-    closeSheet,
-    handleFormSuccess,
-    handleSheetExited,
-    openCreate
-  } = useReminderSheet();
   const [profile, setProfile] = useState(getUserProfile);
   const [nickName, setNickName] = useState(
     () => getUserProfile()?.nickName ?? ''
@@ -413,27 +398,6 @@ export default function Profile() {
         </View>
       </BottomSheet>
 
-      <BottomSheet
-        open={sheetOpen}
-        title={sheetTitle}
-        onClose={closeSheet}
-        onAfterClose={handleSheetExited}
-      >
-        {sheetMode === 'form' ? (
-          <MedicineComposer
-            key={formKey}
-            medicineId={editReminderId}
-            defaultReminderEnabled={true}
-            onSuccess={handleFormSuccess}
-            onCancel={closeSheet}
-          />
-        ) : null}
-      </BottomSheet>
-
-      <FloatingAddReminder
-        hidden={inboxOpen || sheetActive}
-        onClick={() => openCreate(true)}
-      />
     </View>
   );
 }

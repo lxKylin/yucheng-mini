@@ -5,6 +5,7 @@ import { Search } from '@taroify/icons';
 
 import { MEDICINE_FORM_OPTIONS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
+import FloatingAddReminder from '@/components/FloatingAddReminder';
 import MedicineComposer from '@/components/MedicineComposer';
 import MedicineInventoryCard from '@/components/MedicineInventoryCard';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
@@ -205,16 +206,11 @@ const Medicines = () => {
         )}
       </View>
 
-      {!sheetActive ? (
-        <View
-          className="medicines-fab"
-          role="button"
-          aria-label="新增药品"
-          onClick={() => openCreate(false)}
-        >
-          <Text className="medicines-fab__icon">+</Text>
-        </View>
-      ) : null}
+      <FloatingAddReminder
+        ariaLabel="新增药品"
+        hidden={sheetActive}
+        onClick={() => openCreate(false)}
+      />
 
       <BottomSheet
         open={sheetOpen}

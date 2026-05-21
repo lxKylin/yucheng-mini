@@ -5,7 +5,6 @@
     --popup-rounded-border-radius: #{$radius-strong};
     background: $paper !important;
     z-index: 1010;
-    height: 90vh;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
@@ -65,9 +64,9 @@
   }
 
   &__body {
-    flex: 1;
+    flex: 0 1 auto;
     min-height: 0;
-    height: 100%;
+    max-height: calc(90vh - 96px);
     box-sizing: border-box;
     padding: 0;
 
