@@ -100,55 +100,16 @@ export function migrateMedicine(raw: any): Medicine {
     scheduleTime: raw.scheduleTime ?? raw.timingTime ?? '',
     reminderEnabled: raw.reminderEnabled ?? true,
     currentPrescriptionDate,
-    intervalDays: toNumber(raw.intervalDays ?? raw.interval, DEFAULT_INTERVAL),
-    remindAdvanceDays: toNumber(
-      raw.remindAdvanceDays ?? raw.before,
-      DEFAULT_BEFORE
-    ),
-    remindTime: raw.remindTime || raw.time || DEFAULT_REMIND_TIME,
+    intervalDays: toNumber(raw.intervalDays, DEFAULT_INTERVAL),
+    remindAdvanceDays: toNumber(raw.remindAdvanceDays, DEFAULT_BEFORE),
+    remindTime: raw.remindTime || DEFAULT_REMIND_TIME,
     status: raw.status ?? REMINDER_STATUS.ACTIVE,
-    prescriptionHistory: toArray(raw.prescriptionHistory ?? raw.history),
+    prescriptionHistory: toArray(raw.prescriptionHistory),
     lastWechatReminderDate: raw.lastWechatReminderDate ?? '',
     lastWechatReminderAt: raw.lastWechatReminderAt ?? '',
     createdAt: raw.createdAt ?? '',
     updatedAt: raw.updatedAt ?? ''
   };
-}
-
-function toCloudMedicinePayload(
-  medicine: Partial<Medicine>
-): Record<string, unknown> {
-  const payload: Record<string, unknown> = { ...medicine };
-
-  if (typeof medicine.name !== 'undefined') {
-    payload.medicineName = medicine.name;
-  }
-
-  if (typeof medicine.spec !== 'undefined') {
-    payload.medicineSpec = medicine.spec;
-  }
-
-  if (typeof medicine.currentPrescriptionDate !== 'undefined') {
-    payload.lastDate = medicine.currentPrescriptionDate;
-  }
-
-  if (typeof medicine.intervalDays !== 'undefined') {
-    payload.interval = medicine.intervalDays;
-  }
-
-  if (typeof medicine.remindAdvanceDays !== 'undefined') {
-    payload.before = medicine.remindAdvanceDays;
-  }
-
-  if (typeof medicine.remindTime !== 'undefined') {
-    payload.time = medicine.remindTime;
-  }
-
-  if (typeof medicine.prescriptionHistory !== 'undefined') {
-    payload.history = medicine.prescriptionHistory;
-  }
-
-  return payload;
 }
 
 async function queryUserReminders(field: '_openid' | 'userId', userId: string) {
@@ -224,7 +185,7 @@ export async function addReminderToCloud(medicine: Medicine): Promise<void> {
 
   try {
     await getCollection(COL).add({
-      data: { ...toCloudMedicinePayload(medicine), userId }
+      data: { ...medicine, userId }
     });
   } catch (err) {
     console.error('[reminderService] 新增失败：', err);
@@ -242,9 +203,7 @@ export async function updateReminderInCloud(
   try {
     const docId = await findUserMedicineDoc(id);
     if (!docId) return;
-    await getCollection(COL)
-      .doc(docId)
-      .update({ data: toCloudMedicinePayload(payload) });
+    await getCollection(COL).doc(docId).update({ data: payload });
   } catch (err) {
     console.error('[reminderService] 更新失败：', err);
     throw err;

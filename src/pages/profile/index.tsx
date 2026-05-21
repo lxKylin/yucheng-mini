@@ -276,8 +276,7 @@ export default function Profile() {
               onBlur={handleNicknameBlur}
             />
             <Text className="profile-page__user-meta">
-              共有 {stats.total} 个药物
-              {/* · 历史 {stats.historyTotal} 次开药 */}
+              共有 {stats.total} 个药品 · {stats.activeCount} 开启提醒
             </Text>
           </View>
         </View>
@@ -397,7 +396,6 @@ export default function Profile() {
           <Text>通知记录功能将在 M7 中实现。</Text>
         </View>
       </BottomSheet>
-
     </View>
   );
 }
