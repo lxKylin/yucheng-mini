@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>愈程记 ui6.1 可交互原型</title>
+    <title>愈历 ui6.1 可交互原型</title>
     <style>
       :root {
         --bg: #eaf7f3;
@@ -24,7 +24,7 @@
         --bar-h: 92px;
         --radius: 18px;
         font-family:
-          "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+          'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
           sans-serif;
       }
 
@@ -37,7 +37,11 @@
         margin: 0;
         min-height: 100%;
         background:
-          radial-gradient(circle at 20% 10%, rgba(13, 138, 108, 0.12), transparent 28%),
+          radial-gradient(
+            circle at 20% 10%,
+            rgba(13, 138, 108, 0.12),
+            transparent 28%
+          ),
           linear-gradient(135deg, #f8fbfa 0%, #dff4ef 100%);
         color: var(--ink);
       }
@@ -135,7 +139,7 @@
       }
 
       .battery::before {
-        content: "";
+        content: '';
         position: absolute;
         right: -5px;
         top: 3px;
@@ -146,7 +150,7 @@
       }
 
       .battery::after {
-        content: "";
+        content: '';
         display: block;
         width: 21px;
         height: 7px;
@@ -200,7 +204,7 @@
       }
 
       .circle-dot::after {
-        content: "";
+        content: '';
         position: absolute;
         inset: 4px;
         border-radius: 50%;
@@ -215,7 +219,9 @@
         opacity: 0;
         transform: translateX(10px);
         pointer-events: none;
-        transition: opacity 180ms ease, transform 220ms ease;
+        transition:
+          opacity 180ms ease,
+          transform 220ms ease;
         scrollbar-width: none;
       }
 
@@ -440,7 +446,10 @@
         color: #fff;
         font-size: 17px;
         font-weight: 900;
-        transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          opacity 160ms ease;
       }
 
       .action:active {
@@ -548,8 +557,12 @@
         height: 62px;
         border-radius: 22px;
         background:
-          linear-gradient(135deg, rgba(8, 145, 178, 0.08), rgba(13, 138, 108, 0.2)),
-          url("../src/assets/images/logo-无文字.png") center / cover no-repeat;
+          linear-gradient(
+            135deg,
+            rgba(8, 145, 178, 0.08),
+            rgba(13, 138, 108, 0.2)
+          ),
+          url('../src/assets/images/logo-无文字.png') center / cover no-repeat;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
       }
 
@@ -594,7 +607,7 @@
       }
 
       .switch::after {
-        content: "";
+        content: '';
         display: block;
         width: 26px;
         height: 26px;
@@ -978,7 +991,9 @@
         background-position:
           calc(100% - 18px) 22px,
           calc(100% - 12px) 22px;
-        background-size: 6px 6px, 6px 6px;
+        background-size:
+          6px 6px,
+          6px 6px;
         background-repeat: no-repeat;
       }
 
@@ -1078,7 +1093,9 @@
         font-size: 14px;
         text-align: center;
         pointer-events: none;
-        transition: opacity 180ms ease, transform 180ms ease;
+        transition:
+          opacity 180ms ease,
+          transform 180ms ease;
       }
 
       .toast.is-show {
@@ -1114,50 +1131,104 @@
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
     <main class="stage">
-      <section class="phone" aria-label="愈程记微信小程序 ui6.1 原型">
+      <section class="phone" aria-label="愈历微信小程序 ui6.1 原型">
         <div class="notch" aria-hidden="true"></div>
         <div class="status" aria-hidden="true">
           <span>11:55</span>
           <span class="status__right">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0" /><path d="M8.5 16a5 5 0 0 1 7 0" /><path d="M12 19h.01" /></svg>
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M5 12.5a10 10 0 0 1 14 0" />
+              <path d="M8.5 16a5 5 0 0 1 7 0" />
+              <path d="M12 19h.01" />
+            </svg>
             <span class="battery"></span>
           </span>
         </div>
         <header class="appbar">
           <strong class="app-title" id="appTitle">首页</strong>
           <div class="wechat-pill" aria-hidden="true">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span
+            ><span class="dot"></span>
             <span class="circle-dot"></span>
           </div>
         </header>
 
-        <section class="screen is-active" data-screen="home" id="main" tabindex="-1"></section>
+        <section
+          class="screen is-active"
+          data-screen="home"
+          id="main"
+          tabindex="-1"
+        ></section>
         <section class="screen" data-screen="list" tabindex="-1"></section>
         <section class="screen" data-screen="profile" tabindex="-1"></section>
 
-        <button class="fab" type="button" aria-label="新增开药提醒" id="fab">+</button>
+        <button class="fab" type="button" aria-label="新增开药提醒" id="fab">
+          +
+        </button>
 
         <nav class="tabbar" aria-label="底部导航">
-          <button class="tab is-active" type="button" data-nav="home" aria-label="首页">
-            <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8" /><path d="M5 10v10h14V10" /><path d="M9 20v-6h6v6" /></svg>
+          <button
+            class="tab is-active"
+            type="button"
+            data-nav="home"
+            aria-label="首页"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="m3 11 9-8 9 8" />
+              <path d="M5 10v10h14V10" />
+              <path d="M9 20v-6h6v6" />
+            </svg>
             <span>首页</span>
           </button>
-          <button class="tab" type="button" data-nav="list" aria-label="提醒列表">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" /></svg>
+          <button
+            class="tab"
+            type="button"
+            data-nav="list"
+            aria-label="提醒列表"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M8 6h13" />
+              <path d="M8 12h13" />
+              <path d="M8 18h13" />
+              <path d="M3 6h.01" />
+              <path d="M3 12h.01" />
+              <path d="M3 18h.01" />
+            </svg>
             <span>提醒</span>
           </button>
-          <button class="tab" type="button" data-nav="profile" aria-label="我的">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M19 21a7 7 0 0 0-14 0" /><circle cx="12" cy="8" r="4" /></svg>
+          <button
+            class="tab"
+            type="button"
+            data-nav="profile"
+            aria-label="我的"
+          >
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M19 21a7 7 0 0 0-14 0" />
+              <circle cx="12" cy="8" r="4" />
+            </svg>
             <span>我的</span>
           </button>
         </nav>
         <div class="home-indicator" aria-hidden="true"></div>
 
         <div class="sheet-mask" id="sheetMask"></div>
-        <aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+        <aside
+          class="sheet"
+          id="sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sheetTitle"
+        >
           <div class="sheet-head">
             <h2 class="sheet-title" id="sheetTitle">详情</h2>
-            <button class="close" type="button" aria-label="关闭弹层" id="closeSheet">×</button>
+            <button
+              class="close"
+              type="button"
+              aria-label="关闭弹层"
+              id="closeSheet"
+            >
+              ×
+            </button>
           </div>
           <div class="sheet-body" id="sheetBody"></div>
         </aside>
@@ -1166,84 +1237,84 @@
     </main>
 
     <script>
-      const today = "2026-05-20";
+      const today = '2026-05-20';
       const state = {
-        tab: "home",
-        filter: "all",
-        search: "",
+        tab: 'home',
+        filter: 'all',
+        search: '',
         subscription: true,
-        defaultTime: "09:00",
+        defaultTime: '09:00',
         defaultBefore: 7,
         reminders: [
           {
-            id: "r1",
-            medicineName: "瑞舒伐他汀",
-            medicineSpec: "10mg",
-            currentPrescriptionDate: "2026-05-05",
+            id: 'r1',
+            medicineName: '瑞舒伐他汀',
+            medicineSpec: '10mg',
+            currentPrescriptionDate: '2026-05-05',
             intervalDays: 28,
             remindAdvanceDays: 5,
-            remindTime: "09:00",
-            note: "晚间服用，复查血脂时带上上次报告。",
-            status: "active",
-            prescriptionHistory: ["2026-05-05", "2026-04-07", "2026-03-10"]
+            remindTime: '09:00',
+            note: '晚间服用，复查血脂时带上上次报告。',
+            status: 'active',
+            prescriptionHistory: ['2026-05-05', '2026-04-07', '2026-03-10']
           },
           {
-            id: "r2",
-            medicineName: "洛拉替尼",
-            medicineSpec: "100mg",
-            currentPrescriptionDate: "2026-05-15",
+            id: 'r2',
+            medicineName: '洛拉替尼',
+            medicineSpec: '100mg',
+            currentPrescriptionDate: '2026-05-15',
             intervalDays: 30,
             remindAdvanceDays: 7,
-            remindTime: "09:00",
-            note: "靶向药，提前联系医生确认续方。",
-            status: "active",
-            prescriptionHistory: ["2026-05-15", "2026-04-15", "2026-03-16"]
+            remindTime: '09:00',
+            note: '靶向药，提前联系医生确认续方。',
+            status: 'active',
+            prescriptionHistory: ['2026-05-15', '2026-04-15', '2026-03-16']
           },
           {
-            id: "r3",
-            medicineName: "地舒单抗",
-            medicineSpec: "120ml",
-            currentPrescriptionDate: "2026-05-18",
+            id: 'r3',
+            medicineName: '地舒单抗',
+            medicineSpec: '120ml',
+            currentPrescriptionDate: '2026-05-18',
             intervalDays: 28,
             remindAdvanceDays: 7,
-            remindTime: "09:00",
-            note: "注意冷链与注射预约。",
-            status: "active",
-            prescriptionHistory: ["2026-05-18", "2026-04-20"]
+            remindTime: '09:00',
+            note: '注意冷链与注射预约。',
+            status: 'active',
+            prescriptionHistory: ['2026-05-18', '2026-04-20']
           },
           {
-            id: "r4",
-            medicineName: "左甲状腺素钠",
-            medicineSpec: "50ug",
-            currentPrescriptionDate: "2026-04-30",
+            id: 'r4',
+            medicineName: '左甲状腺素钠',
+            medicineSpec: '50ug',
+            currentPrescriptionDate: '2026-04-30',
             intervalDays: 45,
             remindAdvanceDays: 14,
-            remindTime: "08:30",
-            note: "空腹服用，复查甲功。",
-            status: "active",
-            prescriptionHistory: ["2026-04-30", "2026-03-16"]
+            remindTime: '08:30',
+            note: '空腹服用，复查甲功。',
+            status: 'active',
+            prescriptionHistory: ['2026-04-30', '2026-03-16']
           }
         ]
       };
 
       const titles = {
-        home: "首页",
-        list: "提醒列表",
-        profile: "我的"
+        home: '首页',
+        list: '提醒列表',
+        profile: '我的'
       };
 
       const $ = (selector) => document.querySelector(selector);
       const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
       function parseDate(value) {
-        const [y, m, d] = value.split("-").map(Number);
+        const [y, m, d] = value.split('-').map(Number);
         return new Date(y, m - 1, d);
       }
 
       function formatDate(date) {
         const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const d = String(date.getDate()).padStart(2, "0");
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
         return `${y}-${m}-${d}`;
       }
 
@@ -1258,71 +1329,116 @@
       }
 
       function derive(item) {
-        const nextPrescriptionDate = addDays(item.currentPrescriptionDate, item.intervalDays);
-        const nextRemindDate = addDays(nextPrescriptionDate, -item.remindAdvanceDays);
+        const nextPrescriptionDate = addDays(
+          item.currentPrescriptionDate,
+          item.intervalDays
+        );
+        const nextRemindDate = addDays(
+          nextPrescriptionDate,
+          -item.remindAdvanceDays
+        );
         const daysLeft = diffDays(today, nextPrescriptionDate);
         const elapsed = diffDays(item.currentPrescriptionDate, today);
-        const progress = Math.max(0, Math.min(100, Math.round((elapsed / item.intervalDays) * 100)));
-        let level = "good";
-        if (item.status === "paused") level = "paused";
-        else if (daysLeft <= 0) level = "danger";
-        else if (daysLeft <= 7) level = "warning";
-        const levelLabel = level === "paused" ? "已暂停" : daysLeft === 0 ? "今日" : daysLeft < 0 ? `逾期 ${Math.abs(daysLeft)} 天` : `${daysLeft} 天后`;
-        return { ...item, nextPrescriptionDate, nextRemindDate, daysLeft, progress, level, levelLabel };
+        const progress = Math.max(
+          0,
+          Math.min(100, Math.round((elapsed / item.intervalDays) * 100))
+        );
+        let level = 'good';
+        if (item.status === 'paused') level = 'paused';
+        else if (daysLeft <= 0) level = 'danger';
+        else if (daysLeft <= 7) level = 'warning';
+        const levelLabel =
+          level === 'paused'
+            ? '已暂停'
+            : daysLeft === 0
+              ? '今日'
+              : daysLeft < 0
+                ? `逾期 ${Math.abs(daysLeft)} 天`
+                : `${daysLeft} 天后`;
+        return {
+          ...item,
+          nextPrescriptionDate,
+          nextRemindDate,
+          daysLeft,
+          progress,
+          level,
+          levelLabel
+        };
       }
 
       function derivedList() {
         const order = { danger: 0, warning: 1, good: 2, paused: 3 };
         return state.reminders
-          .filter((item) => item.status !== "deleted")
+          .filter((item) => item.status !== 'deleted')
           .map(derive)
-          .sort((a, b) => order[a.level] - order[b.level] || a.nextPrescriptionDate.localeCompare(b.nextPrescriptionDate));
+          .sort(
+            (a, b) =>
+              order[a.level] - order[b.level] ||
+              a.nextPrescriptionDate.localeCompare(b.nextPrescriptionDate)
+          );
       }
 
       function icon(name) {
         const icons = {
-          check: '<svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+          check:
+            '<svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
           eye: '<svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>',
-          search: '<svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
+          search:
+            '<svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
         };
-        return icons[name] || "";
+        return icons[name] || '';
       }
 
       function card(item, compact = false) {
-        const accent = item.level === "danger" ? "danger" : item.level === "warning" ? "warning" : item.level === "paused" ? "paused" : "";
+        const accent =
+          item.level === 'danger'
+            ? 'danger'
+            : item.level === 'warning'
+              ? 'warning'
+              : item.level === 'paused'
+                ? 'paused'
+                : '';
         return `
           <article class="card med-card ${accent}" data-card="${item.id}">
             <div class="med-head">
               <h3 class="med-name">${item.medicineName}</h3>
               <span class="tag ${accent}">${item.levelLabel}</span>
             </div>
-            <p class="meta">规格: ${item.medicineSpec || "-"} · 周期: ${item.intervalDays} 天</p>
+            <p class="meta">规格: ${item.medicineSpec || '-'} · 周期: ${item.intervalDays} 天</p>
             <p class="meta">最近一盒开始时间: ${item.currentPrescriptionDate}</p>
             <p class="meta accent ${accent}">下一盒开始时间: ${item.nextPrescriptionDate}</p>
             <p class="meta accent ${accent}">提醒时间: ${item.nextRemindDate} ${item.remindTime}</p>
             <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${item.progress}" aria-label="${item.medicineName} 周期进度">
               <span style="--value:${item.progress}%"></span>
             </div>
-            ${compact ? "" : `
+            ${
+              compact
+                ? ''
+                : `
               <div class="card-actions">
-                <button class="action ${accent}" type="button" data-done="${item.id}" ${item.level === "paused" ? "disabled" : ""}>${icon("check")}已开药</button>
-                <button class="action secondary" type="button" data-detail="${item.id}">${icon("eye")}查看详情</button>
+                <button class="action ${accent}" type="button" data-done="${item.id}" ${item.level === 'paused' ? 'disabled' : ''}>${icon('check')}已开药</button>
+                <button class="action secondary" type="button" data-detail="${item.id}">${icon('eye')}查看详情</button>
               </div>
-            `}
+            `
+            }
           </article>
         `;
       }
 
       function renderHome() {
         const list = derivedList();
-        const overdue = list.filter((i) => i.status !== "paused" && i.daysLeft < 0).length;
-        const todayCount = list.filter((i) => i.status !== "paused" && i.daysLeft === 0).length;
+        const overdue = list.filter(
+          (i) => i.status !== 'paused' && i.daysLeft < 0
+        ).length;
+        const todayCount = list.filter(
+          (i) => i.status !== 'paused' && i.daysLeft === 0
+        ).length;
         const hasDanger = overdue > 0 || todayCount > 0;
         $('[data-screen="home"]').innerHTML = `
-          <section class="hero ${hasDanger ? "is-danger" : ""}">
+          <section class="hero ${hasDanger ? 'is-danger' : ''}">
             <span class="eyebrow">今日待办</span>
             <h1>${overdue} 个已逾期，${todayCount} 个今天到期</h1>
-            <p>${hasDanger ? "建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。" : "近期没有紧急开药任务，继续保持当前记录节奏。"}</p>
+            <p>${hasDanger ? '建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。' : '近期没有紧急开药任务，继续保持当前记录节奏。'}</p>
           </section>
           <section class="metrics" aria-label="今日统计">
             <div class="metric"><strong>${overdue}</strong><span>已逾期</span></div>
@@ -1333,7 +1449,10 @@
             <div><h2>最近提醒</h2><p>仅展示最近 3 条，更多提醒请查看全部</p></div>
             <button class="link-btn" type="button" data-jump="list">查看全部</button>
           </div>
-          <div class="cards">${list.slice(0, 3).map((item) => card(item)).join("")}</div>
+          <div class="cards">${list
+            .slice(0, 3)
+            .map((item) => card(item))
+            .join('')}</div>
         `;
       }
 
@@ -1341,37 +1460,41 @@
         const all = derivedList();
         const counts = {
           all: all.length,
-          danger: all.filter((i) => i.level === "danger").length,
-          warning: all.filter((i) => i.level === "warning").length,
-          good: all.filter((i) => i.level === "good").length,
-          paused: all.filter((i) => i.level === "paused").length
+          danger: all.filter((i) => i.level === 'danger').length,
+          warning: all.filter((i) => i.level === 'warning').length,
+          good: all.filter((i) => i.level === 'good').length,
+          paused: all.filter((i) => i.level === 'paused').length
         };
         const tabs = [
-          ["all", "全部"],
-          ["danger", "逾期·今日"],
-          ["warning", "7天内"],
-          ["good", "正常"],
-          ["paused", "暂停"]
+          ['all', '全部'],
+          ['danger', '逾期·今日'],
+          ['warning', '7天内'],
+          ['good', '正常'],
+          ['paused', '暂停']
         ];
         const term = state.search.trim().toLowerCase();
         const filtered = all.filter((item) => {
-          const byFilter = state.filter === "all" || item.level === state.filter;
-          const bySearch = !term || item.medicineName.toLowerCase().includes(term) || item.medicineSpec.toLowerCase().includes(term);
+          const byFilter =
+            state.filter === 'all' || item.level === state.filter;
+          const bySearch =
+            !term ||
+            item.medicineName.toLowerCase().includes(term) ||
+            item.medicineSpec.toLowerCase().includes(term);
           return byFilter && bySearch;
         });
         $('[data-screen="list"]').innerHTML = `
           <div class="search">
             <div class="search-wrap">
-              ${icon("search")}
+              ${icon('search')}
               <input class="search-field" id="searchField" value="${state.search}" placeholder="搜索药物名称或规格" aria-label="搜索药物名称或规格" />
             </div>
             <div class="filters" role="tablist" aria-label="提醒状态筛选">
-              ${tabs.map(([key, label]) => `<button class="chip ${state.filter === key ? "is-active" : ""}" type="button" data-filter="${key}">${label} ${counts[key]}</button>`).join("")}
+              ${tabs.map(([key, label]) => `<button class="chip ${state.filter === key ? 'is-active' : ''}" type="button" data-filter="${key}">${label} ${counts[key]}</button>`).join('')}
             </div>
           </div>
-          <div class="cards">${filtered.length ? filtered.map((item) => card(item)).join("") : `<div class="card empty"><strong>没有符合条件的提醒</strong><p>换个关键词或筛选项试试，也可以点击右下角新增提醒。</p></div>`}</div>
+          <div class="cards">${filtered.length ? filtered.map((item) => card(item)).join('') : `<div class="card empty"><strong>没有符合条件的提醒</strong><p>换个关键词或筛选项试试，也可以点击右下角新增提醒。</p></div>`}</div>
         `;
-        $("#searchField").addEventListener("input", (event) => {
+        $('#searchField').addEventListener('input', (event) => {
           state.search = event.target.value;
           renderList();
         });
@@ -1389,8 +1512,8 @@
           <div style="height:12px"></div>
           <div class="menu">
             <article class="card menu-item">
-              <div><h3 class="menu-label">订阅消息授权</h3><p class="menu-desc">${state.subscription ? "已获得下一次提醒授权 · 下一条命中的提醒会消耗这次微信发送授权" : "尚未获得提醒授权 · 一次性订阅消息发送后会自动失效"}</p></div>
-              <button class="switch ${state.subscription ? "is-on" : ""}" type="button" role="switch" aria-checked="${state.subscription}" aria-label="切换订阅消息授权" id="subSwitch"></button>
+              <div><h3 class="menu-label">订阅消息授权</h3><p class="menu-desc">${state.subscription ? '已获得下一次提醒授权 · 下一条命中的提醒会消耗这次微信发送授权' : '尚未获得提醒授权 · 一次性订阅消息发送后会自动失效'}</p></div>
+              <button class="switch ${state.subscription ? 'is-on' : ''}" type="button" role="switch" aria-checked="${state.subscription}" aria-label="切换订阅消息授权" id="subSwitch"></button>
             </article>
             <article class="card menu-item">
               <div><h3 class="menu-label">默认提醒时间</h3><p class="menu-desc">新建提醒时自动带入</p></div>
@@ -1402,29 +1525,41 @@
             </article>
           </div>
         `;
-        $("#subSwitch").addEventListener("click", () => {
+        $('#subSwitch').addEventListener('click', () => {
           state.subscription = !state.subscription;
-          toast(state.subscription ? "已获得下一次提醒授权" : "已关闭本次授权展示");
+          toast(
+            state.subscription ? '已获得下一次提醒授权' : '已关闭本次授权展示'
+          );
           renderProfile();
         });
       }
 
       function detailContent(item) {
-        const daysNumber = item.daysLeft === 0 ? "" : Math.abs(item.daysLeft);
-        const daysText = item.daysLeft < 0 ? "天 · 已逾期" : item.daysLeft === 0 ? "今日需要开药" : "天后预计需要重新开药";
-        const doneTone = item.level === "danger" ? "danger" : item.level === "warning" ? "warning" : "";
+        const daysNumber = item.daysLeft === 0 ? '' : Math.abs(item.daysLeft);
+        const daysText =
+          item.daysLeft < 0
+            ? '天 · 已逾期'
+            : item.daysLeft === 0
+              ? '今日需要开药'
+              : '天后预计需要重新开药';
+        const doneTone =
+          item.level === 'danger'
+            ? 'danger'
+            : item.level === 'warning'
+              ? 'warning'
+              : '';
         return `
           <div class="detail-summary ${item.level}">
             <div class="detail-top">
               <div>
                 <h3 class="detail-title">${item.medicineName}</h3>
-                <span class="detail-spec">${item.medicineSpec || "-"}</span>
-                <p class="detail-note">${item.note || "暂无备注"}</p>
+                <span class="detail-spec">${item.medicineSpec || '-'}</span>
+                <p class="detail-note">${item.note || '暂无备注'}</p>
               </div>
               <span class="tag ${item.level}">${item.levelLabel}</span>
             </div>
             <div class="days-big">
-              ${daysNumber === "" ? "" : `<strong>${daysNumber}</strong>`}
+              ${daysNumber === '' ? '' : `<strong>${daysNumber}</strong>`}
               <span>${daysText}</span>
             </div>
             <div class="progress" role="progressbar" aria-label="详情周期进度" aria-valuenow="${item.progress}" aria-valuemin="0" aria-valuemax="100">
@@ -1432,8 +1567,8 @@
             </div>
           </div>
           <div class="detail-actions">
-            <button class="action ${doneTone}" type="button" data-done="${item.id}" ${item.level === "paused" ? "disabled" : ""}>本次已开药</button>
-            <button class="action secondary" type="button" data-pause="${item.id}">${item.status === "paused" ? "重新启用" : "暂停提醒"}</button>
+            <button class="action ${doneTone}" type="button" data-done="${item.id}" ${item.level === 'paused' ? 'disabled' : ''}>本次已开药</button>
+            <button class="action secondary" type="button" data-pause="${item.id}">${item.status === 'paused' ? '重新启用' : '暂停提醒'}</button>
           </div>
           <div class="info-grid">
             <div class="info"><span>最近开药日期</span><strong>${item.currentPrescriptionDate}</strong></div>
@@ -1450,7 +1585,7 @@
             <h3>开药历史记录</h3>
             <span>最近 ${item.prescriptionHistory.length} 次</span>
           </div>
-          ${item.prescriptionHistory.map((date) => `<div class="info history-row"><strong>${date}</strong><span>周期 ${item.intervalDays} 天 · 提前 ${item.remindAdvanceDays} 天提醒</span></div>`).join("")}
+          ${item.prescriptionHistory.map((date) => `<div class="info history-row"><strong>${date}</strong><span>周期 ${item.intervalDays} 天 · 提前 ${item.remindAdvanceDays} 天提醒</span></div>`).join('')}
         `;
       }
 
@@ -1462,13 +1597,16 @@
         const nextDate = addDays(startDate, interval);
         const remindDate = addDays(nextDate, -before);
         const beforeOptions = [1, 3, 7, 14, 30]
-          .map((value) => `<option value="${value}" ${value === before ? "selected" : ""}>${value}天</option>`)
-          .join("");
+          .map(
+            (value) =>
+              `<option value="${value}" ${value === before ? 'selected' : ''}>${value}天</option>`
+          )
+          .join('');
         return `
-          <form class="form" id="reminderForm" ${editItem ? `data-editing="${editItem.id}"` : ""}>
+          <form class="form" id="reminderForm" ${editItem ? `data-editing="${editItem.id}"` : ''}>
             <div class="form-notice"><strong>保存后自动推算下次开药</strong>系统会使用最近开药日期、间隔天数和提前提醒量生成下一次提醒。</div>
-            <div class="field"><label for="medicineName">药物名称<span class="required">*</span></label><input id="medicineName" name="medicineName" required placeholder="例如：洛拉替尼" value="${editItem?.medicineName || ""}" /></div>
-            <div class="field"><label for="medicineSpec">药物规格</label><input id="medicineSpec" name="medicineSpec" placeholder="例如：20mg" value="${editItem?.medicineSpec || ""}" /></div>
+            <div class="field"><label for="medicineName">药物名称<span class="required">*</span></label><input id="medicineName" name="medicineName" required placeholder="例如：洛拉替尼" value="${editItem?.medicineName || ''}" /></div>
+            <div class="field"><label for="medicineSpec">药物规格</label><input id="medicineSpec" name="medicineSpec" placeholder="例如：20mg" value="${editItem?.medicineSpec || ''}" /></div>
             <div class="form-grid">
               <div class="field"><label for="startDate">最近开药日期<span class="required">*</span></label><input id="startDate" name="startDate" type="date" required value="${startDate}" /></div>
               <div class="field"><label for="intervalDays">下次开药间隔<span class="required">*</span></label><div class="input-suffix"><input id="intervalDays" name="intervalDays" type="number" min="1" max="365" required value="${interval}" /><span>天</span></div></div>
@@ -1477,9 +1615,9 @@
               <div class="field"><label for="beforeDays">提前提醒<span class="required">*</span></label><select id="beforeDays" name="beforeDays">${beforeOptions}</select></div>
               <div class="field"><label for="remindTime">提醒时间<span class="required">*</span></label><input id="remindTime" name="remindTime" type="time" value="${remindTime}" /></div>
             </div>
-            <div class="field"><label for="note">备注</label><div class="textarea-wrap"><textarea id="note" name="note" maxlength="100" placeholder="医院、复诊事项、注意事项">${editItem?.note || ""}</textarea><span class="textarea-count" id="noteCount">${(editItem?.note || "").length}/100</span></div></div>
+            <div class="field"><label for="note">备注</label><div class="textarea-wrap"><textarea id="note" name="note" maxlength="100" placeholder="医院、复诊事项、注意事项">${editItem?.note || ''}</textarea><span class="textarea-count" id="noteCount">${(editItem?.note || '').length}/100</span></div></div>
             <div class="calc-pill" id="calcText">预计下次开药日期为 ${nextDate}，提醒时间为 ${remindDate} ${remindTime}</div>
-            <button class="action form-submit" type="submit">${editItem ? "保存修改" : "保存并开启提醒"}</button>
+            <button class="action form-submit" type="submit">${editItem ? '保存修改' : '保存并开启提醒'}</button>
           </form>
         `;
       }
@@ -1499,35 +1637,35 @@
       }
 
       function settingContent(type) {
-        if (type === "time") {
+        if (type === 'time') {
           return `<form class="form" id="timeForm"><div class="field"><label for="newTime">默认提醒时间</label><input id="newTime" type="time" value="${state.defaultTime}" /></div><button class="action" type="submit">保存时间</button></form>`;
         }
         return `<form class="form" id="beforeForm"><div class="field"><label for="newBefore">默认提前天数</label><select id="newBefore"><option>1</option><option>3</option><option selected>7</option><option>14</option><option>30</option></select></div><button class="action" type="submit">保存提前天数</button></form>`;
       }
 
       function openSheet(title, body) {
-        $("#sheetTitle").textContent = title;
-        $("#sheetBody").innerHTML = body;
+        $('#sheetTitle').textContent = title;
+        $('#sheetBody').innerHTML = body;
         attachFormLiveCalc();
-        $("#sheetMask").classList.add("is-open");
-        $("#sheet").classList.add("is-open");
+        $('#sheetMask').classList.add('is-open');
+        $('#sheet').classList.add('is-open');
       }
 
       function attachFormLiveCalc() {
-        const form = $("#reminderForm");
+        const form = $('#reminderForm');
         if (!form) return;
-        const start = $("#startDate");
-        const interval = $("#intervalDays");
-        const before = $("#beforeDays");
-        const time = $("#remindTime");
-        const calcText = $("#calcText");
-        const note = $("#note");
-        const noteCount = $("#noteCount");
+        const start = $('#startDate');
+        const interval = $('#intervalDays');
+        const before = $('#beforeDays');
+        const time = $('#remindTime');
+        const calcText = $('#calcText');
+        const note = $('#note');
+        const noteCount = $('#noteCount');
 
         const updateCalc = () => {
           const days = Number(interval.value);
           if (!start.value || !days || days < 1 || days > 365) {
-            calcText.textContent = "请输入 1-365 之间的下次开药间隔天数";
+            calcText.textContent = '请输入 1-365 之间的下次开药间隔天数';
             return;
           }
           const nextDate = addDays(start.value, days);
@@ -1539,29 +1677,40 @@
           noteCount.textContent = `${note.value.length}/100`;
         };
 
-        [start, interval, before, time].forEach((element) => element.addEventListener("input", updateCalc));
-        [start, interval, before, time].forEach((element) => element.addEventListener("change", updateCalc));
-        note.addEventListener("input", updateNoteCount);
+        [start, interval, before, time].forEach((element) =>
+          element.addEventListener('input', updateCalc)
+        );
+        [start, interval, before, time].forEach((element) =>
+          element.addEventListener('change', updateCalc)
+        );
+        note.addEventListener('input', updateNoteCount);
       }
 
       function closeSheet() {
-        $("#sheetMask").classList.remove("is-open");
-        $("#sheet").classList.remove("is-open");
+        $('#sheetMask').classList.remove('is-open');
+        $('#sheet').classList.remove('is-open');
       }
 
       function toast(message) {
-        const el = $("#toast");
+        const el = $('#toast');
         el.textContent = message;
-        el.classList.add("is-show");
+        el.classList.add('is-show');
         window.clearTimeout(toast.timer);
-        toast.timer = window.setTimeout(() => el.classList.remove("is-show"), 1800);
+        toast.timer = window.setTimeout(
+          () => el.classList.remove('is-show'),
+          1800
+        );
       }
 
       function switchTab(tab) {
         state.tab = tab;
-        $("#appTitle").textContent = titles[tab];
-        $$(".screen").forEach((screen) => screen.classList.toggle("is-active", screen.dataset.screen === tab));
-        $$(".tab").forEach((button) => button.classList.toggle("is-active", button.dataset.nav === tab));
+        $('#appTitle').textContent = titles[tab];
+        $$('.screen').forEach((screen) =>
+          screen.classList.toggle('is-active', screen.dataset.screen === tab)
+        );
+        $$('.tab').forEach((button) =>
+          button.classList.toggle('is-active', button.dataset.nav === tab)
+        );
         render();
         const active = $(`[data-screen="${tab}"]`);
         active.scrollTop = 0;
@@ -1572,8 +1721,12 @@
         const target = state.reminders.find((item) => item.id === id);
         if (!target) return;
         const derived = derive(target);
-        target.currentPrescriptionDate = explicitDate || derived.nextPrescriptionDate;
-        target.prescriptionHistory = [target.currentPrescriptionDate, ...target.prescriptionHistory].slice(0, 5);
+        target.currentPrescriptionDate =
+          explicitDate || derived.nextPrescriptionDate;
+        target.prescriptionHistory = [
+          target.currentPrescriptionDate,
+          ...target.prescriptionHistory
+        ].slice(0, 5);
         toast(`${target.medicineName} 已进入下一轮周期`);
         closeSheet();
         render();
@@ -1585,123 +1738,140 @@
         renderProfile();
       }
 
-      document.addEventListener("click", (event) => {
-        const nav = event.target.closest("[data-nav]");
+      document.addEventListener('click', (event) => {
+        const nav = event.target.closest('[data-nav]');
         if (nav) switchTab(nav.dataset.nav);
 
-        const jump = event.target.closest("[data-jump]");
+        const jump = event.target.closest('[data-jump]');
         if (jump) switchTab(jump.dataset.jump);
 
-        const filter = event.target.closest("[data-filter]");
+        const filter = event.target.closest('[data-filter]');
         if (filter) {
           state.filter = filter.dataset.filter;
           renderList();
         }
 
-        const detail = event.target.closest("[data-detail]");
+        const detail = event.target.closest('[data-detail]');
         if (detail) {
-          const item = derivedList().find((i) => i.id === detail.dataset.detail);
-          if (item) openSheet("提醒详情", detailContent(item));
+          const item = derivedList().find(
+            (i) => i.id === detail.dataset.detail
+          );
+          if (item) openSheet('提醒详情', detailContent(item));
         }
 
-        const done = event.target.closest("[data-done]");
+        const done = event.target.closest('[data-done]');
         if (done) {
           const item = derivedList().find((i) => i.id === done.dataset.done);
-          if (!item || item.level === "paused") return;
-          if (item.daysLeft < 0) openSheet("记录实际开药日期", doneContent(item));
+          if (!item || item.level === 'paused') return;
+          if (item.daysLeft < 0)
+            openSheet('记录实际开药日期', doneContent(item));
           else markDone(item.id);
         }
 
-        const pause = event.target.closest("[data-pause]");
+        const pause = event.target.closest('[data-pause]');
         if (pause) {
-          const target = state.reminders.find((i) => i.id === pause.dataset.pause);
+          const target = state.reminders.find(
+            (i) => i.id === pause.dataset.pause
+          );
           if (target) {
-            target.status = target.status === "paused" ? "active" : "paused";
-            toast(target.status === "paused" ? "提醒已暂停" : "提醒已重新启用");
+            target.status = target.status === 'paused' ? 'active' : 'paused';
+            toast(target.status === 'paused' ? '提醒已暂停' : '提醒已重新启用');
             closeSheet();
             render();
           }
         }
 
-        const edit = event.target.closest("[data-edit]");
+        const edit = event.target.closest('[data-edit]');
         if (edit) {
           const item = state.reminders.find((i) => i.id === edit.dataset.edit);
-          if (item) openSheet("编辑提醒", formContent(item));
+          if (item) openSheet('编辑提醒', formContent(item));
         }
 
-        const deleteBtn = event.target.closest("[data-delete]");
+        const deleteBtn = event.target.closest('[data-delete]');
         if (deleteBtn) {
-          const item = state.reminders.find((i) => i.id === deleteBtn.dataset.delete);
+          const item = state.reminders.find(
+            (i) => i.id === deleteBtn.dataset.delete
+          );
           if (item) {
-            item.status = "deleted";
+            item.status = 'deleted';
             toast(`${item.medicineName} 已删除`);
             closeSheet();
             render();
           }
         }
 
-        const setting = event.target.closest("[data-setting]");
-        if (setting) openSheet(setting.dataset.setting === "time" ? "默认提醒时间" : "默认提前天数", settingContent(setting.dataset.setting));
+        const setting = event.target.closest('[data-setting]');
+        if (setting)
+          openSheet(
+            setting.dataset.setting === 'time'
+              ? '默认提醒时间'
+              : '默认提前天数',
+            settingContent(setting.dataset.setting)
+          );
       });
 
-      $("#fab").addEventListener("click", () => openSheet("新增开药提醒", formContent()));
-      $("#closeSheet").addEventListener("click", closeSheet);
-      $("#sheetMask").addEventListener("click", closeSheet);
+      $('#fab').addEventListener('click', () =>
+        openSheet('新增开药提醒', formContent())
+      );
+      $('#closeSheet').addEventListener('click', closeSheet);
+      $('#sheetMask').addEventListener('click', closeSheet);
 
-      document.addEventListener("submit", (event) => {
+      document.addEventListener('submit', (event) => {
         event.preventDefault();
-        if (event.target.id === "reminderForm") {
+        if (event.target.id === 'reminderForm') {
           const data = new FormData(event.target);
-          const name = String(data.get("medicineName") || "").trim();
+          const name = String(data.get('medicineName') || '').trim();
           if (!name) {
-            toast("请填写药物名称");
+            toast('请填写药物名称');
             return;
           }
-          const intervalDays = Number(data.get("intervalDays"));
+          const intervalDays = Number(data.get('intervalDays'));
           if (intervalDays < 1 || intervalDays > 365) {
-            toast("间隔天数需在 1-365 之间");
+            toast('间隔天数需在 1-365 之间');
             return;
           }
           const editingId = event.target.dataset.editing;
           const payload = {
             medicineName: name,
-            medicineSpec: String(data.get("medicineSpec") || "").trim(),
-            currentPrescriptionDate: String(data.get("startDate")),
+            medicineSpec: String(data.get('medicineSpec') || '').trim(),
+            currentPrescriptionDate: String(data.get('startDate')),
             intervalDays,
-            remindAdvanceDays: Number(data.get("beforeDays")),
-            remindTime: String(data.get("remindTime")),
-            note: String(data.get("note") || "").trim(),
-            status: "active"
+            remindAdvanceDays: Number(data.get('beforeDays')),
+            remindTime: String(data.get('remindTime')),
+            note: String(data.get('note') || '').trim(),
+            status: 'active'
           };
           if (editingId) {
-            const target = state.reminders.find((item) => item.id === editingId);
+            const target = state.reminders.find(
+              (item) => item.id === editingId
+            );
             if (target) Object.assign(target, payload);
-            toast("提醒已更新");
+            toast('提醒已更新');
           } else {
             state.reminders.push({
               id: `r${Date.now()}`,
               ...payload,
-              prescriptionHistory: [String(data.get("startDate"))]
+              prescriptionHistory: [String(data.get('startDate'))]
             });
-            toast("提醒已创建");
+            toast('提醒已创建');
           }
           closeSheet();
           render();
         }
 
-        if (event.target.id === "doneForm") {
-          markDone(event.target.dataset.id, $("#doneDate").value);
+        if (event.target.id === 'doneForm') {
+          markDone(event.target.dataset.id, $('#doneDate').value);
         }
 
-        if (event.target.id === "timeForm") {
-          state.defaultTime = $("#newTime").value;
+        if (event.target.id === 'timeForm') {
+          state.defaultTime = $('#newTime').value;
           toast(`默认提醒时间已设为 ${state.defaultTime}`);
           closeSheet();
           renderProfile();
         }
 
-        if (event.target.id === "beforeForm") {
-          state.defaultBefore = Number($("#newBefore").value);
+        if (event.target.id === 'beforeForm') {
+          state.defaultBefore = Number($('#newBefore').value);
           toast(`默认提前天数已设为 ${state.defaultBefore} 天`);
           closeSheet();
           renderProfile();

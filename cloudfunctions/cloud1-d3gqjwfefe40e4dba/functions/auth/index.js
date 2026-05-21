@@ -26,6 +26,7 @@ exports.main = async (event = {}) => {
       .where({ _openid: OPENID })
       .limit(1)
       .get();
+    console.log('[auth] 查询用户记录：', data);
 
     let userRecord;
 

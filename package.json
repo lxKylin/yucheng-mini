@@ -1,8 +1,8 @@
 {
-  "name": "yucheng",
-  "version": "1.0.0",
+  "name": "yuli",
+  "version": "1.1.1",
   "private": true,
-  "description": "愈程",
+  "description": "愈历",
   "templateInfo": {
     "name": "default",
     "typescript": true,

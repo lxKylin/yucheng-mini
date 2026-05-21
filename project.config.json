@@ -2,8 +2,8 @@
   "miniprogramRoot": "dist/",
   "cloudbaseRoot": "cloudfunctions/",
   "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
-  "projectname": "yucheng",
-  "description": "愈程记：把开药提醒管理得更清楚",
+  "projectname": "yuli",
+  "description": "愈历：把开药提醒管理得更清楚",
   "appid": "wx08fecc031a1cb072",
   "setting": {
     "urlCheck": true,

@@ -117,13 +117,13 @@ export default function Home() {
   });
 
   useShareAppMessage(() => ({
-    title: '我在用愈程记管理长期用药提醒，也分享给你',
+    title: '我在用愈历管理长期用药提醒，也分享给你',
     path: SHARE_PATH,
     imageUrl: SHARE_IMAGE
   }));
 
   useShareTimeline(() => ({
-    title: '愈程记：开药提醒小程序',
+    title: '愈历：开药提醒小程序',
     query: 'from=timeline',
     imageUrl: SHARE_IMAGE
   }));

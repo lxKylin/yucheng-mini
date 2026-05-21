@@ -8,7 +8,7 @@ export default defineAppConfig({
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#f8fcfa',
-    navigationBarTitleText: '愈程记',
+    navigationBarTitleText: '愈历',
     navigationBarTextStyle: 'black'
   },
   tabBar: {

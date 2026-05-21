@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>愈程记小程序 UI 6.0 · 750 设计稿</title>
+    <title>愈历小程序 UI 6.0 · 750 设计稿</title>
     <style>
       :root {
         --board-width: 750px;
@@ -38,8 +38,8 @@
         --shadow-card: 0 18px 40px rgba(16, 59, 50, 0.08);
         --duration: 220ms;
         font-family:
-          "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC",
-          "Microsoft YaHei", sans-serif;
+          'PingFang SC', 'Hiragino Sans GB', 'Source Han Sans SC',
+          'Microsoft YaHei', sans-serif;
       }
 
       * {
@@ -147,7 +147,7 @@
       }
 
       .eyebrow::before {
-        content: "";
+        content: '';
         width: 10px;
         height: 10px;
         border-radius: 50%;
@@ -1008,7 +1008,7 @@
       }
 
       .switch::before {
-        content: "";
+        content: '';
         display: block;
         width: 42px;
         height: 42px;
@@ -1389,7 +1389,7 @@
           <div class="meta-pill">建议开发换算：750 设计宽 ÷ 2 = 375 逻辑宽</div>
         </div>
         <div class="canvas-stage">
-          <section class="artboard" id="app" aria-label="愈程记小程序 UI 6.0">
+          <section class="artboard" id="app" aria-label="愈历小程序 UI 6.0">
             <div class="board-grid"></div>
             <div class="ruler top">
               <span>0</span><span>375</span><span>750</span>
@@ -1402,7 +1402,7 @@
             <div class="chrome">
               <div class="status">
                 <span>09:41</span>
-                <strong>愈程记</strong>
+                <strong>愈历</strong>
                 <span>100%</span>
               </div>
 
@@ -1619,9 +1619,9 @@
     <script>
       const dayMs = 86400000;
       const today = new Date(2026, 4, 14);
-      const fmt = new Intl.DateTimeFormat("zh-CN", {
-        month: "numeric",
-        day: "numeric",
+      const fmt = new Intl.DateTimeFormat('zh-CN', {
+        month: 'numeric',
+        day: 'numeric'
       });
       const iso = (date) => {
         const d = new Date(date);
@@ -1634,7 +1634,7 @@
         new Date(
           date.getFullYear(),
           date.getMonth(),
-          date.getDate() + Number(days),
+          date.getDate() + Number(days)
         );
       const diffDays = (date) =>
         Math.ceil((strip(date) - strip(today)) / dayMs);
@@ -1643,133 +1643,133 @@
 
       const icons = {
         done: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m20 6-11 11-5-5" stroke="currentColor"/></svg>',
-        eye: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" stroke="currentColor"/><circle cx="12" cy="12" r="3" stroke="currentColor"/></svg>',
+        eye: '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" stroke="currentColor"/><circle cx="12" cy="12" r="3" stroke="currentColor"/></svg>'
       };
 
       let reminders = [
         {
-          id: "m1",
-          name: "二甲双胍",
-          spec: "0.5g · 长期慢病用药",
-          lastDate: "2026-04-13",
+          id: 'm1',
+          name: '二甲双胍',
+          spec: '0.5g · 长期慢病用药',
+          lastDate: '2026-04-13',
           interval: 30,
           before: 3,
-          time: "09:00",
-          status: "active",
-          note: "今天优先处理复诊开药，避免断药。",
-          history: ["2026-04-13", "2026-03-14", "2026-02-13"],
+          time: '09:00',
+          status: 'active',
+          note: '今天优先处理复诊开药，避免断药。',
+          history: ['2026-04-13', '2026-03-14', '2026-02-13']
         },
         {
-          id: "m2",
-          name: "阿托伐他汀",
-          spec: "20mg · 每晚一次",
-          lastDate: "2026-04-16",
+          id: 'm2',
+          name: '阿托伐他汀',
+          spec: '20mg · 每晚一次',
+          lastDate: '2026-04-16',
           interval: 30,
           before: 3,
-          time: "09:00",
-          status: "active",
-          note: "建议提前挂号或线上复诊。",
-          history: ["2026-04-16", "2026-03-17", "2026-02-16"],
+          time: '09:00',
+          status: 'active',
+          note: '建议提前挂号或线上复诊。',
+          history: ['2026-04-16', '2026-03-17', '2026-02-16']
         },
         {
-          id: "m3",
-          name: "优甲乐",
-          spec: "50ug · 甲状腺用药",
-          lastDate: "2026-04-20",
+          id: 'm3',
+          name: '优甲乐',
+          spec: '50ug · 甲状腺用药',
+          lastDate: '2026-04-20',
           interval: 30,
           before: 7,
-          time: "08:30",
-          status: "active",
-          note: "空腹服用，复查时带上历史记录。",
-          history: ["2026-04-20", "2026-03-21"],
+          time: '08:30',
+          status: 'active',
+          note: '空腹服用，复查时带上历史记录。',
+          history: ['2026-04-20', '2026-03-21']
         },
         {
-          id: "m4",
-          name: "缬沙坦",
-          spec: "80mg · 血压管理",
-          lastDate: "2026-05-01",
+          id: 'm4',
+          name: '缬沙坦',
+          spec: '80mg · 血压管理',
+          lastDate: '2026-05-01',
           interval: 45,
           before: 7,
-          time: "09:00",
-          status: "active",
-          note: "当前状态正常。",
-          history: ["2026-05-01", "2026-03-17"],
+          time: '09:00',
+          status: 'active',
+          note: '当前状态正常。',
+          history: ['2026-05-01', '2026-03-17']
         },
         {
-          id: "m5",
-          name: "氨氯地平",
-          spec: "5mg · 已暂停观察",
-          lastDate: "2026-05-10",
+          id: 'm5',
+          name: '氨氯地平',
+          spec: '5mg · 已暂停观察',
+          lastDate: '2026-05-10',
           interval: 30,
           before: 3,
-          time: "09:00",
-          status: "paused",
-          note: "医生建议暂停提醒，后续视情况恢复。",
-          history: ["2026-05-10"],
-        },
+          time: '09:00',
+          status: 'paused',
+          note: '医生建议暂停提醒，后续视情况恢复。',
+          history: ['2026-05-10']
+        }
       ];
-      let filter = "all";
-      let inboxFilter = "all";
+      let filter = 'all';
+      let inboxFilter = 'all';
       let inbox = [
         {
-          id: "n1",
-          reminderId: "m1",
-          title: "二甲双胍开药事项已逾期",
-          summary: "预计下次开药 2026-05-13，提醒已触发，请尽快安排复诊。",
-          date: "2026-05-14",
-          time: "09:00",
-          category: "urgent",
-          read: false,
+          id: 'n1',
+          reminderId: 'm1',
+          title: '二甲双胍开药事项已逾期',
+          summary: '预计下次开药 2026-05-13，提醒已触发，请尽快安排复诊。',
+          date: '2026-05-14',
+          time: '09:00',
+          category: 'urgent',
+          read: false
         },
         {
-          id: "n2",
-          reminderId: "m2",
-          title: "阿托伐他汀 2 天后需要开药",
-          summary: "建议提前挂号或线上复诊，避免到期当天处理。",
-          date: "2026-05-13",
-          time: "09:00",
-          category: "upcoming",
-          read: false,
+          id: 'n2',
+          reminderId: 'm2',
+          title: '阿托伐他汀 2 天后需要开药',
+          summary: '建议提前挂号或线上复诊，避免到期当天处理。',
+          date: '2026-05-13',
+          time: '09:00',
+          category: 'upcoming',
+          read: false
         },
         {
-          id: "n3",
-          reminderId: "m3",
-          title: "优甲乐已进入提前提醒窗口",
-          summary: "预计 5/20 需要重新开药，当前是 7 天前提醒节点。",
-          date: "2026-05-13",
-          time: "08:30",
-          category: "upcoming",
-          read: true,
+          id: 'n3',
+          reminderId: 'm3',
+          title: '优甲乐已进入提前提醒窗口',
+          summary: '预计 5/20 需要重新开药，当前是 7 天前提醒节点。',
+          date: '2026-05-13',
+          time: '08:30',
+          category: 'upcoming',
+          read: true
         },
         {
-          id: "n4",
-          reminderId: "m4",
-          title: "缬沙坦当前节奏正常",
-          summary: "这是一条排程确认消息，帮助你核对下一次提醒是否正确。",
-          date: "2026-05-08",
-          time: "09:00",
-          category: "archive",
-          read: true,
-        },
+          id: 'n4',
+          reminderId: 'm4',
+          title: '缬沙坦当前节奏正常',
+          summary: '这是一条排程确认消息，帮助你核对下一次提醒是否正确。',
+          date: '2026-05-08',
+          time: '09:00',
+          category: 'archive',
+          read: true
+        }
       ];
 
       function derive(item) {
-        const last = new Date(item.lastDate + "T00:00:00");
+        const last = new Date(item.lastDate + 'T00:00:00');
         const next = addDays(last, item.interval);
         const days = diffDays(next);
-        let level = "good";
+        let level = 'good';
         let label = `${days} 天后`;
-        if (item.status === "paused") {
-          level = "paused";
-          label = "已暂停";
+        if (item.status === 'paused') {
+          level = 'paused';
+          label = '已暂停';
         } else if (days < 0) {
-          level = "danger";
+          level = 'danger';
           label = `逾期 ${Math.abs(days)} 天`;
         } else if (days === 0) {
-          level = "danger";
-          label = "今日";
+          level = 'danger';
+          label = '今日';
         } else if (days <= 7) {
-          level = "warning";
+          level = 'warning';
           label = `${days} 天后`;
         }
         const remindAt = addDays(next, -item.before);
@@ -1778,9 +1778,9 @@
           Math.min(
             100,
             Math.round(
-              ((item.interval - Math.max(days, 0)) / item.interval) * 100,
-            ),
-          ),
+              ((item.interval - Math.max(days, 0)) / item.interval) * 100
+            )
+          )
         );
         return { ...item, next, days, level, label, remindAt, progress };
       }
@@ -1793,17 +1793,17 @@
       }
 
       function toast(text) {
-        const box = $("#toast");
+        const box = $('#toast');
         box.textContent = text;
-        box.classList.add("show");
+        box.classList.add('show');
         clearTimeout(toast.timer);
-        toast.timer = setTimeout(() => box.classList.remove("show"), 2200);
+        toast.timer = setTimeout(() => box.classList.remove('show'), 2200);
       }
 
       function card(item, actions = true) {
-        const progressClass = item.level === "paused" ? "good" : item.level;
+        const progressClass = item.level === 'paused' ? 'good' : item.level;
         return `
-          <article class="card ${item.level} ${item.level === "paused" ? "is-paused" : ""}" tabindex="0" data-card="${item.id}">
+          <article class="card ${item.level} ${item.level === 'paused' ? 'is-paused' : ''}" tabindex="0" data-card="${item.id}">
             <div class="row">
               <div>
                 <h3 class="medicine">${item.name}</h3>
@@ -1812,43 +1812,43 @@
               <span class="tag ${item.level}">${item.label}</span>
             </div>
             <div class="progress ${progressClass}"><b style="width:${item.progress}%"></b></div>
-            ${actions ? `<div class="actions"><button class="button ${item.level === "danger" ? "danger" : "success"}" data-done="${item.id}">${icons.done}已开药</button><button class="button" data-detail="${item.id}">${icons.eye}查看详情</button></div>` : ""}
+            ${actions ? `<div class="actions"><button class="button ${item.level === 'danger' ? 'danger' : 'success'}" data-done="${item.id}">${icons.done}已开药</button><button class="button" data-detail="${item.id}">${icons.eye}查看详情</button></div>` : ''}
           </article>`;
       }
 
       function renderHome() {
         const items = data();
         const overdue = items.filter(
-          (x) => x.status !== "paused" && x.days < 0,
+          (x) => x.status !== 'paused' && x.days < 0
         ).length;
         const todayCount = items.filter(
-          (x) => x.status !== "paused" && x.days === 0,
+          (x) => x.status !== 'paused' && x.days === 0
         ).length;
         const week = items.filter(
-          (x) => x.status !== "paused" && x.days <= 7,
+          (x) => x.status !== 'paused' && x.days <= 7
         ).length;
-        $("#todayText").textContent =
+        $('#todayText').textContent =
           `今天 ${fmt.format(today)}，先处理最紧急的开药任务`;
-        $("#homeHero").innerHTML =
-          `<div class="eyebrow-lite">今日待办</div><h3>${overdue} 个已逾期，${todayCount} 个今天到期</h3><p>${week ? "建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。" : "近期没有紧急开药任务，继续保持当前记录节奏。"}</p>`;
-        $("#homeMetrics").innerHTML =
+        $('#homeHero').innerHTML =
+          `<div class="eyebrow-lite">今日待办</div><h3>${overdue} 个已逾期，${todayCount} 个今天到期</h3><p>${week ? '建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。' : '近期没有紧急开药任务，继续保持当前记录节奏。'}</p>`;
+        $('#homeMetrics').innerHTML =
           `<div class="metric"><strong>${overdue}</strong><span>已逾期</span></div><div class="metric"><strong>${todayCount}</strong><span>今日处理</span></div><div class="metric"><strong>${reminders.length}</strong><span>管理中</span></div>`;
-        const urgent = items.filter((x) => x.status !== "paused").slice(0, 3);
-        $("#homeCards").innerHTML = urgent.length
-          ? urgent.map((x) => card(x)).join("")
+        const urgent = items.filter((x) => x.status !== 'paused').slice(0, 3);
+        $('#homeCards').innerHTML = urgent.length
+          ? urgent.map((x) => card(x)).join('')
           : `<div class="empty">暂无待处理提醒</div>`;
-        $("#timeline").innerHTML = urgent
+        $('#timeline').innerHTML = urgent
           .map(
             (x) =>
-              `<li><time>${x.days <= 0 ? "今天" : fmt.format(x.next)}</time><div><strong>${x.name}开药提醒</strong><span>${x.label} · 预计下次开药 ${iso(x.next)}，提醒时间 ${fmt.format(x.remindAt)} ${x.time}。</span></div></li>`,
+              `<li><time>${x.days <= 0 ? '今天' : fmt.format(x.next)}</time><div><strong>${x.name}开药提醒</strong><span>${x.label} · 预计下次开药 ${iso(x.next)}，提醒时间 ${fmt.format(x.remindAt)} ${x.time}。</span></div></li>`
           )
-          .join("");
+          .join('');
       }
 
       function renderList() {
-        const term = $("#searchInput")?.value.trim().toLowerCase() || "";
+        const term = $('#searchInput')?.value.trim().toLowerCase() || '';
         const items = data().filter((x) => {
-          const byFilter = filter === "all" || x.level === filter;
+          const byFilter = filter === 'all' || x.level === filter;
           const byTerm =
             x.name.toLowerCase().includes(term) ||
             x.spec.toLowerCase().includes(term);
@@ -1858,35 +1858,35 @@
           acc[x.level] = (acc[x.level] || 0) + 1;
           return acc;
         }, {});
-        $("#filters").innerHTML = [
-          ["all", `全部 ${reminders.length}`],
-          ["danger", `逾期/今日 ${counts.danger || 0}`],
-          ["warning", `7天内 ${counts.warning || 0}`],
-          ["good", `正常 ${counts.good || 0}`],
-          ["paused", `暂停 ${counts.paused || 0}`],
+        $('#filters').innerHTML = [
+          ['all', `全部 ${reminders.length}`],
+          ['danger', `逾期/今日 ${counts.danger || 0}`],
+          ['warning', `7天内 ${counts.warning || 0}`],
+          ['good', `正常 ${counts.good || 0}`],
+          ['paused', `暂停 ${counts.paused || 0}`]
         ]
           .map(
             ([key, text]) =>
-              `<button class="filter ${filter === key ? "active" : ""}" data-filter="${key}">${text}</button>`,
+              `<button class="filter ${filter === key ? 'active' : ''}" data-filter="${key}">${text}</button>`
           )
-          .join("");
-        $("#listCards").innerHTML = items.length
-          ? items.map((x) => card(x)).join("")
+          .join('');
+        $('#listCards').innerHTML = items.length
+          ? items.map((x) => card(x)).join('')
           : `<div class="empty">没有符合条件的提醒</div>`;
       }
 
       function inboxStats() {
         return {
           unread: inbox.filter((item) => !item.read).length,
-          total: inbox.length,
+          total: inbox.length
         };
       }
 
       function renderInboxList() {
         const shown = inbox.filter((item) => {
-          if (inboxFilter === "all") return true;
-          if (inboxFilter === "unread") return !item.read;
-          if (inboxFilter === "read") return item.read;
+          if (inboxFilter === 'all') return true;
+          if (inboxFilter === 'unread') return !item.read;
+          if (inboxFilter === 'read') return item.read;
           return item.category === inboxFilter;
         });
 
@@ -1894,59 +1894,59 @@
           ? shown
               .map((item) => {
                 const toneClass =
-                  item.category === "urgent"
-                    ? "danger"
-                    : item.category === "archive"
-                      ? "good"
-                      : "";
-                return `<article class="card message"><div class="date-badge ${toneClass}">${fmt.format(new Date(item.date + "T00:00:00"))}<br>${item.time}</div><div class="message-stack"><div class="message-copy"><div class="message-meta"><span class="mini-tag ${item.read ? "read" : "unread"}">${item.read ? "已读" : "未读"}</span><span class="mini-tag">${item.category === "urgent" ? "紧急提醒" : item.category === "upcoming" ? "即将到期" : "归档通知"}</span></div><h3 class="medicine">${item.title}</h3><p class="meta">${item.summary}</p></div><div class="actions">${item.read ? `<button class="button ghost" data-open-reminder="${item.reminderId}">查看提醒</button>` : `<button class="button primary" data-read="${item.id}">标记已读</button><button class="button" data-open-reminder="${item.reminderId}">查看提醒</button>`}</div></div></article>`;
+                  item.category === 'urgent'
+                    ? 'danger'
+                    : item.category === 'archive'
+                      ? 'good'
+                      : '';
+                return `<article class="card message"><div class="date-badge ${toneClass}">${fmt.format(new Date(item.date + 'T00:00:00'))}<br>${item.time}</div><div class="message-stack"><div class="message-copy"><div class="message-meta"><span class="mini-tag ${item.read ? 'read' : 'unread'}">${item.read ? '已读' : '未读'}</span><span class="mini-tag">${item.category === 'urgent' ? '紧急提醒' : item.category === 'upcoming' ? '即将到期' : '归档通知'}</span></div><h3 class="medicine">${item.title}</h3><p class="meta">${item.summary}</p></div><div class="actions">${item.read ? `<button class="button ghost" data-open-reminder="${item.reminderId}">查看提醒</button>` : `<button class="button primary" data-read="${item.id}">标记已读</button><button class="button" data-open-reminder="${item.reminderId}">查看提醒</button>`}</div></div></article>`;
               })
-              .join("")
+              .join('')
           : `<div class="empty">当前筛选下没有通知记录</div>`;
       }
 
       function openInbox() {
         const stats = inboxStats();
-        $("#sheet").innerHTML = `
+        $('#sheet').innerHTML = `
           <div class="sheet-head"><div><h3 id="sheetTitle">通知记录</h3><p class="meta">微信订阅消息失败时，这里作为小程序内兜底收件箱。</p></div><button class="icon-button" data-close aria-label="关闭"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor"/></svg></button></div>
           <div class="notice"><strong>${stats.unread} 条未读通知</strong><span>这里仅做通知查看和已读管理；开药、暂停、编辑等任务操作仍建议从首页卡片或列表详情进入。</span></div>
           <div class="subhead" style="margin-top:14px">通知筛选 <button data-mark-read>全部已读</button></div>
           <div class="filters" id="inboxFilters">${[
-            ["all", `全部 ${stats.total}`],
-            ["unread", `未读 ${stats.unread}`],
-            ["read", `已读 ${stats.total - stats.unread}`],
-            ["urgent", "紧急"],
-            ["upcoming", "近期"],
+            ['all', `全部 ${stats.total}`],
+            ['unread', `未读 ${stats.unread}`],
+            ['read', `已读 ${stats.total - stats.unread}`],
+            ['urgent', '紧急'],
+            ['upcoming', '近期']
           ]
             .map(
               ([key, text]) =>
-                `<button class="filter ${inboxFilter === key ? "active" : ""}" data-inbox-filter="${key}">${text}</button>`,
+                `<button class="filter ${inboxFilter === key ? 'active' : ''}" data-inbox-filter="${key}">${text}</button>`
             )
-            .join("")}</div>
+            .join('')}</div>
           <div class="message-list" id="messageList">${renderInboxList()}</div>`;
-        const mask = $("#sheetMask");
-        mask.classList.add("open");
-        if (typeof mask.showModal === "function" && !mask.open) {
+        const mask = $('#sheetMask');
+        mask.classList.add('open');
+        if (typeof mask.showModal === 'function' && !mask.open) {
           mask.showModal();
         }
       }
 
       function renderProfile() {
-        const active = reminders.filter((x) => x.status !== "paused").length;
+        const active = reminders.filter((x) => x.status !== 'paused').length;
         const history = reminders.reduce((sum, x) => sum + x.history.length, 0);
         const stats = inboxStats();
-        $("#profileSummary").textContent =
+        $('#profileSummary').textContent =
           `管理中 ${active} 个提醒 · ${stats.unread} 条通知未读`;
-        $("#historyTotal").textContent = `${stats.total} 条`;
-        $("#inboxPreviewTitle").textContent =
+        $('#historyTotal').textContent = `${stats.total} 条`;
+        $('#inboxPreviewTitle').textContent =
           stats.unread > 0
             ? `当前有 ${stats.unread} 条未读通知`
-            : "通知都已读完";
+            : '通知都已读完';
         const firstUnread = inbox.find((item) => !item.read) || inbox[0];
-        $("#inboxPreviewMeta").textContent = firstUnread
-          ? `${firstUnread.title} · ${fmt.format(new Date(firstUnread.date + "T00:00:00"))} ${firstUnread.time}`
-          : "消息入口用于兜底查看提醒，不替代首页和列表的任务操作。";
-        $("#profileMetrics").innerHTML =
+        $('#inboxPreviewMeta').textContent = firstUnread
+          ? `${firstUnread.title} · ${fmt.format(new Date(firstUnread.date + 'T00:00:00'))} ${firstUnread.time}`
+          : '消息入口用于兜底查看提醒，不替代首页和列表的任务操作。';
+        $('#profileMetrics').innerHTML =
           `<div class="metric"><strong>${active}</strong><span>启用中</span></div><div class="metric"><strong>${stats.unread}</strong><span>未读通知</span></div><div class="metric"><strong>${history}</strong><span>开药历史</span></div>`;
       }
 
@@ -1957,33 +1957,33 @@
       }
 
       function nav(name) {
-        $$(".screen").forEach((screen) =>
-          screen.classList.toggle("is-active", screen.dataset.screen === name),
+        $$('.screen').forEach((screen) =>
+          screen.classList.toggle('is-active', screen.dataset.screen === name)
         );
-        $$(".tab").forEach((tab) =>
-          tab.classList.toggle("active", tab.dataset.nav === name),
+        $$('.tab').forEach((tab) =>
+          tab.classList.toggle('active', tab.dataset.nav === name)
         );
       }
 
       function closeSheet() {
-        const mask = $("#sheetMask");
-        mask.classList.remove("open");
-        if (typeof mask.close === "function" && mask.open) {
+        const mask = $('#sheetMask');
+        mask.classList.remove('open');
+        if (typeof mask.close === 'function' && mask.open) {
           mask.close();
         }
-        $("#sheet").innerHTML = "";
+        $('#sheet').innerHTML = '';
       }
 
       function detail(id) {
         const item = derive(reminders.find((x) => x.id === id));
-        const progressClass = item.level === "paused" ? "good" : item.level;
-        $("#sheet").innerHTML = `
+        const progressClass = item.level === 'paused' ? 'good' : item.level;
+        $('#sheet').innerHTML = `
           <div class="sheet-head"><div><h3 id="sheetTitle">提醒详情</h3><p class="meta">${item.name} · ${item.spec}</p></div><button class="icon-button" data-close aria-label="关闭"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor"/></svg></button></div>
           <section class="detail-panel">
             <div class="row"><div><h3 class="medicine">${item.name}</h3><p class="meta">${item.note}</p></div><span class="tag ${item.level}">${item.label}</span></div>
-            <div class="days"><strong>${Math.max(item.days, 0)}</strong><span>${item.days < 0 ? `已逾期 ${Math.abs(item.days)} 天` : "天后预计需要重新开药"}</span></div>
+            <div class="days"><strong>${Math.max(item.days, 0)}</strong><span>${item.days < 0 ? `已逾期 ${Math.abs(item.days)} 天` : '天后预计需要重新开药'}</span></div>
             <div class="progress ${progressClass}"><b style="width:${item.progress}%"></b></div>
-            <div class="actions"><button class="button success" data-done="${item.id}">本次已开药</button><button class="button" data-pause="${item.id}">${item.status === "paused" ? "重新启用" : "暂停提醒"}</button></div>
+            <div class="actions"><button class="button success" data-done="${item.id}">本次已开药</button><button class="button" data-pause="${item.id}">${item.status === 'paused' ? '重新启用' : '暂停提醒'}</button></div>
           </section>
           <div class="info-grid" style="margin-top:12px">
             <div class="info"><span>最近开药日期</span><strong>${item.lastDate}</strong></div>
@@ -1994,29 +1994,29 @@
           <div class="notice" style="margin-top:12px"><strong>推荐操作</strong><span>如果今天已经完成挂号或续方，点击“本次已开药”，系统会更新最近开药日期并推算下一次提醒。</span></div>
           <div class="actions"><button class="button primary" data-edit="${item.id}">编辑提醒</button><button class="button ghost" data-delete="${item.id}">删除提醒</button></div>
           <div class="subhead" style="margin-top:14px">开药历史记录 <span>最近 ${item.history.length} 次</span></div>
-          <ul class="history">${item.history.map((date) => `<li><span>${date}</span><strong>周期 ${item.interval} 天 · 提前 ${item.before} 天提醒</strong></li>`).join("")}</ul>`;
-        const mask = $("#sheetMask");
-        mask.classList.add("open");
-        if (typeof mask.showModal === "function" && !mask.open) {
+          <ul class="history">${item.history.map((date) => `<li><span>${date}</span><strong>周期 ${item.interval} 天 · 提前 ${item.before} 天提醒</strong></li>`).join('')}</ul>`;
+        const mask = $('#sheetMask');
+        mask.classList.add('open');
+        if (typeof mask.showModal === 'function' && !mask.open) {
           mask.showModal();
         }
       }
 
-      function form(id = "") {
+      function form(id = '') {
         const item = id
           ? reminders.find((x) => x.id === id)
           : {
-              id: "",
-              name: "",
-              spec: "",
+              id: '',
+              name: '',
+              spec: '',
               lastDate: iso(today),
               interval: 30,
               before: 3,
-              time: "09:00",
-              note: "",
+              time: '09:00',
+              note: ''
             };
-        $("#sheet").innerHTML = `
-          <div class="sheet-head"><h3 id="sheetTitle">${id ? "编辑提醒" : "新增提醒"}</h3><button class="icon-button" data-close aria-label="关闭"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor"/></svg></button></div>
+        $('#sheet').innerHTML = `
+          <div class="sheet-head"><h3 id="sheetTitle">${id ? '编辑提醒' : '新增提醒'}</h3><button class="icon-button" data-close aria-label="关闭"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor"/></svg></button></div>
           <div class="notice"><strong>保存后自动推算下次开药</strong><span>系统会使用最近开药日期、间隔天数和提前提醒量生成下一次提醒。</span></div>
           <form class="form" id="reminderForm">
             <input type="hidden" name="id" value="${item.id}">
@@ -2034,53 +2034,53 @@
             <div class="quick" data-quick="before"><button type="button" data-value="1">1天</button><button type="button" data-value="3">3天</button><button type="button" data-value="7">7天</button><button type="button" data-value="14">14天</button></div>
             <div class="field"><label for="note">备注</label><textarea id="note" name="note" placeholder="医院、复诊事项、注意事项">${item.note}</textarea></div>
             <div class="calc" id="calc"></div>
-            <button class="button primary" type="submit">${id ? "保存修改" : "保存并开启提醒"}</button>
+            <button class="button primary" type="submit">${id ? '保存修改' : '保存并开启提醒'}</button>
           </form>`;
-        const mask = $("#sheetMask");
-        mask.classList.add("open");
-        if (typeof mask.showModal === "function" && !mask.open) {
+        const mask = $('#sheetMask');
+        mask.classList.add('open');
+        if (typeof mask.showModal === 'function' && !mask.open) {
           mask.showModal();
         }
-        $("#interval").value = String(item.interval);
-        $("#before").value = String(item.before);
+        $('#interval').value = String(item.interval);
+        $('#before').value = String(item.before);
         updateQuick();
         updateCalc();
       }
 
       function updateQuick() {
-        const form = $("#reminderForm");
+        const form = $('#reminderForm');
         if (!form) return;
         $$('[data-quick="interval"] button').forEach((btn) =>
           btn.classList.toggle(
-            "active",
-            btn.dataset.value === form.interval.value,
-          ),
+            'active',
+            btn.dataset.value === form.interval.value
+          )
         );
         $$('[data-quick="before"] button').forEach((btn) =>
           btn.classList.toggle(
-            "active",
-            btn.dataset.value === form.before.value,
-          ),
+            'active',
+            btn.dataset.value === form.before.value
+          )
         );
       }
 
       function updateCalc() {
-        const form = $("#reminderForm");
+        const form = $('#reminderForm');
         if (!form) return;
-        const last = new Date(form.lastDate.value + "T00:00:00");
+        const last = new Date(form.lastDate.value + 'T00:00:00');
         const next = addDays(last, form.interval.value || 30);
         const remind = addDays(next, -(form.before.value || 3));
-        $("#calc").textContent =
-          `预计下次开药日期为 ${iso(next)}，提醒时间为 ${iso(remind)} ${form.time.value || "09:00"}。`;
+        $('#calc').textContent =
+          `预计下次开药日期为 ${iso(next)}，提醒时间为 ${iso(remind)} ${form.time.value || '09:00'}。`;
       }
 
       function done(id) {
         const item = reminders.find((x) => x.id === id);
         item.lastDate = iso(today);
-        item.status = "active";
+        item.status = 'active';
         item.history = [
           iso(today),
-          ...item.history.filter((date) => date !== iso(today)),
+          ...item.history.filter((date) => date !== iso(today))
         ].slice(0, 5);
         closeSheet();
         renderAll();
@@ -2093,27 +2093,27 @@
         item.read = true;
         renderAll();
         openInbox();
-        toast("通知已标记为已读");
+        toast('通知已标记为已读');
       }
 
       function markAllRead() {
         if (inbox.every((item) => item.read)) {
-          toast("当前没有未读通知");
+          toast('当前没有未读通知');
           return;
         }
         inbox = inbox.map((item) => ({ ...item, read: true }));
         renderAll();
         openInbox();
-        toast("通知已全部标记为已读");
+        toast('通知已全部标记为已读');
       }
 
       function save(event) {
         event.preventDefault();
         const payload = Object.fromEntries(
-          new FormData(event.target).entries(),
+          new FormData(event.target).entries()
         );
         if (!payload.name.trim()) {
-          toast("请填写药物名称");
+          toast('请填写药物名称');
           return;
         }
         if (payload.id) {
@@ -2125,9 +2125,9 @@
             interval: Number(payload.interval),
             before: Number(payload.before),
             time: payload.time,
-            note: payload.note.trim(),
+            note: payload.note.trim()
           });
-          toast("提醒已更新");
+          toast('提醒已更新');
         } else {
           reminders.unshift({
             id: `m${Date.now()}`,
@@ -2137,18 +2137,18 @@
             interval: Number(payload.interval),
             before: Number(payload.before),
             time: payload.time,
-            status: "active",
+            status: 'active',
             note: payload.note.trim(),
-            history: [payload.lastDate],
+            history: [payload.lastDate]
           });
-          toast("提醒已创建");
+          toast('提醒已创建');
         }
         closeSheet();
         renderAll();
       }
 
-      document.addEventListener("click", (event) => {
-        const target = event.target.closest("button, [data-card]");
+      document.addEventListener('click', (event) => {
+        const target = event.target.closest('button, [data-card]');
         if (!target) return;
         if (target.dataset.nav) nav(target.dataset.nav);
         if (target.dataset.jump) nav(target.dataset.jump);
@@ -2171,10 +2171,10 @@
         }
         if (target.dataset.pause) {
           const item = reminders.find((x) => x.id === target.dataset.pause);
-          item.status = item.status === "paused" ? "active" : "paused";
+          item.status = item.status === 'paused' ? 'active' : 'paused';
           closeSheet();
           renderAll();
-          toast(item.status === "paused" ? "提醒已暂停" : "提醒已重新启用");
+          toast(item.status === 'paused' ? '提醒已暂停' : '提醒已重新启用');
         }
         if (target.dataset.delete) {
           const item = reminders.find((x) => x.id === target.dataset.delete);
@@ -2184,18 +2184,18 @@
           toast(`${item.name} 已删除`);
         }
         if (target.dataset.switch !== undefined) {
-          target.classList.toggle("on");
+          target.classList.toggle('on');
           toast(
-            target.classList.contains("on")
-              ? "订阅消息已开启"
-              : "订阅消息已关闭",
+            target.classList.contains('on')
+              ? '订阅消息已开启'
+              : '订阅消息已关闭'
           );
         }
         if (target.dataset.markRead !== undefined) {
           markAllRead();
         }
-        if (target.closest("[data-quick]")) {
-          const quick = target.closest("[data-quick]").dataset.quick;
+        if (target.closest('[data-quick]')) {
+          const quick = target.closest('[data-quick]').dataset.quick;
           const select = document.getElementById(quick);
           select.value = target.dataset.value;
           updateQuick();
@@ -2203,28 +2203,28 @@
         }
       });
 
-      document.addEventListener("input", (event) => {
-        if (event.target.id === "searchInput") renderList();
-        if (event.target.closest("#reminderForm")) updateCalc();
+      document.addEventListener('input', (event) => {
+        if (event.target.id === 'searchInput') renderList();
+        if (event.target.closest('#reminderForm')) updateCalc();
       });
 
-      document.addEventListener("change", (event) => {
-        if (event.target.closest("#reminderForm")) {
+      document.addEventListener('change', (event) => {
+        if (event.target.closest('#reminderForm')) {
           updateQuick();
           updateCalc();
         }
       });
 
-      document.addEventListener("submit", (event) => {
-        if (event.target.id === "reminderForm") save(event);
+      document.addEventListener('submit', (event) => {
+        if (event.target.id === 'reminderForm') save(event);
       });
 
-      $("#sheetMask").addEventListener("click", (event) => {
-        if (event.target.id === "sheetMask") closeSheet();
+      $('#sheetMask').addEventListener('click', (event) => {
+        if (event.target.id === 'sheetMask') closeSheet();
       });
 
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") closeSheet();
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeSheet();
       });
 
       renderAll();

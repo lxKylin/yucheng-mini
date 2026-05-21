@@ -88,13 +88,13 @@ export default function Profile() {
   });
 
   useShareAppMessage(() => ({
-    title: '愈程记：把开药提醒管理得更清楚',
+    title: '愈历：把开药提醒管理得更清楚',
     path: SHARE_PATH,
     imageUrl: SHARE_IMAGE
   }));
 
   useShareTimeline(() => ({
-    title: '愈程记：长期用药提醒整理工具',
+    title: '愈历：长期用药提醒整理工具',
     query: 'from=list-timeline',
     imageUrl: SHARE_IMAGE
   }));
