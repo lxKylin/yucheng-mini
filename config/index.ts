@@ -50,7 +50,12 @@ export default defineConfig<'vite'>(async (merge) => {
       )
     },
     copy: {
-      patterns: [],
+      patterns: [
+        {
+          from: 'src/assets/images/logo.png',
+          to: 'dist/assets/images/logo.png'
+        }
+      ],
       options: {}
     },
     framework: 'react',
