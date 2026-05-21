@@ -1,0 +1,129 @@
+@use '@/assets/styles/variables' as *;
+
+.medicine-inventory-card {
+  padding: 24px 24px 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(189, 222, 215, 0.78);
+  box-shadow: 0 12px 26px rgba(16, 74, 91, 0.055);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+
+  &:active {
+    transform: scale(0.992);
+    border-color: rgba(21, 122, 102, 0.22);
+    box-shadow: 0 8px 18px rgba(16, 74, 91, 0.05);
+  }
+
+  &__main {
+    display: grid;
+    gap: 8px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  &__head-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__name {
+    flex: 1;
+    min-width: 0;
+    color: $ink-strong;
+    font-size: 31px;
+    font-weight: 900;
+    line-height: 1.28;
+    letter-spacing: 0;
+    word-break: break-word;
+  }
+
+  &__meta {
+    display: block;
+    color: $muted;
+    font-size: 23px;
+    font-weight: 700;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  &__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  &__pill {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    border-radius: $radius-pill;
+    color: #2c5e52;
+    background: #f1fbf7;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  &__footnote {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(23, 76, 65, 0.07);
+  }
+
+  &__footnote-text {
+    min-width: 0;
+    color: $muted;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  &__footnote-action {
+    flex-shrink: 0;
+    color: $primary-deep;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.35;
+  }
+
+  &__status {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 14px;
+    border-radius: $radius-pill;
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+
+    &--enabled {
+      color: $primary-deep;
+      background: $success-soft;
+    }
+
+    &--disabled {
+      color: $violet;
+      background: $violet-soft;
+    }
+  }
+}

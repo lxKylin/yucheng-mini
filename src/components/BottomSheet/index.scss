@@ -5,8 +5,11 @@
     --popup-rounded-border-radius: #{$radius-strong};
     background: $paper !important;
     z-index: 1010;
+    height: 90vh;
     max-height: 90vh;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     overflow-x: hidden;
     box-sizing: border-box;
     box-shadow: 0 -20px 60px rgba(10, 30, 35, 0.16);
@@ -26,8 +29,7 @@
   }
 
   &__head {
-    position: sticky;
-    top: 0;
+    flex-shrink: 0;
     z-index: 20;
     display: flex;
     align-items: center;
@@ -63,6 +65,21 @@
   }
 
   &__body {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+  }
+
+  &__body-inner {
+    box-sizing: border-box;
     padding: $spacing-2 $spacing-8 $spacing-8;
   }
 }

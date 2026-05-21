@@ -1,5 +1,10 @@
 export default defineAppConfig({
-  pages: ['pages/home/index', 'pages/list/index', 'pages/profile/index'],
+  pages: [
+    'pages/home/index',
+    'pages/list/index',
+    'pages/medicines/index',
+    'pages/profile/index'
+  ],
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#f8fcfa',
@@ -21,9 +26,15 @@ export default defineAppConfig({
       },
       {
         pagePath: 'pages/list/index',
-        text: '列表',
+        text: '提醒',
         iconPath: 'assets/tabbar/list.png',
         selectedIconPath: 'assets/tabbar/list-active.png'
+      },
+      {
+        pagePath: 'pages/medicines/index',
+        text: '药箱',
+        iconPath: 'assets/tabbar/medicines.png',
+        selectedIconPath: 'assets/tabbar/medicines-active.png'
       },
       {
         pagePath: 'pages/profile/index',

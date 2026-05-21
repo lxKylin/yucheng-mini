@@ -25,7 +25,7 @@ export default function ReminderDetail({
   const [doneSheetOpen, setDoneSheetOpen] = useState(false);
   const item = useDerivedById(reminderId);
   const [displayItem, setDisplayItem] = useState(item);
-  const { markDone, togglePause, deleteReminder } = useReminderActions();
+  const { markDone, togglePause, updateReminder } = useReminderActions();
 
   useEffect(() => {
     if (item) {
@@ -155,16 +155,19 @@ export default function ReminderDetail({
   const handleDelete = () => {
     Taro.showModal({
       title: '删除提醒',
-      content: `确定要删除「${displayItem.name}」的开药提醒吗？此操作不可撤销。`,
+      content: `确定要关闭「${displayItem.name}」的开药提醒吗？药品资料仍会保留在药箱。`,
       confirmText: '删除',
       cancelText: '取消',
       confirmColor: '#ca4e41',
       success: async (res) => {
         if (res.confirm) {
           try {
-            await deleteReminder(displayItem.id);
+            await updateReminder(displayItem.id, {
+              reminderEnabled: false,
+              status: REMINDER_STATUS.ACTIVE
+            });
             Taro.showToast({
-              title: `${displayItem.name} 已删除`,
+              title: `${displayItem.name} 已移出提醒列表`,
               icon: 'none',
               duration: 1500
             });

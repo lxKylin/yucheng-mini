@@ -162,6 +162,29 @@ async function queryUserReminders(field: '_openid' | 'userId', userId: string) {
     .get();
 }
 
+async function findUserMedicineDoc(id: string) {
+  const userId = getUserId();
+  if (!userId) return '';
+
+  const byOpenId = await getCollection(COL)
+    .where({ id, _openid: userId })
+    .limit(1)
+    .get();
+  if (byOpenId.data[0]?._id) {
+    return byOpenId.data[0]._id;
+  }
+
+  const byUserId = await getCollection(COL)
+    .where({ id, userId })
+    .limit(1)
+    .get();
+  if (byUserId.data[0]?._id) {
+    return byUserId.data[0]._id;
+  }
+
+  return id;
+}
+
 /** 拉取当前用户的全部提醒（排除 deleted） */
 export async function fetchReminders(): Promise<Medicine[]> {
   const userId = getUserId();
@@ -169,14 +192,22 @@ export async function fetchReminders(): Promise<Medicine[]> {
   if (!userId) return [];
 
   try {
-    let { data } = await queryUserReminders('_openid', userId);
-    console.log('[_openid] 拉取数据：', data);
+    const [{ data: openIdData }, { data: userIdData }] = await Promise.all([
+      queryUserReminders('_openid', userId),
+      queryUserReminders('userId', userId)
+    ]);
+    console.log('[_openid] 拉取数据：', openIdData);
+    console.log('[userId] 拉取数据：', userIdData);
 
-    // 兼容手工导入或旧版本写入的数据：仅保存了 userId，没有系统 _openid 字段可查。
-    if (data.length === 0) {
-      ({ data } = await queryUserReminders('userId', userId));
-      console.log('[userId] 拉取数据：', data);
-    }
+    const data = [...openIdData, ...userIdData].filter(
+      (item, index, list) =>
+        index ===
+        list.findIndex(
+          (candidate) =>
+            (candidate._id && candidate._id === item._id) ||
+            (candidate.id && candidate.id === item.id)
+        )
+    );
 
     // 兼容旧字段格式，迁移后返回
     return data.map((item: any) => migrateMedicine(item));
@@ -209,19 +240,10 @@ export async function updateReminderInCloud(
   if (!getUserId()) return;
 
   try {
-    const existing = await getCollection(COL).where({ id }).limit(1).get();
-
-    if (existing.data.length > 0) {
-      const docId = existing.data[0]?._id;
-      if (!docId) return;
-      await getCollection(COL)
-        .doc(docId)
-        .update({ data: toCloudMedicinePayload(payload) });
-      return;
-    }
-
+    const docId = await findUserMedicineDoc(id);
+    if (!docId) return;
     await getCollection(COL)
-      .doc(id)
+      .doc(docId)
       .update({ data: toCloudMedicinePayload(payload) });
   } catch (err) {
     console.error('[reminderService] 更新失败：', err);
@@ -238,16 +260,9 @@ export async function deleteReminderInCloud(id: string): Promise<void> {
       status: REMINDER_STATUS.DELETED,
       updatedAt: new Date().toISOString()
     };
-    const existing = await getCollection(COL).where({ id }).limit(1).get();
-
-    if (existing.data.length > 0) {
-      const docId = existing.data[0]?._id;
-      if (!docId) return;
-      await getCollection(COL).doc(docId).update({ data: payload });
-      return;
-    }
-
-    await getCollection(COL).doc(id).update({ data: payload });
+    const docId = await findUserMedicineDoc(id);
+    if (!docId) return;
+    await getCollection(COL).doc(docId).update({ data: payload });
   } catch (err) {
     console.error('[reminderService] 删除失败：', err);
     throw err;

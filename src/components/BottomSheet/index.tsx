@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Text, View } from '@tarojs/components';
+import { ScrollView, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { Popup } from '@taroify/core';
 
@@ -119,7 +119,14 @@ export default function BottomSheet({
             <Text className="bottom-sheet__close-icon">×</Text>
           </View>
         </View>
-        <View className="bottom-sheet__body">{children}</View>
+        <ScrollView
+          className="bottom-sheet__body"
+          scrollY
+          enhanced
+          showScrollbar={false}
+        >
+          <View className="bottom-sheet__body-inner">{children}</View>
+        </ScrollView>
       </Popup>
     </>
   );

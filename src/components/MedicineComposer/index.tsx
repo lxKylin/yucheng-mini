@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Picker, Text, View } from '@tarojs/components';
 import type {
   BaseEventOrig,
@@ -34,6 +35,7 @@ import './index.scss';
 interface MedicineComposerProps {
   medicineId?: string;
   defaultReminderEnabled?: boolean;
+  footerExtra?: ReactNode;
   onSuccess: (medicine?: Medicine) => void;
   onCancel: () => void;
 }
@@ -113,6 +115,7 @@ function normalizeRange(
 export default function MedicineComposer({
   medicineId,
   defaultReminderEnabled = false,
+  footerExtra,
   onSuccess,
   onCancel
 }: MedicineComposerProps) {
@@ -248,9 +251,9 @@ export default function MedicineComposer({
       return;
     }
 
-    if (values.timesPerDay < 1 || values.timesPerDay > 6) {
+    if (values.timesPerDay < 0 || values.timesPerDay > 6) {
       Taro.showToast({
-        title: '每日次数需在 1-6 次之间',
+        title: '每日次数需在 0-6 次之间',
         icon: 'none',
         duration: 1500
       });
@@ -441,7 +444,7 @@ export default function MedicineComposer({
       </View>
 
       <View className="medicine-composer__section">
-        <Text className="medicine-composer__section-title">服药信息</Text>
+        <Text className="medicine-composer__section-title">用药信息</Text>
 
         <View className="medicine-composer__grid">
           <View className="medicine-composer__field">
@@ -485,16 +488,16 @@ export default function MedicineComposer({
             <View className="medicine-composer__input-row">
               <Input
                 className="medicine-composer__input"
-                value={String(values.timesPerDay || '')}
+                value={String(values.timesPerDay ?? '')}
                 type="number"
-                placeholder="1-6"
+                placeholder="0-6"
                 onChange={handleTimesChange}
               />
             </View>
           </View>
 
           <View className="medicine-composer__field">
-            <Text className="medicine-composer__label">服用时机</Text>
+            <Text className="medicine-composer__label">用药时机</Text>
             <Picker
               mode="selector"
               range={SCHEDULE_LABELS}
@@ -649,6 +652,10 @@ export default function MedicineComposer({
           />
         </View>
       </View>
+
+      {footerExtra ? (
+        <View className="medicine-composer__footer-extra">{footerExtra}</View>
+      ) : null}
 
       <View className="medicine-composer__actions">
         <Button className="medicine-composer__cancel" onClick={onCancel}>
