@@ -1,0 +1,10 @@
+{
+  "name": "expiry-reminder",
+  "version": "1.0.0",
+  "description": "愈历 · 药品过期订阅提醒云函数",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "wx-server-sdk": "~2.6.3"
+  }
+}
