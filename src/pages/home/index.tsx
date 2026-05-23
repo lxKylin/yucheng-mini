@@ -36,7 +36,6 @@ interface HomeRiskCardProps {
 type CheckupSheetMode = 'detail' | 'form' | null;
 
 function HomeRiskCard({ item, onPrimary, onDetail }: HomeRiskCardProps) {
-  const primaryLabel = item.type === 'medicine' ? '已开药' : '已检查';
   const primaryAria =
     item.type === 'medicine'
       ? `确认${item.title}已开药`
@@ -52,48 +51,30 @@ function HomeRiskCard({ item, onPrimary, onDetail }: HomeRiskCardProps) {
       onClick={onDetail}
     >
       <View className="home-risk-card__header">
-        <View className="home-risk-card__identity">
-          <Text className="home-risk-card__type">{item.typeLabel}</Text>
-          <Text className="home-risk-card__title">{item.title}</Text>
-        </View>
         <Text
           className={`home-risk-card__status home-risk-card__status--${item.level}`}
         >
-          {item.levelLabel}
+          {item.riskLabel}
+        </Text>
+        <Text className="home-risk-card__type">{item.typeLabel}</Text>
+      </View>
+
+      <View className="home-risk-card__body">
+        <Text className="home-risk-card__title">{item.title}</Text>
+        <Text className="home-risk-card__summary">{item.actionSummary}</Text>
+        {item.contextSummary ? (
+          <Text className="home-risk-card__context">
+            {item.contextSummary}
+          </Text>
+        ) : null}
+        <Text
+          className={`home-risk-card__time home-risk-card__time--${item.level}`}
+        >
+          {item.timeSummary}
         </Text>
       </View>
 
-      <View className="home-risk-card__dates">
-        <View className="home-risk-card__date-block">
-          <Text className="home-risk-card__date-label">目标日期</Text>
-          <Text className="home-risk-card__date-value">{item.targetDate}</Text>
-        </View>
-        <View className="home-risk-card__date-block">
-          <Text className="home-risk-card__date-label">提醒时间</Text>
-          <Text className="home-risk-card__date-value">
-            {item.remindDate} {item.remindTime}
-          </Text>
-        </View>
-      </View>
-
-      <View className="home-risk-card__meta">
-        <Text className="home-risk-card__meta-text">{item.primaryMeta}</Text>
-        <Text className="home-risk-card__meta-text">{item.secondaryMeta}</Text>
-      </View>
-
       <View className="home-risk-card__actions">
-        <View
-          className={`home-risk-card__primary home-risk-card__primary--${item.level}`}
-          role="button"
-          aria-label={primaryAria}
-          onClick={(event) => {
-            event.stopPropagation();
-            onPrimary();
-          }}
-        >
-          <Success className="home-risk-card__action-icon" />
-          <Text>{primaryLabel}</Text>
-        </View>
         <View
           className="home-risk-card__detail"
           role="button"
@@ -105,6 +86,18 @@ function HomeRiskCard({ item, onPrimary, onDetail }: HomeRiskCardProps) {
         >
           <EyeOutlined className="home-risk-card__detail-icon" />
           <Text>查看详情</Text>
+        </View>
+        <View
+          className={`home-risk-card__primary home-risk-card__primary--${item.level}`}
+          role="button"
+          aria-label={primaryAria}
+          onClick={(event) => {
+            event.stopPropagation();
+            onPrimary();
+          }}
+        >
+          <Success className="home-risk-card__action-icon" />
+          <Text>{item.primaryActionLabel}</Text>
         </View>
       </View>
     </View>

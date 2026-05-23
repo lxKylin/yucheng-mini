@@ -113,11 +113,6 @@ export default function CheckupsPage() {
     });
   }, [activeStatus, activeType, checkups, searchTerm]);
 
-  const overdueCount = counts[REMINDER_LEVEL.DANGER];
-  const todayCount = checkups.filter(
-    (item) => item.status === CHECKUP_STATUS.ACTIVE && item.daysLeft === 0
-  ).length;
-
   const openCreate = () => {
     setActiveId(undefined);
     setSheetMode('form');
@@ -233,23 +228,6 @@ export default function CheckupsPage() {
             <Text className="checkups-type__text">{label}</Text>
           </View>
         ))}
-      </View>
-
-      <View className="checkups-summary">
-        <View className="checkups-summary__item">
-          <Text className="checkups-summary__value">{overdueCount}</Text>
-          <Text className="checkups-summary__label">逾期今日</Text>
-        </View>
-        <View className="checkups-summary__item">
-          <Text className="checkups-summary__value">{todayCount}</Text>
-          <Text className="checkups-summary__label">今天处理</Text>
-        </View>
-        <View className="checkups-summary__item">
-          <Text className="checkups-summary__value">
-            {filteredCheckups.length}
-          </Text>
-          <Text className="checkups-summary__label">当前筛选</Text>
-        </View>
       </View>
 
       <View className="checkups-content">

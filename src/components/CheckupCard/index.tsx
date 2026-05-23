@@ -1,4 +1,5 @@
 import { Text, View } from '@tarojs/components';
+import { Success } from '@taroify/icons';
 
 import { CHECKUP_STATUS, REMINDER_LEVEL } from '@/constants';
 import StatusTag from '@/components/StatusTag';
@@ -88,7 +89,8 @@ export default function CheckupCard({
               onComplete?.();
             }}
           >
-            <Text className="checkup-card__done-text">完成</Text>
+            <Success className="checkup-card__done-icon" />
+            <Text className="checkup-card__done-text">完成检查</Text>
           </View>
         ) : null}
       </View>

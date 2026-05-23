@@ -127,6 +127,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0 18px;
+    gap: 8px;
     flex-shrink: 0;
     border-radius: $radius-pill;
 
@@ -141,6 +143,12 @@
     &--success {
       background: $success;
     }
+  }
+
+  &__done-icon {
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
   }
 
   &__done-text {
