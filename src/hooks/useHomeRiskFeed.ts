@@ -14,8 +14,12 @@ export type HomeRiskFeedItem =
       title: string;
       targetDate: string;
       remindDate: string;
+      remindTime: string;
       daysLeft: number;
       level: DerivedReminder['level'];
+      levelLabel: string;
+      primaryMeta: string;
+      secondaryMeta: string;
       item: DerivedReminder;
     }
   | {
@@ -25,8 +29,12 @@ export type HomeRiskFeedItem =
       title: string;
       targetDate: string;
       remindDate: string;
+      remindTime: string;
       daysLeft: number;
       level: DerivedCheckupReminder['level'];
+      levelLabel: string;
+      primaryMeta: string;
+      secondaryMeta: string;
       item: DerivedCheckupReminder;
     };
 
@@ -57,8 +65,12 @@ export function useHomeRiskFeed(options: HomeRiskFeedOptions = {}) {
         title: item.name,
         targetDate: item.nextPrescriptionDate,
         remindDate: item.nextRemindDate,
+        remindTime: item.remindTime,
         daysLeft: item.daysLeft,
         level: item.level,
+        levelLabel: item.levelLabel,
+        primaryMeta: `规格: ${item.spec || '-'} · 周期: ${item.intervalDays} 天`,
+        secondaryMeta: `最近一盒开始: ${item.currentPrescriptionDate}`,
         item
       }));
     const checkupItems: HomeRiskFeedItem[] = checkups
@@ -70,8 +82,16 @@ export function useHomeRiskFeed(options: HomeRiskFeedOptions = {}) {
         title: item.title,
         targetDate: item.targetDate,
         remindDate: item.remindDate,
+        remindTime: item.remindTime,
         daysLeft: item.daysLeft,
         level: item.level,
+        levelLabel: item.levelLabel,
+        primaryMeta: `${item.typeLabel} · ${item.hospital || '医院未填'}`,
+        secondaryMeta: `关联: ${
+          item.relatedMedicineNames.length
+            ? item.relatedMedicineNames.join('、')
+            : '未关联药品'
+        }`,
         item
       }));
     const candidates = [...medicineItems, ...checkupItems].sort((a, b) => {

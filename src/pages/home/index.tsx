@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { EyeOutlined, Success } from '@taroify/icons';
 import { Text, View } from '@tarojs/components';
 import Taro, {
   useLoad,
@@ -8,14 +9,17 @@ import Taro, {
 
 import { REMINDER_STATUS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
+import CheckupComposer from '@/components/CheckupComposer';
+import CheckupDetail from '@/components/CheckupDetail';
 import DoneDateSheet from '@/components/DoneDateSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
-import MedicineCard from '@/components/MedicineCard';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
-import CheckupCard from '@/components/CheckupCard';
 import { useCheckupActions } from '@/hooks/useCheckups';
-import { useHomeRiskFeed } from '@/hooks/useHomeRiskFeed';
+import {
+  type HomeRiskFeedItem,
+  useHomeRiskFeed
+} from '@/hooks/useHomeRiskFeed';
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
@@ -23,8 +27,97 @@ import type { DerivedCheckupReminder } from '@/types';
 
 import './index.scss';
 
+interface HomeRiskCardProps {
+  item: HomeRiskFeedItem;
+  onPrimary: () => void;
+  onDetail: () => void;
+}
+
+type CheckupSheetMode = 'detail' | 'form' | null;
+
+function HomeRiskCard({ item, onPrimary, onDetail }: HomeRiskCardProps) {
+  const primaryLabel = item.type === 'medicine' ? '已开药' : '已检查';
+  const primaryAria =
+    item.type === 'medicine'
+      ? `确认${item.title}已开药`
+      : `完成${item.title}检查`;
+  const detailAria =
+    item.type === 'medicine'
+      ? `查看${item.title}开药详情`
+      : `查看${item.title}检查详情`;
+
+  return (
+    <View
+      className={`home-risk-card home-risk-card--${item.level}`}
+      onClick={onDetail}
+    >
+      <View className="home-risk-card__header">
+        <View className="home-risk-card__identity">
+          <Text className="home-risk-card__type">{item.typeLabel}</Text>
+          <Text className="home-risk-card__title">{item.title}</Text>
+        </View>
+        <Text
+          className={`home-risk-card__status home-risk-card__status--${item.level}`}
+        >
+          {item.levelLabel}
+        </Text>
+      </View>
+
+      <View className="home-risk-card__dates">
+        <View className="home-risk-card__date-block">
+          <Text className="home-risk-card__date-label">目标日期</Text>
+          <Text className="home-risk-card__date-value">{item.targetDate}</Text>
+        </View>
+        <View className="home-risk-card__date-block">
+          <Text className="home-risk-card__date-label">提醒时间</Text>
+          <Text className="home-risk-card__date-value">
+            {item.remindDate} {item.remindTime}
+          </Text>
+        </View>
+      </View>
+
+      <View className="home-risk-card__meta">
+        <Text className="home-risk-card__meta-text">{item.primaryMeta}</Text>
+        <Text className="home-risk-card__meta-text">{item.secondaryMeta}</Text>
+      </View>
+
+      <View className="home-risk-card__actions">
+        <View
+          className={`home-risk-card__primary home-risk-card__primary--${item.level}`}
+          role="button"
+          aria-label={primaryAria}
+          onClick={(event) => {
+            event.stopPropagation();
+            onPrimary();
+          }}
+        >
+          <Success className="home-risk-card__action-icon" />
+          <Text>{primaryLabel}</Text>
+        </View>
+        <View
+          className="home-risk-card__detail"
+          role="button"
+          aria-label={detailAria}
+          onClick={(event) => {
+            event.stopPropagation();
+            onDetail();
+          }}
+        >
+          <EyeOutlined className="home-risk-card__detail-icon" />
+          <Text>查看详情</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 export default function Home() {
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
+  const [checkupSheetOpen, setCheckupSheetOpen] = useState(false);
+  const [checkupSheetMode, setCheckupSheetMode] =
+    useState<CheckupSheetMode>(null);
+  const [activeCheckupId, setActiveCheckupId] = useState<string | undefined>();
+  const [checkupFormKey, setCheckupFormKey] = useState(0);
   useTabScrollToTop();
 
   const {
@@ -102,6 +195,32 @@ export default function Home() {
 
   const handleViewCheckups = () => {
     Taro.switchTab({ url: '/pages/checkups/index' });
+  };
+
+  const openCheckupDetail = (id: string) => {
+    setActiveCheckupId(id);
+    setCheckupSheetMode('detail');
+    setCheckupSheetOpen(true);
+  };
+
+  const openCheckupEdit = (id: string) => {
+    setActiveCheckupId(id);
+    setCheckupSheetMode('form');
+    setCheckupFormKey((key) => key + 1);
+    setCheckupSheetOpen(true);
+  };
+
+  const closeCheckupSheet = () => {
+    setCheckupSheetOpen(false);
+  };
+
+  const handleCheckupSheetExited = () => {
+    setCheckupSheetMode(null);
+    setActiveCheckupId(undefined);
+  };
+
+  const handleCheckupFormSuccess = () => {
+    closeCheckupSheet();
   };
 
   const handleCompleteCheckup = (item: DerivedCheckupReminder) => {
@@ -182,9 +301,7 @@ export default function Home() {
       <View className="home-subhead">
         <View className="home-subhead__main">
           <Text className="home-subhead__title">优先待办</Text>
-          <Text className="home-subhead__desc">
-            按逾期、今日和临近事项排序
-          </Text>
+          <Text className="home-subhead__desc">按逾期、今日和临近事项排序</Text>
         </View>
         <View className="home-subhead__actions">
           <View className="home-subhead__action" onClick={handleViewAll}>
@@ -198,39 +315,31 @@ export default function Home() {
       <View className="home-risk-list">
         {riskFeed.items.length > 0 ? (
           riskFeed.items.map((riskItem) => (
-            <View
+            <HomeRiskCard
               key={`${riskItem.type}-${riskItem.id}`}
-              className="home-risk-card"
-            >
-              <View className="home-risk-card__bar">
-                <Text
-                  className={`home-risk-card__type home-risk-card__type--${riskItem.type}`}
-                >
-                  {riskItem.typeLabel}
-                </Text>
-                <Text className="home-risk-card__date">
-                  目标日期 {riskItem.targetDate}
-                </Text>
-              </View>
-              {riskItem.type === 'medicine' ? (
-                <MedicineCard
-                  item={riskItem.item}
-                  onDone={() => handleMarkDone(riskItem.id)}
-                  onDetail={() => openDetail(riskItem.id)}
-                />
-              ) : (
-                <CheckupCard
-                  item={riskItem.item}
-                  onClick={handleViewCheckups}
-                  onComplete={() => handleCompleteCheckup(riskItem.item)}
-                />
-              )}
-            </View>
+              item={riskItem}
+              onPrimary={() => {
+                if (riskItem.type === 'medicine') {
+                  handleMarkDone(riskItem.id);
+                  return;
+                }
+
+                handleCompleteCheckup(riskItem.item);
+              }}
+              onDetail={() => {
+                if (riskItem.type === 'medicine') {
+                  openDetail(riskItem.id);
+                  return;
+                }
+
+                openCheckupDetail(riskItem.id);
+              }}
+            />
           ))
         ) : (
           <View className="home-empty home-empty--card">
             <Text className="home-empty__badge">
-              {hasRecords ? '当前节奏稳定' : '开始建立提醒'}
+              {hasRecords ? '当前节奏稳定' : '开始建立开药提醒'}
             </Text>
             <Text className="home-empty__title">
               {hasRecords ? '暂无待处理事项' : '还没有提醒'}
@@ -238,19 +347,24 @@ export default function Home() {
             <Text className="home-empty__desc">
               {hasRecords
                 ? '你最近没有需要立即处理的任务，下一次临近提醒会优先显示在这里。'
-                : '新增第一条开药或检查提醒后，这里会显示最需要处理的任务。'}
+                : '先建立第一条开药提醒，首页会优先显示逾期、今天和临近事项。'}
             </Text>
             {!hasRecords ? (
-              <Text className="home-empty__hint">
-                点击右下角 + 开始新增提醒
-              </Text>
+              <>
+                <Text className="home-empty__hint">
+                  点击右下角 + 新增开药提醒
+                </Text>
+                <Text className="home-empty__link" onClick={handleViewCheckups}>
+                  检查/复诊提醒可在「检查」页新增
+                </Text>
+              </>
             ) : null}
           </View>
         )}
       </View>
 
       <FloatingAddReminder
-        hidden={sheetActive}
+        hidden={sheetActive || checkupSheetOpen}
         onClick={() => openCreate(true)}
       />
 
@@ -274,6 +388,29 @@ export default function Home() {
             defaultReminderEnabled={true}
             onSuccess={handleFormSuccess}
             onCancel={closeSheet}
+          />
+        ) : null}
+      </BottomSheet>
+
+      <BottomSheet
+        open={checkupSheetOpen}
+        title={checkupSheetMode === 'detail' ? '检查详情' : '编辑检查提醒'}
+        onClose={closeCheckupSheet}
+        onAfterClose={handleCheckupSheetExited}
+      >
+        {checkupSheetMode === 'detail' && activeCheckupId ? (
+          <CheckupDetail
+            checkupId={activeCheckupId}
+            onClose={closeCheckupSheet}
+            onEdit={openCheckupEdit}
+          />
+        ) : null}
+        {checkupSheetMode === 'form' ? (
+          <CheckupComposer
+            key={checkupFormKey}
+            checkupId={activeCheckupId}
+            onSuccess={handleCheckupFormSuccess}
+            onCancel={closeCheckupSheet}
           />
         ) : null}
       </BottomSheet>
