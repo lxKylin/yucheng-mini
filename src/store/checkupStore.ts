@@ -118,6 +118,15 @@ export const checkupStore = createStore<CheckupStore>((set, get) => ({
 
     const now = new Date().toISOString();
     const doneDate = options.doneDate || today();
+
+    if (doneDate > today()) {
+      throw new Error('Done date cannot be later than today');
+    }
+
+    if (options.nextTargetDate && options.nextTargetDate <= doneDate) {
+      throw new Error('Next target date must be later than done date');
+    }
+
     const completionHistory = [
       {
         date: doneDate,

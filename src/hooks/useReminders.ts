@@ -1,6 +1,7 @@
 import { useMemo, useSyncExternalStore } from 'react';
 
-import { REMINDER_LEVEL, REMINDER_STATUS } from '@/constants';
+import { CHECKUP_STATUS, REMINDER_LEVEL, REMINDER_STATUS } from '@/constants';
+import { checkupStore } from '@/store/checkupStore';
 import { reminderStore } from '@/store/reminderStore';
 import { derive, deriveAll, deriveAllMedicines } from '@/utils/dateUtils';
 
@@ -9,6 +10,14 @@ function useReminderStore() {
     reminderStore.subscribe,
     reminderStore.getState,
     reminderStore.getInitialState
+  );
+}
+
+function useCheckupStore() {
+  return useSyncExternalStore(
+    checkupStore.subscribe,
+    checkupStore.getState,
+    checkupStore.getInitialState
   );
 }
 
@@ -75,6 +84,7 @@ export function useReminderActions() {
 /** 获取"我的"页面所需的统计数据 */
 export function useProfileStats() {
   const reminders = useReminderStore().reminders;
+  const checkups = useCheckupStore().checkups;
 
   return useMemo(() => {
     const activeList = reminders.filter(
@@ -93,11 +103,16 @@ export function useProfileStats() {
       0
     );
 
+    const checkupTotal = checkups.filter(
+      (item) => item.status !== CHECKUP_STATUS.DELETED
+    ).length;
+
     return {
       activeCount: activeList.length,
+      checkupTotal,
       historyTotal,
       total: visibleList.length,
       unreadCount: 0
     };
-  }, [reminders]);
+  }, [checkups, reminders]);
 }

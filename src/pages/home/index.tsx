@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { EyeOutlined, Success } from '@taroify/icons';
 import { Text, View } from '@tarojs/components';
 import Taro, {
@@ -9,13 +9,15 @@ import Taro, {
 
 import { REMINDER_STATUS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
+import CheckupCompletionSheet from '@/components/CheckupCompletionSheet';
 import CheckupComposer from '@/components/CheckupComposer';
 import CheckupDetail from '@/components/CheckupDetail';
+import CheckupRestartSheet from '@/components/CheckupRestartSheet';
 import DoneDateSheet from '@/components/DoneDateSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
-import { useCheckupActions } from '@/hooks/useCheckups';
+import { useDerivedCheckups } from '@/hooks/useCheckups';
 import {
   type HomeRiskFeedItem,
   useHomeRiskFeed
@@ -23,7 +25,6 @@ import {
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
-import type { DerivedCheckupReminder } from '@/types';
 
 import './index.scss';
 
@@ -34,6 +35,9 @@ interface HomeRiskCardProps {
 }
 
 type CheckupSheetMode = 'detail' | 'form' | null;
+type PendingCheckupAction =
+  | { type: 'completion'; id: string }
+  | { type: 'restart'; id: string };
 
 function HomeRiskCard({ item, onPrimary, onDetail }: HomeRiskCardProps) {
   const primaryAria =
@@ -110,6 +114,12 @@ export default function Home() {
   const [checkupSheetMode, setCheckupSheetMode] =
     useState<CheckupSheetMode>(null);
   const [activeCheckupId, setActiveCheckupId] = useState<string | undefined>();
+  const [completionCheckupId, setCompletionCheckupId] = useState<
+    string | null
+  >(null);
+  const [restartCheckupId, setRestartCheckupId] = useState<string | null>(null);
+  const [pendingCheckupAction, setPendingCheckupAction] =
+    useState<PendingCheckupAction | null>(null);
   const [checkupFormKey, setCheckupFormKey] = useState(0);
   useTabScrollToTop();
 
@@ -129,14 +139,28 @@ export default function Home() {
     openEdit
   } = useReminderSheet();
   const allItems = useDerivedList();
+  const allCheckups = useDerivedCheckups();
   const riskFeed = useHomeRiskFeed({ limit: 3 });
   const { markDone } = useReminderActions();
-  const { completeCheckup } = useCheckupActions();
 
   const doneTarget =
     doneReminderId === null
       ? null
       : (allItems.find((item) => item.id === doneReminderId) ?? null);
+  const completionTarget = useMemo(
+    () =>
+      completionCheckupId === null
+        ? null
+        : (allCheckups.find((item) => item.id === completionCheckupId) ?? null),
+    [allCheckups, completionCheckupId]
+  );
+  const restartTarget = useMemo(
+    () =>
+      restartCheckupId === null
+        ? null
+        : (allCheckups.find((item) => item.id === restartCheckupId) ?? null),
+    [allCheckups, restartCheckupId]
+  );
 
   const hasDanger = riskFeed.overdueCount > 0 || riskFeed.todayCount > 0;
   const hasRecords = riskFeed.sourceTotal > 0;
@@ -208,34 +232,55 @@ export default function Home() {
   };
 
   const handleCheckupSheetExited = () => {
+    const nextAction = pendingCheckupAction;
+
     setCheckupSheetMode(null);
     setActiveCheckupId(undefined);
+
+    if (!nextAction) {
+      return;
+    }
+
+    setPendingCheckupAction(null);
+
+    if (nextAction.type === 'completion') {
+      setCompletionCheckupId(nextAction.id);
+      return;
+    }
+
+    setRestartCheckupId(nextAction.id);
   };
 
   const handleCheckupFormSuccess = () => {
     closeCheckupSheet();
   };
 
-  const handleCompleteCheckup = (item: DerivedCheckupReminder) => {
-    Taro.showModal({
-      title: '完成检查',
-      content: `确认已完成「${item.title}」吗？可稍后在详情里设置下一次检查。`,
-      confirmText: '完成',
-      cancelText: '取消',
-      confirmColor: '#157a66',
-      success: async (result) => {
-        if (!result.confirm) {
-          return;
-        }
+  const openCheckupCompletion = (id: string) => {
+    if (checkupSheetOpen) {
+      setPendingCheckupAction({ type: 'completion', id });
+      closeCheckupSheet();
+      return;
+    }
 
-        try {
-          await completeCheckup(item.id);
-          Taro.showToast({ title: '检查已完成', icon: 'success' });
-        } catch {
-          Taro.showToast({ title: '更新失败，请稍后重试', icon: 'none' });
-        }
-      }
-    });
+    setCompletionCheckupId(id);
+  };
+
+  const closeCheckupCompletion = () => {
+    setCompletionCheckupId(null);
+  };
+
+  const openCheckupRestart = (id: string) => {
+    if (checkupSheetOpen) {
+      setPendingCheckupAction({ type: 'restart', id });
+      closeCheckupSheet();
+      return;
+    }
+
+    setRestartCheckupId(id);
+  };
+
+  const closeCheckupRestart = () => {
+    setRestartCheckupId(null);
   };
 
   const closeDoneSheet = () => {
@@ -317,7 +362,7 @@ export default function Home() {
                   return;
                 }
 
-                handleCompleteCheckup(riskItem.item);
+                openCheckupCompletion(riskItem.item.id);
               }}
               onDetail={() => {
                 if (riskItem.type === 'medicine') {
@@ -357,7 +402,12 @@ export default function Home() {
       </View>
 
       <FloatingAddReminder
-        hidden={sheetActive || checkupSheetOpen}
+        hidden={
+          sheetActive ||
+          checkupSheetOpen ||
+          completionTarget !== null ||
+          restartTarget !== null
+        }
         onClick={() => openCreate(true)}
       />
 
@@ -396,6 +446,8 @@ export default function Home() {
             checkupId={activeCheckupId}
             onClose={closeCheckupSheet}
             onEdit={openCheckupEdit}
+            onComplete={openCheckupCompletion}
+            onRestart={openCheckupRestart}
           />
         ) : null}
         {checkupSheetMode === 'form' ? (
@@ -412,6 +464,18 @@ export default function Home() {
         open={doneTarget !== null}
         item={doneTarget}
         onClose={closeDoneSheet}
+      />
+
+      <CheckupCompletionSheet
+        open={completionTarget !== null}
+        item={completionTarget}
+        onClose={closeCheckupCompletion}
+      />
+
+      <CheckupRestartSheet
+        open={restartTarget !== null}
+        item={restartTarget}
+        onClose={closeCheckupRestart}
       />
     </View>
   );

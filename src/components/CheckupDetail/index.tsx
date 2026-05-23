@@ -1,14 +1,12 @@
-import { useMemo, useState } from 'react';
-import { Picker, Text, View } from '@tarojs/components';
-import type { BaseEventOrig, PickerDateProps } from '@tarojs/components';
+import { useMemo } from 'react';
+import { Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { Button, Textarea } from '@taroify/core';
+import { Button } from '@taroify/core';
 
 import { CHECKUP_STATUS } from '@/constants';
 import ProgressBar from '@/components/ProgressBar';
 import StatusTag from '@/components/StatusTag';
 import { useCheckupActions, useDerivedCheckupById } from '@/hooks/useCheckups';
-import { today } from '@/utils/dateUtils';
 
 import './index.scss';
 
@@ -16,20 +14,19 @@ interface CheckupDetailProps {
   checkupId: string;
   onClose: () => void;
   onEdit: (id: string) => void;
+  onComplete: (id: string) => void;
+  onRestart: (id: string) => void;
 }
-
-type DatePickerEvent = BaseEventOrig<PickerDateProps.ChangeEventDetail>;
-type TextareaEvent = BaseEventOrig<{ value: string }>;
 
 export default function CheckupDetail({
   checkupId,
   onClose,
-  onEdit
+  onEdit,
+  onComplete,
+  onRestart
 }: CheckupDetailProps) {
   const item = useDerivedCheckupById(checkupId);
-  const { completeCheckup, deleteCheckup, togglePause } = useCheckupActions();
-  const [nextTargetDate, setNextTargetDate] = useState(today());
-  const [doneNote, setDoneNote] = useState('');
+  const { deleteCheckup, togglePause } = useCheckupActions();
 
   const relatedText = useMemo(() => {
     if (!item) return '';
@@ -65,23 +62,6 @@ export default function CheckupDetail({
       });
     } catch {
       Taro.showToast({ title: '操作失败，请稍后重试', icon: 'none' });
-    }
-  };
-
-  const handleComplete = async (withNextDate: boolean) => {
-    try {
-      await completeCheckup(item.id, {
-        doneDate: today(),
-        nextTargetDate: withNextDate ? nextTargetDate : undefined,
-        note: doneNote.trim()
-      });
-      Taro.showToast({
-        title: withNextDate ? '已进入下一次检查' : '检查已完成',
-        icon: 'success'
-      });
-      onClose();
-    } catch {
-      Taro.showToast({ title: '更新失败，请稍后重试', icon: 'none' });
     }
   };
 
@@ -134,7 +114,7 @@ export default function CheckupDetail({
         <View className="checkup-detail__status-notice">
           <Text className="checkup-detail__status-text">
             {done
-              ? '本次检查已完成，可在下方查看完成记录。'
+              ? '本次检查已完成，当前未安排下一次提醒。可重新安排检查继续跟踪。'
               : '检查提醒已暂停，点击下方「恢复提醒」继续跟踪。'}
           </Text>
         </View>
@@ -171,69 +151,41 @@ export default function CheckupDetail({
         <View className="checkup-detail__notice">
           <Text className="checkup-detail__notice-title">推荐操作</Text>
           <Text className="checkup-detail__notice-desc">
-            如果今天已经完成复诊或检查，记录结果摘要后点击「完成本次检查」，系统会更新完成历史并按需要推算下一次提醒。
+            如果已经完成复诊或检查，点击「完成检查」记录实际完成日期；需要继续跟踪时可同时设置下一次检查。
           </Text>
-        </View>
-      ) : null}
-
-      {!done ? (
-        <View className="checkup-detail__complete">
-          <Text className="checkup-detail__section-title">完成本次检查</Text>
-          <View className="checkup-detail__textarea">
-            <Textarea
-              className="checkup-detail__textarea-inner"
-              value={doneNote}
-              placeholder="可记录结果摘要或医生建议"
-              limit={80}
-              onChange={(event: TextareaEvent) =>
-                setDoneNote(event.detail.value)
-              }
-            />
-          </View>
-          <Picker
-            mode="date"
-            value={nextTargetDate}
-            onChange={(event: DatePickerEvent) =>
-              setNextTargetDate(event.detail.value)
-            }
-          >
-            <View className="checkup-detail__next-date">
-              <Text className="checkup-detail__next-label">下一次检查日期</Text>
-              <Text className="checkup-detail__next-value">
-                {nextTargetDate}
-              </Text>
-            </View>
-          </Picker>
-          <View className="checkup-detail__complete-actions">
-            <Button
-              className="checkup-detail__secondary"
-              onClick={() => handleComplete(false)}
-            >
-              完成不设下次
-            </Button>
-            <Button
-              className="checkup-detail__primary"
-              color="primary"
-              onClick={() => handleComplete(true)}
-            >
-              完成并设下次
-            </Button>
-          </View>
         </View>
       ) : null}
 
       <View className="checkup-detail__actions">
         {!done ? (
+          <Button
+            className="checkup-detail__primary"
+            onClick={() => onComplete(item.id)}
+          >
+            完成检查
+          </Button>
+        ) : null}
+        {done ? (
+          <Button
+            className="checkup-detail__primary"
+            onClick={() => onRestart(item.id)}
+          >
+            重新安排检查
+          </Button>
+        ) : null}
+        {!done ? (
           <Button className="checkup-detail__ghost" onClick={handleTogglePause}>
             {paused ? '恢复提醒' : '暂停提醒'}
           </Button>
         ) : null}
-        <Button
-          className="checkup-detail__primary"
-          onClick={() => onEdit(item.id)}
-        >
-          编辑提醒
-        </Button>
+        {!done ? (
+          <Button
+            className="checkup-detail__primary"
+            onClick={() => onEdit(item.id)}
+          >
+            编辑提醒
+          </Button>
+        ) : null}
         <Button className="checkup-detail__danger" onClick={handleDelete}>
           删除提醒
         </Button>

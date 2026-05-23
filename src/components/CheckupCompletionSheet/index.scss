@@ -1,0 +1,176 @@
+@use 'sass:color';
+@use '@/assets/styles/variables' as *;
+
+.checkup-completion-sheet {
+  display: grid;
+  gap: $spacing-4;
+
+  &__notice {
+    padding: $spacing-4;
+    border-radius: $radius;
+    background: $primary-soft;
+    border: 1px solid rgba(21, 122, 102, 0.12);
+
+    &--danger {
+      background: $danger-soft;
+      border-color: rgba(202, 78, 65, 0.12);
+    }
+  }
+
+  &__notice-title {
+    display: block;
+    color: $primary-deep;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__notice--danger &__notice-title {
+    color: $danger;
+  }
+
+  &__notice-desc {
+    display: block;
+    margin-top: 4px;
+    color: $primary;
+    font-size: $text-sm;
+    line-height: 1.6;
+  }
+
+  &__notice--danger &__notice-desc {
+    color: color.mix($danger, $ink-strong, 70%);
+  }
+
+  &__summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-3;
+  }
+
+  &__summary-item {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: $spacing-3;
+    border-radius: $radius;
+    background: $surface-soft;
+  }
+
+  &__summary-label {
+    color: $muted;
+    font-size: $text-sm;
+  }
+
+  &__summary-value {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__field {
+    display: grid;
+    gap: $spacing-2;
+  }
+
+  &__label {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__picker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    padding: $spacing-4;
+    border-radius: $radius;
+    background: $surface-soft;
+    border: 1px solid $line;
+  }
+
+  &__picker-text {
+    color: $ink-strong;
+    font-size: $text-lg;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__picker-hint {
+    flex-shrink: 0;
+    color: $primary;
+    font-size: $text-sm;
+    font-weight: 800;
+  }
+
+  &__textarea {
+    width: 100%;
+    max-width: 100%;
+    min-height: 112px;
+    padding: $spacing-3 $spacing-4;
+    border: 1px solid $line;
+    border-radius: $radius;
+    background: $surface-soft;
+    box-sizing: border-box;
+    display: grid;
+
+    .taroify-textarea__wrapper {
+      display: grid;
+      gap: $spacing-2;
+      min-height: 80px;
+    }
+
+    .taroify-textarea__limit {
+      color: $quiet;
+      font-size: $text-xs;
+      line-height: 1.4;
+      margin-top: 0;
+    }
+  }
+
+  &__textarea-inner {
+    width: 100%;
+    min-height: 72px !important;
+    height: 80px !important;
+    max-height: 120px !important;
+    display: block;
+    overflow-y: auto;
+    color: $ink;
+    font-size: $text-md;
+    line-height: 1.6;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    resize: none;
+  }
+
+  &__tip {
+    color: $muted;
+    font-size: $text-sm;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-3;
+  }
+
+  &__btn {
+    min-height: 80px !important;
+    border-radius: $radius !important;
+    font-size: $text-lg !important;
+    font-weight: 900 !important;
+    border: none !important;
+
+    &--ghost {
+      background: $success-soft !important;
+      color: $success !important;
+    }
+
+    &--primary {
+      background: $primary !important;
+      color: #fff !important;
+    }
+  }
+}

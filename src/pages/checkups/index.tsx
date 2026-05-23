@@ -12,10 +12,12 @@ import {
 } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
 import CheckupCard from '@/components/CheckupCard';
+import CheckupCompletionSheet from '@/components/CheckupCompletionSheet';
 import CheckupComposer from '@/components/CheckupComposer';
 import CheckupDetail from '@/components/CheckupDetail';
+import CheckupRestartSheet from '@/components/CheckupRestartSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
-import { useCheckupActions, useDerivedCheckups } from '@/hooks/useCheckups';
+import { useDerivedCheckups } from '@/hooks/useCheckups';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import type { CheckupType, DerivedCheckupReminder, ReminderLevel } from '@/types';
 
@@ -24,6 +26,9 @@ import './index.scss';
 type StatusFilter = 'all' | ReminderLevel | 'done';
 type TypeFilter = 'all' | CheckupType;
 type SheetMode = 'form' | 'detail' | null;
+type PendingCheckupAction =
+  | { type: 'completion'; id: string }
+  | { type: 'restart'; id: string };
 
 const STATUS_FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'all', label: '全部' },
@@ -62,11 +67,28 @@ export default function CheckupsPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
   const [activeId, setActiveId] = useState<string | undefined>();
+  const [completionId, setCompletionId] = useState<string | null>(null);
+  const [restartId, setRestartId] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] =
+    useState<PendingCheckupAction | null>(null);
   const [formKey, setFormKey] = useState(0);
   useTabScrollToTop();
 
   const checkups = useDerivedCheckups();
-  const { completeCheckup } = useCheckupActions();
+  const completionTarget = useMemo(
+    () =>
+      completionId === null
+        ? null
+        : (checkups.find((item) => item.id === completionId) ?? null),
+    [checkups, completionId]
+  );
+  const restartTarget = useMemo(
+    () =>
+      restartId === null
+        ? null
+        : (checkups.find((item) => item.id === restartId) ?? null),
+    [checkups, restartId]
+  );
 
   const counts = useMemo<Record<StatusFilter, number>>(
     () => ({
@@ -138,32 +160,55 @@ export default function CheckupsPage() {
   };
 
   const handleSheetExited = () => {
+    const nextAction = pendingAction;
+
     setSheetMode(null);
     setActiveId(undefined);
+
+    if (!nextAction) {
+      return;
+    }
+
+    setPendingAction(null);
+
+    if (nextAction.type === 'completion') {
+      setCompletionId(nextAction.id);
+      return;
+    }
+
+    setRestartId(nextAction.id);
   };
 
   const handleFormSuccess = () => {
     closeSheet();
   };
 
-  const handleQuickComplete = (item: DerivedCheckupReminder) => {
-    Taro.showModal({
-      title: '完成检查',
-      content: `确认已完成「${item.title}」吗？可稍后在详情里设置下一次检查。`,
-      confirmText: '完成',
-      cancelText: '取消',
-      confirmColor: '#157a66',
-      success: async (result) => {
-        if (!result.confirm) return;
+  const openCompletion = (id: string) => {
+    if (sheetOpen) {
+      setPendingAction({ type: 'completion', id });
+      closeSheet();
+      return;
+    }
 
-        try {
-          await completeCheckup(item.id);
-          Taro.showToast({ title: '检查已完成', icon: 'success' });
-        } catch {
-          Taro.showToast({ title: '更新失败，请稍后重试', icon: 'none' });
-        }
-      }
-    });
+    setCompletionId(id);
+  };
+
+  const closeCompletion = () => {
+    setCompletionId(null);
+  };
+
+  const openRestart = (id: string) => {
+    if (sheetOpen) {
+      setPendingAction({ type: 'restart', id });
+      closeSheet();
+      return;
+    }
+
+    setRestartId(id);
+  };
+
+  const closeRestart = () => {
+    setRestartId(null);
   };
 
   Taro.useLoad(() => {
@@ -237,7 +282,7 @@ export default function CheckupsPage() {
               key={item.id}
               item={item}
               onClick={() => openDetail(item.id)}
-              onComplete={() => handleQuickComplete(item)}
+              onComplete={() => openCompletion(item.id)}
             />
           ))
         ) : (
@@ -256,7 +301,7 @@ export default function CheckupsPage() {
 
       <FloatingAddReminder
         ariaLabel="新增检查提醒"
-        hidden={sheetOpen}
+        hidden={sheetOpen || completionTarget !== null || restartTarget !== null}
         onClick={openCreate}
       />
 
@@ -271,6 +316,8 @@ export default function CheckupsPage() {
             checkupId={activeId}
             onClose={closeSheet}
             onEdit={openEdit}
+            onComplete={openCompletion}
+            onRestart={openRestart}
           />
         ) : null}
         {sheetMode === 'form' ? (
@@ -282,6 +329,18 @@ export default function CheckupsPage() {
           />
         ) : null}
       </BottomSheet>
+
+      <CheckupCompletionSheet
+        open={completionTarget !== null}
+        item={completionTarget}
+        onClose={closeCompletion}
+      />
+
+      <CheckupRestartSheet
+        open={restartTarget !== null}
+        item={restartTarget}
+        onClose={closeRestart}
+      />
     </View>
   );
 }

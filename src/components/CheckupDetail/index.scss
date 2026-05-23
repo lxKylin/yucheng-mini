@@ -104,7 +104,6 @@
     gap: $spacing-3;
   }
 
-  &__complete,
   &__history {
     border: 1px solid $line-soft;
     border-radius: $radius;
@@ -137,7 +136,6 @@
     line-height: 1.45;
   }
 
-  &__complete,
   &__history {
     display: grid;
     gap: $spacing-3;
@@ -173,85 +171,9 @@
     line-height: 1.6;
   }
 
-  &__section-title {
-    color: $ink-strong;
-    font-size: $text-lg;
-    font-weight: 900;
-  }
-
-  &__textarea {
-    width: 100%;
-    max-width: 100%;
-    min-height: 112px;
-    padding: $spacing-3 $spacing-4;
-    border: 1px solid $line-strong;
-    border-radius: $radius;
-    background: #fff;
-    box-sizing: border-box;
-    display: grid;
-
-    .taroify-textarea__wrapper {
-      display: grid;
-      gap: $spacing-2;
-      min-height: 80px;
-    }
-
-    .taroify-textarea__limit {
-      color: $quiet;
-      font-size: $text-xs;
-      line-height: 1.4;
-      margin-top: 0;
-    }
-  }
-
-  &__textarea-inner {
-    width: 100%;
-    min-height: 72px !important;
-    height: 80px !important;
-    max-height: 120px !important;
-    display: block;
-    overflow-y: auto;
-    color: $ink;
-    font-size: $text-md;
-    line-height: 1.6;
-    padding: 0;
-    margin: 0;
-    background: transparent;
-    resize: none;
-  }
-
-  &__next-date {
-    min-height: 62px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: $spacing-3;
-    padding: 0 $spacing-4;
-    border: 1px solid $line-strong;
-    border-radius: $radius;
-    background: #fff;
-  }
-
-  &__next-label {
-    color: $muted;
-    font-size: $text-base;
-    font-weight: 800;
-  }
-
-  &__next-value {
-    color: $ink;
-    font-size: $text-base;
-    font-weight: 900;
-  }
-
-  &__complete-actions,
   &__actions {
     display: grid;
     gap: $spacing-3;
-  }
-
-  &__complete-actions {
-    grid-template-columns: 1fr 1fr;
   }
 
   &__actions {

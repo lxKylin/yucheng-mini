@@ -276,7 +276,8 @@ export default function Profile() {
               onBlur={handleNicknameBlur}
             />
             <Text className="profile-page__user-meta">
-              共有 {stats.total} 个药品 · {stats.activeCount} 开启提醒
+              共有 {stats.total} 个药品 · {stats.activeCount} 开启提醒 ·{' '}
+              {stats.checkupTotal} 个检查
             </Text>
           </View>
         </View>
