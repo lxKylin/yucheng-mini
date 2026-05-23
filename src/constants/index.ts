@@ -94,6 +94,13 @@ export const USER_WECHAT_SUBSCRIPTION_STATUS = {
   REJECTED: 'rejected'
 } as const;
 
+/** 微信订阅消息模板 ID */
+export const WECHAT_REMINDER_TEMPLATE_ID = [
+  'lJrijmJoifhTuQjcF2ENsXwR1T5_59Ey1W-cu0KugTw', //日程提醒
+  'tGvIm8wbZIYVmp9f2es1MYLFwWhrGBke7PUeQMgfcwY', //药品过期提醒
+  '6fS1yWWR-UQqYCu7CJ0c4AKerKQvfmAggh25GP1-i98' //检查提醒
+] as const;
+
 /** 本地存储 key */
 export const STORAGE_KEY_REMINDERS = 'reminders_v1';
 

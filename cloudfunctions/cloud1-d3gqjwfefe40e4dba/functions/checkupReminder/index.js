@@ -3,11 +3,7 @@ const cloud = require('wx-server-sdk');
 
 const APP_ID = (process.env.ENV_APP_ID || '').trim();
 const APP_SECRET = (process.env.ENV_APP_SECRET || '').trim();
-const TEMPLATE_ID = (
-  process.env.ENV_CHECKUP_TEMPLATE_ID ||
-  process.env.ENV_TEMPLATE_ID ||
-  ''
-).trim();
+const TEMPLATE_ID = (process.env.ENV_CHECKUP_TEMPLATE_ID || '').trim();
 
 let cachedAccessToken = '';
 let cachedAccessTokenExpireAt = 0;
@@ -47,6 +43,10 @@ function getOpenId(checkup) {
   return checkup._openid || checkup.userId || '';
 }
 
+/**
+ * 判断当前时间是否命中提醒时间
+ * 默认允许 +/-30 分钟误差
+ */
 function isTimeMatched(remindTime, toleranceMinutes = 30) {
   if (!remindTime) return false;
 
@@ -168,13 +168,13 @@ async function sendSubscribeMessage({ openId, checkup }) {
       page: 'pages/checkups/index',
       lang: 'zh_CN',
       data: {
-        thing2: {
+        thing3: {
           value: safeText(title, 20)
         },
-        time23: {
+        date1: {
           value: checkup.targetDate
         },
-        thing11: {
+        thing4: {
           value: safeText(note, 20)
         }
       }
@@ -286,7 +286,9 @@ exports.main = async () => {
           userRecord.wechatSubscriptionStatus !==
             USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
         ) {
-          console.log(`[checkupReminder] 用户暂无可用订阅资格 checkup=${title}`);
+          console.log(
+            `[checkupReminder] 用户暂无可用订阅资格 checkup=${title}`
+          );
           results.skipped++;
           continue;
         }

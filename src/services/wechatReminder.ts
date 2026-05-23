@@ -1,8 +1,9 @@
 import Taro from '@tarojs/taro';
 
-import { WECHAT_SUBSCRIPTION_STATUS } from '@/constants';
-
-const WECHAT_REMINDER_TEMPLATE_ID = (process.env.ENV_TEMPLATE_ID ?? '').trim();
+import {
+  WECHAT_REMINDER_TEMPLATE_ID,
+  WECHAT_SUBSCRIPTION_STATUS
+} from '@/constants';
 
 type WechatSubscriptionStatus =
   (typeof WECHAT_SUBSCRIPTION_STATUS)[keyof typeof WECHAT_SUBSCRIPTION_STATUS];
@@ -14,6 +15,12 @@ type WechatTemplateDecision =
   | 'filter'
   | 'unknown';
 
+interface TemplateDecisionResult {
+  templateId: string;
+  label: string;
+  decision: WechatTemplateDecision;
+}
+
 interface ReminderSubscriptionResult {
   enabled: boolean;
   status: WechatSubscriptionStatus;
@@ -21,13 +28,58 @@ interface ReminderSubscriptionResult {
   message: string;
 }
 
+const TEMPLATE_LABELS = ['日程提醒', '药品过期提醒', '检查提醒'] as const;
+
+function getTemplateIds() {
+  return Array.from(
+    new Set(
+      WECHAT_REMINDER_TEMPLATE_ID.map((id) => id.trim()).filter(Boolean)
+    )
+  );
+}
+
+function normalizeDecision(decision: unknown): WechatTemplateDecision {
+  if (
+    decision === 'accept' ||
+    decision === 'reject' ||
+    decision === 'ban' ||
+    decision === 'filter'
+  ) {
+    return decision;
+  }
+
+  return 'unknown';
+}
+
+function getTemplateLabel(templateId: string) {
+  const index = WECHAT_REMINDER_TEMPLATE_ID.findIndex(
+    (id) => id.trim() === templateId
+  );
+
+  return TEMPLATE_LABELS[index] ?? '提醒模板';
+}
+
+function buildFailureMessage(results: TemplateDecisionResult[]) {
+  const rejected = results.filter((item) => item.decision === 'reject');
+  const configInvalid = results.filter(
+    (item) => item.decision === 'ban' || item.decision === 'filter'
+  );
+
+  if (configInvalid.length > 0) {
+    return `${configInvalid.map((item) => item.label).join('、')}模板配置异常，请检查微信后台配置`;
+  }
+
+  if (rejected.length > 0) {
+    return `${rejected.map((item) => item.label).join('、')}未开启订阅，请到设置中重新开启`;
+  }
+
+  return '未拿到全部提醒模板的有效订阅结果，请重试';
+}
+
 export async function requestWechatReminderSubscription(): Promise<ReminderSubscriptionResult> {
-  if (!WECHAT_REMINDER_TEMPLATE_ID) {
-    Taro.showToast({
-      title: '请先配置订阅消息模板 ID',
-      icon: 'none',
-      duration: 1800
-    });
+  const templateIds = getTemplateIds();
+
+  if (templateIds.length === 0) {
     return {
       enabled: false,
       status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
@@ -38,12 +90,24 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
 
   try {
     const res = await Taro.requestSubscribeMessage({
-      tmplIds: [WECHAT_REMINDER_TEMPLATE_ID]
+      tmplIds: templateIds
     } as Taro.requestSubscribeMessage.Option);
-    const decision = (res[WECHAT_REMINDER_TEMPLATE_ID] ??
-      'unknown') as WechatTemplateDecision;
+    const response = res as Record<string, unknown>;
+    const templateResults = templateIds.map<TemplateDecisionResult>(
+      (templateId) => ({
+        templateId,
+        label: getTemplateLabel(templateId),
+        decision: normalizeDecision(response[templateId])
+      })
+    );
 
-    if (decision === 'accept') {
+    console.log('[wechatReminder] 订阅消息授权结果：', templateResults);
+
+    const allAccepted = templateResults.every(
+      (item) => item.decision === 'accept'
+    );
+
+    if (allAccepted) {
       return {
         enabled: true,
         status: WECHAT_SUBSCRIPTION_STATUS.ACCEPTED,
@@ -52,39 +116,20 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
       };
     }
 
-    if (decision === 'reject') {
-      return {
-        enabled: false,
-        status: WECHAT_SUBSCRIPTION_STATUS.REJECTED,
-        shouldOpenSetting: true,
-        message:
-          '你之前已拒绝过订阅，微信这次可能不会再弹窗，请到设置中重新开启'
-      };
-    }
-
-    if (decision === 'ban') {
-      return {
-        enabled: false,
-        status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
-        shouldOpenSetting: false,
-        message: '订阅消息模板已被微信后台禁用'
-      };
-    }
-
-    if (decision === 'filter') {
-      return {
-        enabled: false,
-        status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
-        shouldOpenSetting: false,
-        message: '订阅消息模板被后台过滤，请检查模板配置'
-      };
-    }
+    const hasRejected = templateResults.some(
+      (item) => item.decision === 'reject'
+    );
+    const hasConfigInvalid = templateResults.some(
+      (item) => item.decision === 'ban' || item.decision === 'filter'
+    );
 
     return {
       enabled: false,
-      status: WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
-      shouldOpenSetting: false,
-      message: '未拿到有效的订阅结果，请重试'
+      status: hasRejected
+        ? WECHAT_SUBSCRIPTION_STATUS.REJECTED
+        : WECHAT_SUBSCRIPTION_STATUS.UNKNOWN,
+      shouldOpenSetting: hasRejected && !hasConfigInvalid,
+      message: buildFailureMessage(templateResults)
     };
   } catch (error) {
     console.error('[wechatReminder] 订阅消息授权失败：', error);
@@ -97,12 +142,6 @@ export async function requestWechatReminderSubscription(): Promise<ReminderSubsc
       errCode === 20001
         ? '当前小程序下找不到这个订阅消息模板，请检查模板 ID 和微信后台配置'
         : '授权请求失败，请重试';
-
-    Taro.showToast({
-      title: message,
-      icon: 'none',
-      duration: 2200
-    });
 
     return {
       enabled: false,

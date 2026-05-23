@@ -18,6 +18,7 @@ import BottomSheet from '@/components/BottomSheet';
 import {
   BEFORE_OPTIONS,
   BEFORE_OPTIONS_LABEL,
+  WECHAT_SUBSCRIPTION_STATUS,
   USER_WECHAT_SUBSCRIPTION_STATUS,
   SHARE_IMAGE,
   SHARE_PATH
@@ -185,7 +186,7 @@ export default function Profile() {
       return;
     }
 
-    if (result.status === USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED) {
+    if (result.status === WECHAT_SUBSCRIPTION_STATUS.REJECTED) {
       const nextProfile = await updateWechatSubscriptionStatus(
         USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED
       );
