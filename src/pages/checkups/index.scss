@@ -6,54 +6,11 @@
   background: $bg;
 }
 
-.checkups-hero {
-  padding: 24px 22px;
-  border-radius: 28px;
-  background:
-    linear-gradient(135deg, rgba(21, 122, 102, 0.96), rgba(12, 91, 75, 0.96)),
-    radial-gradient(
-      circle at 88% 18%,
-      rgba(255, 241, 222, 0.9),
-      transparent 34%
-    );
-  box-shadow: 0 16px 34px rgba(21, 122, 102, 0.18);
-
-  &__copy {
-    display: grid;
-    gap: 10px;
-  }
-
-  &__eyebrow,
-  &__title,
-  &__desc {
-    color: #fff;
-  }
-
-  &__eyebrow {
-    font-size: 22px;
-    font-weight: 900;
-    opacity: 0.86;
-  }
-
-  &__title {
-    font-size: 34px;
-    font-weight: 900;
-    line-height: 1.24;
-  }
-
-  &__desc {
-    font-size: $text-sm;
-    line-height: 1.7;
-    opacity: 0.9;
-  }
-}
-
 .checkups-search {
   display: flex;
   align-items: center;
   gap: $spacing-3;
   min-height: 76px;
-  margin-top: $spacing-4;
   padding: 0 $spacing-5;
   border: 1px solid $line-soft;
   border-radius: 24px;
@@ -102,6 +59,43 @@
 
 .checkups-type-filters {
   margin-top: 2px;
+}
+
+.checkups-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: $spacing-3;
+
+  &__item {
+    min-width: 0;
+    min-height: 76px;
+    padding: 10px 8px;
+    border: 1px solid $line-soft;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 8px 18px rgba(16, 74, 91, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__value {
+    color: $ink-strong;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.15;
+  }
+
+  &__label {
+    margin-top: 4px;
+    color: $muted;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+  }
 }
 
 .checkups-filter,

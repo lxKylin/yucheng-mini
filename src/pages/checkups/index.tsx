@@ -192,18 +192,6 @@ export default function CheckupsPage() {
 
   return (
     <View className="checkups-page">
-      <View className="checkups-hero">
-        <View className="checkups-hero__copy">
-          <Text className="checkups-hero__eyebrow">复诊检查</Text>
-          <Text className="checkups-hero__title">
-            {overdueCount} 个紧急，{todayCount} 个今天处理
-          </Text>
-          <Text className="checkups-hero__desc">
-            把复诊、化验、影像和指标复查从开药提醒里分出来，单独跟进。
-          </Text>
-        </View>
-      </View>
-
       <View className="checkups-search">
         <View className="checkups-search__icon" aria-hidden="true">
           <Search />
@@ -245,6 +233,23 @@ export default function CheckupsPage() {
             <Text className="checkups-type__text">{label}</Text>
           </View>
         ))}
+      </View>
+
+      <View className="checkups-summary">
+        <View className="checkups-summary__item">
+          <Text className="checkups-summary__value">{overdueCount}</Text>
+          <Text className="checkups-summary__label">逾期今日</Text>
+        </View>
+        <View className="checkups-summary__item">
+          <Text className="checkups-summary__value">{todayCount}</Text>
+          <Text className="checkups-summary__label">今天处理</Text>
+        </View>
+        <View className="checkups-summary__item">
+          <Text className="checkups-summary__value">
+            {filteredCheckups.length}
+          </Text>
+          <Text className="checkups-summary__label">当前筛选</Text>
+        </View>
       </View>
 
       <View className="checkups-content">

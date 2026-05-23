@@ -14,10 +14,12 @@ import MedicineCard from '@/components/MedicineCard';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
 import CheckupCard from '@/components/CheckupCard';
-import { useCheckupHomeSummary } from '@/hooks/useCheckups';
+import { useCheckupActions } from '@/hooks/useCheckups';
+import { useHomeRiskFeed } from '@/hooks/useHomeRiskFeed';
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
+import type { DerivedCheckupReminder } from '@/types';
 
 import './index.scss';
 
@@ -41,27 +43,17 @@ export default function Home() {
     openEdit
   } = useReminderSheet();
   const allItems = useDerivedList();
-  const checkupSummary = useCheckupHomeSummary();
+  const riskFeed = useHomeRiskFeed({ limit: 3 });
   const { markDone } = useReminderActions();
+  const { completeCheckup } = useCheckupActions();
 
   const doneTarget =
     doneReminderId === null
       ? null
       : (allItems.find((item) => item.id === doneReminderId) ?? null);
 
-  const overdueCount = allItems.filter(
-    (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft < 0
-  ).length;
-  const todayCount = allItems.filter(
-    (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft === 0
-  ).length;
-  const totalOverdueCount = overdueCount + checkupSummary.overdueCount;
-  const totalTodayCount = todayCount + checkupSummary.todayCount;
-  const hasDanger = totalOverdueCount > 0 || totalTodayCount > 0;
-  const urgent = allItems
-    .filter((item) => item.status !== REMINDER_STATUS.PAUSED)
-    .slice(0, 3);
-  const hasRecords = allItems.length > 0;
+  const hasDanger = riskFeed.overdueCount > 0 || riskFeed.todayCount > 0;
+  const hasRecords = riskFeed.sourceTotal > 0;
 
   const handleMarkDone = (id: string) => {
     const target = allItems.find((item) => item.id === id);
@@ -112,6 +104,28 @@ export default function Home() {
     Taro.switchTab({ url: '/pages/checkups/index' });
   };
 
+  const handleCompleteCheckup = (item: DerivedCheckupReminder) => {
+    Taro.showModal({
+      title: '完成检查',
+      content: `确认已完成「${item.title}」吗？可稍后在详情里设置下一次检查。`,
+      confirmText: '完成',
+      cancelText: '取消',
+      confirmColor: '#157a66',
+      success: async (result) => {
+        if (!result.confirm) {
+          return;
+        }
+
+        try {
+          await completeCheckup(item.id);
+          Taro.showToast({ title: '检查已完成', icon: 'success' });
+        } catch {
+          Taro.showToast({ title: '更新失败，请稍后重试', icon: 'none' });
+        }
+      }
+    });
+  };
+
   const closeDoneSheet = () => {
     setDoneReminderId(null);
   };
@@ -141,50 +155,77 @@ export default function Home() {
       <View className={`home-hero${hasDanger ? ' home-hero--danger' : ''}`}>
         <Text className="home-hero__eyebrow">今日待办</Text>
         <Text className="home-hero__title">
-          {totalOverdueCount} 个已逾期，{totalTodayCount} 个今天到期
+          {riskFeed.overdueCount} 个已逾期，{riskFeed.todayCount} 个今天到期
         </Text>
         <Text className="home-hero__desc">
           {hasDanger
             ? '建议先处理逾期或今日到期事项，再检查未来 7 天内需要提前安排的开药和复诊任务。'
-            : '近期没有紧急开药任务，继续保持当前记录节奏。'}
+            : '近期没有紧急事项，继续保持当前记录节奏。'}
         </Text>
       </View>
 
       <View className="home-metrics">
         <View className="home-metric">
-          <Text className="home-metric__value">{totalOverdueCount}</Text>
+          <Text className="home-metric__value">{riskFeed.overdueCount}</Text>
           <Text className="home-metric__label">已逾期</Text>
         </View>
         <View className="home-metric">
-          <Text className="home-metric__value">{totalTodayCount}</Text>
+          <Text className="home-metric__value">{riskFeed.todayCount}</Text>
           <Text className="home-metric__label">今日处理</Text>
         </View>
         <View className="home-metric">
-          <Text className="home-metric__value">{checkupSummary.total}</Text>
-          <Text className="home-metric__label">检查数</Text>
+          <Text className="home-metric__value">{riskFeed.warningCount}</Text>
+          <Text className="home-metric__label">7天内</Text>
         </View>
       </View>
 
       <View className="home-subhead">
         <View className="home-subhead__main">
-          <Text className="home-subhead__title">最近提醒</Text>
+          <Text className="home-subhead__title">优先待办</Text>
           <Text className="home-subhead__desc">
-            仅展示最近 3 条，更多提醒请查看全部
+            按逾期、今日和临近事项排序
           </Text>
         </View>
-        <View className="home-subhead__action" onClick={handleViewAll}>
-          <Text>查看全部</Text>
+        <View className="home-subhead__actions">
+          <View className="home-subhead__action" onClick={handleViewAll}>
+            <Text>提醒</Text>
+          </View>
+          <View className="home-subhead__action" onClick={handleViewCheckups}>
+            <Text>检查</Text>
+          </View>
         </View>
       </View>
-      <View className="home-cards">
-        {urgent.length > 0 ? (
-          urgent.map((item) => (
-            <MedicineCard
-              key={item.id}
-              item={item}
-              onDone={() => handleMarkDone(item.id)}
-              onDetail={() => openDetail(item.id)}
-            />
+      <View className="home-risk-list">
+        {riskFeed.items.length > 0 ? (
+          riskFeed.items.map((riskItem) => (
+            <View
+              key={`${riskItem.type}-${riskItem.id}`}
+              className="home-risk-card"
+            >
+              <View className="home-risk-card__bar">
+                <Text
+                  className={`home-risk-card__type home-risk-card__type--${riskItem.type}`}
+                >
+                  {riskItem.typeLabel}
+                </Text>
+                <Text className="home-risk-card__date">
+                  目标日期 {riskItem.targetDate}
+                </Text>
+              </View>
+              {riskItem.type === 'medicine' ? (
+                <MedicineCard
+                  item={riskItem.item}
+                  onDone={() => handleMarkDone(riskItem.id)}
+                  onDetail={() => openDetail(riskItem.id)}
+                />
+              ) : (
+                <CheckupCard
+                  item={riskItem.item}
+                  onClick={handleViewCheckups}
+                  onComplete={() => handleCompleteCheckup(riskItem.item)}
+                />
+              )}
+            </View>
           ))
         ) : (
           <View className="home-empty home-empty--card">
@@ -192,12 +233,12 @@ export default function Home() {
               {hasRecords ? '当前节奏稳定' : '开始建立提醒'}
             </Text>
             <Text className="home-empty__title">
-              {hasRecords ? '暂无待处理提醒' : '还没有开药提醒'}
+              {hasRecords ? '暂无待处理事项' : '还没有提醒'}
             </Text>
             <Text className="home-empty__desc">
               {hasRecords
                 ? '你最近没有需要立即处理的任务，下一次临近提醒会优先显示在这里。'
-                : '新增第一条提醒后，这里会显示最近需要处理的开药任务。'}
+                : '新增第一条开药或检查提醒后，这里会显示最需要处理的任务。'}
             </Text>
             {!hasRecords ? (
               <Text className="home-empty__hint">
@@ -207,32 +248,6 @@ export default function Home() {
           </View>
         )}
       </View>
-
-      {checkupSummary.urgent.length > 0 ? (
-        <>
-          <View className="home-subhead">
-            <View className="home-subhead__main">
-              <Text className="home-subhead__title">紧急检查</Text>
-              <Text className="home-subhead__desc">
-                今日或逾期的复诊检查会优先露出
-              </Text>
-            </View>
-            <View className="home-subhead__action" onClick={handleViewCheckups}>
-              <Text>查看检查</Text>
-            </View>
-          </View>
-          <View className="home-checkups">
-            {checkupSummary.urgent.map((item) => (
-              <CheckupCard
-                key={item.id}
-                item={item}
-                onClick={handleViewCheckups}
-                onComplete={handleViewCheckups}
-              />
-            ))}
-          </View>
-        </>
-      ) : null}
 
       <FloatingAddReminder
         hidden={sheetActive}
