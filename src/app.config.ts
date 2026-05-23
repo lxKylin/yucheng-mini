@@ -3,6 +3,7 @@ export default defineAppConfig({
     'pages/home/index',
     'pages/list/index',
     'pages/medicines/index',
+    'pages/checkups/index',
     'pages/profile/index'
   ],
   window: {
@@ -35,6 +36,12 @@ export default defineAppConfig({
         text: '药箱',
         iconPath: 'assets/tabbar/medicines.png',
         selectedIconPath: 'assets/tabbar/medicines-active.png'
+      },
+      {
+        pagePath: 'pages/checkups/index',
+        text: '检查',
+        iconPath: 'assets/tabbar/checkup.png',
+        selectedIconPath: 'assets/tabbar/checkup-active.png'
       },
       {
         pagePath: 'pages/profile/index',

@@ -1,4 +1,4 @@
-import type { DosageUnit, MedicineSchedule } from '@/types';
+import type { CheckupType, DosageUnit, MedicineSchedule } from '@/types';
 
 /** 快捷间隔选项（天） */
 export const INTERVAL_OPTIONS = [3, 7, 14, 28, 30, 45, 60, 90] as const;
@@ -61,6 +61,23 @@ export const REMINDER_LEVEL = {
   GOOD: 'good',
   PAUSED: 'paused'
 } as const;
+
+export const CHECKUP_STATUS = {
+  ACTIVE: 'active',
+  PAUSED: 'paused',
+  DONE: 'done',
+  DELETED: 'deleted'
+} as const;
+
+export const CHECKUP_TYPE_OPTIONS: { value: CheckupType; label: string }[] = [
+  { value: 'follow_up', label: '复诊' },
+  { value: 'lab_test', label: '化验' },
+  { value: 'imaging', label: '影像' },
+  { value: 'indicator', label: '指标复查' },
+  { value: 'other', label: '其他' }
+];
+
+export const CHECKUP_BEFORE_OPTIONS = [0, 1, 3, 7, 14, 30] as const;
 
 /** 微信订阅授权状态 */
 export const WECHAT_SUBSCRIPTION_STATUS = {

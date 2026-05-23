@@ -13,6 +13,8 @@ import FloatingAddReminder from '@/components/FloatingAddReminder';
 import MedicineCard from '@/components/MedicineCard';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
+import CheckupCard from '@/components/CheckupCard';
+import { useCheckupHomeSummary } from '@/hooks/useCheckups';
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
@@ -39,6 +41,7 @@ export default function Home() {
     openEdit
   } = useReminderSheet();
   const allItems = useDerivedList();
+  const checkupSummary = useCheckupHomeSummary();
   const { markDone } = useReminderActions();
 
   const doneTarget =
@@ -52,12 +55,13 @@ export default function Home() {
   const todayCount = allItems.filter(
     (item) => item.status !== REMINDER_STATUS.PAUSED && item.daysLeft === 0
   ).length;
-  const total = allItems.length;
-  const hasDanger = overdueCount > 0 || todayCount > 0;
+  const totalOverdueCount = overdueCount + checkupSummary.overdueCount;
+  const totalTodayCount = todayCount + checkupSummary.todayCount;
+  const hasDanger = totalOverdueCount > 0 || totalTodayCount > 0;
   const urgent = allItems
     .filter((item) => item.status !== REMINDER_STATUS.PAUSED)
     .slice(0, 3);
-  const hasRecords = total > 0;
+  const hasRecords = allItems.length > 0;
 
   const handleMarkDone = (id: string) => {
     const target = allItems.find((item) => item.id === id);
@@ -104,6 +108,10 @@ export default function Home() {
     Taro.switchTab({ url: '/pages/list/index' });
   };
 
+  const handleViewCheckups = () => {
+    Taro.switchTab({ url: '/pages/checkups/index' });
+  };
+
   const closeDoneSheet = () => {
     setDoneReminderId(null);
   };
@@ -133,27 +141,27 @@ export default function Home() {
       <View className={`home-hero${hasDanger ? ' home-hero--danger' : ''}`}>
         <Text className="home-hero__eyebrow">今日待办</Text>
         <Text className="home-hero__title">
-          {overdueCount} 个已逾期，{todayCount} 个今天到期
+          {totalOverdueCount} 个已逾期，{totalTodayCount} 个今天到期
         </Text>
         <Text className="home-hero__desc">
           {hasDanger
-            ? '建议先完成逾期或今日到期事项，再检查未来 7 天内需要提前挂号的药物。'
+            ? '建议先处理逾期或今日到期事项，再检查未来 7 天内需要提前安排的开药和复诊任务。'
             : '近期没有紧急开药任务，继续保持当前记录节奏。'}
         </Text>
       </View>
 
       <View className="home-metrics">
         <View className="home-metric">
-          <Text className="home-metric__value">{overdueCount}</Text>
+          <Text className="home-metric__value">{totalOverdueCount}</Text>
           <Text className="home-metric__label">已逾期</Text>
         </View>
         <View className="home-metric">
-          <Text className="home-metric__value">{todayCount}</Text>
+          <Text className="home-metric__value">{totalTodayCount}</Text>
           <Text className="home-metric__label">今日处理</Text>
         </View>
         <View className="home-metric">
-          <Text className="home-metric__value">{total}</Text>
-          <Text className="home-metric__label">药品数</Text>
+          <Text className="home-metric__value">{checkupSummary.total}</Text>
+          <Text className="home-metric__label">检查数</Text>
         </View>
       </View>
 
@@ -199,6 +207,32 @@ export default function Home() {
           </View>
         )}
       </View>
+
+      {checkupSummary.urgent.length > 0 ? (
+        <>
+          <View className="home-subhead">
+            <View className="home-subhead__main">
+              <Text className="home-subhead__title">紧急检查</Text>
+              <Text className="home-subhead__desc">
+                今日或逾期的复诊检查会优先露出
+              </Text>
+            </View>
+            <View className="home-subhead__action" onClick={handleViewCheckups}>
+              <Text>查看检查</Text>
+            </View>
+          </View>
+          <View className="home-checkups">
+            {checkupSummary.urgent.map((item) => (
+              <CheckupCard
+                key={item.id}
+                item={item}
+                onClick={handleViewCheckups}
+                onComplete={handleViewCheckups}
+              />
+            ))}
+          </View>
+        </>
+      ) : null}
 
       <FloatingAddReminder
         hidden={sheetActive}

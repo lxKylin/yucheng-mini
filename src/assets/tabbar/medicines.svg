@@ -1,6 +1,6 @@
 <svg width="81" height="81" viewBox="0 0 81 81" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="18" y="26" width="45" height="33" rx="3" stroke="#8aa0a7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M18 26L32 18H49L63 26" stroke="#8aa0a7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M40.5 36V53" stroke="#8aa0a7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M32 44H49" stroke="#8aa0a7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(8.45 8.45) scale(0.0626)">
+    <path d="M891.94 266.5H791.72v-47.97c0-62.38-58.94-113.13-131.38-113.13H363.85c-72.44 0-131.38 50.75-131.38 113.13v47.97h-100.2c-35.94 0-65.17 29.24-65.17 65.16v522.02c0 35.93 29.24 65.16 65.17 65.16h759.67c35.93 0 65.16-29.24 65.16-65.16V331.66c0-35.92-29.24-65.16-65.16-65.16z m-589.68-47.96c0-23.49 28.2-43.34 61.6-43.34h296.49c33.39 0 61.6 19.85 61.6 43.34v47.97H302.26v-47.97z m585.05 117.75V401H136.88v-64.72h750.43zM136.88 849.06V470.79h750.43v378.27H136.88z" fill="#8AA0A7"/>
+    <path d="M604.87 614.05H547v-57.87c0-19.27-15.62-34.89-34.89-34.89-19.27 0-34.89 15.62-34.89 34.89v57.87h-57.88c-19.27 0-34.89 15.62-34.89 34.89s15.62 34.89 34.89 34.89h57.88v57.87c0 19.27 15.62 34.89 34.89 34.89 19.27 0 34.89-15.62 34.89-34.89v-57.87h57.87c19.27 0 34.89-15.62 34.89-34.89s-15.62-34.89-34.89-34.89z" fill="#8AA0A7"/>
+  </g>
 </svg>

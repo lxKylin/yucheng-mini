@@ -33,6 +33,10 @@ export type MedicineSchedule =
   | '固定时间'
   | '按医嘱';
 
+export type CheckupType = 'follow_up' | 'lab_test' | 'imaging' | 'indicator' | 'other';
+
+export type CheckupStatus = 'active' | 'paused' | 'done' | 'deleted';
+
 /** 药品状态（兼容原 ReminderStatus） */
 export type MedicineStatus = ReminderStatus;
 
@@ -86,6 +90,41 @@ export interface DerivedMedicine extends Medicine {
 
 export type Reminder = Medicine;
 export type DerivedReminder = DerivedMedicine;
+
+export interface CheckupCompletionRecord {
+  date: string; // YYYY-MM-DD
+  note: string;
+  createdAt: string;
+}
+
+/** 独立检查/复诊提醒主体 */
+export interface CheckupReminder {
+  id: string;
+  title: string;
+  type: CheckupType;
+  targetDate: string; // 目标复诊/检查日期 YYYY-MM-DD
+  remindAdvanceDays: number;
+  remindTime: string; // HH:mm
+  status: CheckupStatus;
+  relatedMedicineIds: string[];
+  hospital: string;
+  note: string;
+  completionHistory: CheckupCompletionRecord[];
+  lastWechatReminderDate: string;
+  lastWechatReminderAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DerivedCheckupReminder extends CheckupReminder {
+  remindDate: string;
+  daysLeft: number;
+  level: ReminderLevel;
+  levelLabel: string;
+  progress: number;
+  typeLabel: string;
+  relatedMedicineNames: string[];
+}
 
 /** 历史开药记录（为后续云开发扩展预留） */
 export interface PrescriptionRecord {
