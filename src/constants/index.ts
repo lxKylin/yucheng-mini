@@ -124,5 +124,5 @@ export const LEVEL_ORDER: Record<string, number> = {
 /** 提前天数选项的显示文本（与 BEFORE_OPTIONS 下标一一对应） */
 export const BEFORE_OPTIONS_LABEL = BEFORE_OPTIONS.map((d) => `${d} 天`);
 
-export const SHARE_IMAGE = '/assets/images/logo.png';
+export const SHARE_IMAGE = '/assets/images/share.jpg';
 export const SHARE_PATH = '/pages/home/index';
