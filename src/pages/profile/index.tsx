@@ -16,6 +16,7 @@ import Taro, {
 
 import BottomSheet from '@/components/BottomSheet';
 import {
+  AUTHOR_WECHAT_ID,
   BEFORE_OPTIONS,
   BEFORE_OPTIONS_LABEL,
   WECHAT_SUBSCRIPTION_STATUS,
@@ -242,6 +243,36 @@ export default function Profile() {
     });
   };
 
+  const handleContactAuthor = async () => {
+    const modalRes = await Taro.showModal({
+      title: '联系作者',
+      content: `微信号：${AUTHOR_WECHAT_ID}\n如果你有问题反馈、功能建议或使用场景想交流，可以复制微信号添加作者。请备注来自“愈历”，以便通过验证。`,
+      confirmText: '复制',
+      cancelText: '取消',
+      confirmColor: '#157a66'
+    });
+
+    if (!modalRes.confirm) {
+      return;
+    }
+
+    try {
+      await Taro.setClipboardData({ data: AUTHOR_WECHAT_ID });
+      Taro.showToast({
+        title: '微信号已复制',
+        icon: 'success',
+        duration: 1500
+      });
+    } catch (err) {
+      console.error('[profile] 复制作者微信号失败：', err);
+      Taro.showToast({
+        title: '复制失败，请手动复制',
+        icon: 'none',
+        duration: 1800
+      });
+    }
+  };
+
   return (
     <View className="profile-page">
       <View className="profile-page__content">
@@ -386,6 +417,21 @@ export default function Profile() {
               </Text>
             </View>
           </Picker>
+
+          <View
+            className="profile-page__menu-item"
+            onClick={handleContactAuthor}
+            role="button"
+            aria-label="联系作者"
+          >
+            <View className="profile-page__menu-copy">
+              <Text className="profile-page__menu-label">联系作者</Text>
+              <Text className="profile-page__menu-desc">
+                问题反馈、功能建议或使用场景交流
+              </Text>
+            </View>
+            <Text className="profile-page__menu-value">复制</Text>
+          </View>
         </View>
       </View>
 

@@ -101,6 +101,9 @@ export const WECHAT_REMINDER_TEMPLATE_ID = [
   '6fS1yWWR-UQqYCu7CJ0c4AKerKQvfmAggh25GP1-i98' //检查提醒
 ] as const;
 
+/** 作者公开联系微信号 */
+export const AUTHOR_WECHAT_ID = 'PLA_Navy_0423';
+
 /** 本地存储 key */
 export const STORAGE_KEY_REMINDERS = 'reminders_v1';
 
