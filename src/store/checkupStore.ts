@@ -15,12 +15,11 @@ import {
 import type { CheckupReminder, Medicine } from '@/types';
 import { deriveAllCheckups, deriveCheckup } from '@/utils/checkupUtils';
 import { today } from '@/utils/dateUtils';
+import { genId } from '@/utils/commonUtils';
 
-function genId(): string {
-  return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
-
-type AddPayload = Partial<Omit<CheckupReminder, 'id' | 'createdAt' | 'updatedAt'>> &
+type AddPayload = Partial<
+  Omit<CheckupReminder, 'id' | 'createdAt' | 'updatedAt'>
+> &
   Pick<CheckupReminder, 'title'>;
 
 interface CompleteOptions {
@@ -39,7 +38,9 @@ interface CheckupStore {
   deleteCheckup: (id: string) => Promise<void>;
   togglePause: (id: string) => Promise<void>;
   completeCheckup: (id: string, options?: CompleteOptions) => Promise<void>;
-  getDerivedList: (medicines?: Medicine[]) => ReturnType<typeof deriveAllCheckups>;
+  getDerivedList: (
+    medicines?: Medicine[]
+  ) => ReturnType<typeof deriveAllCheckups>;
   getById: (
     id: string,
     medicines?: Medicine[]
@@ -137,7 +138,9 @@ export const checkupStore = createStore<CheckupStore>((set, get) => ({
     ].slice(0, HISTORY_MAX);
     const nextPayload: Partial<CheckupReminder> = {
       completionHistory,
-      status: options.nextTargetDate ? CHECKUP_STATUS.ACTIVE : CHECKUP_STATUS.DONE,
+      status: options.nextTargetDate
+        ? CHECKUP_STATUS.ACTIVE
+        : CHECKUP_STATUS.DONE,
       targetDate: options.nextTargetDate || target.targetDate,
       lastWechatReminderDate: options.nextTargetDate
         ? ''

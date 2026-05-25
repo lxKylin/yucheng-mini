@@ -21,10 +21,7 @@ import {
   today
 } from '@/utils/dateUtils';
 
-/** 生成唯一 ID（小程序环境不使用 crypto） */
-function genId(): string {
-  return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
+import { genId } from '@/utils/commonUtils';
 
 type AddPayload = Partial<Omit<Medicine, 'id' | 'createdAt' | 'updatedAt'>> &
   Pick<Medicine, 'name'>;

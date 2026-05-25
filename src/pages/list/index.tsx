@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Input, Text, View } from '@tarojs/components';
-import Taro, { useShareAppMessage, useShareTimeline } from '@tarojs/taro';
+import Taro, {
+  usePullDownRefresh,
+  useReachBottom,
+  useShareAppMessage,
+  useShareTimeline
+} from '@tarojs/taro';
 import { Search } from '@taroify/icons';
 
 import {
@@ -12,13 +17,16 @@ import {
 import BottomSheet from '@/components/BottomSheet';
 import DoneDateSheet from '@/components/DoneDateSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
+import ListLoadStatus from '@/components/ListLoadStatus';
 import MedicineCard from '@/components/MedicineCard';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
+import { useIncrementalList } from '@/hooks/useIncrementalList';
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import type { ReminderLevel } from '@/types';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
+import { reminderStore } from '@/store/reminderStore';
 
 import './index.scss';
 
@@ -94,6 +102,34 @@ export default function ListPage() {
       return byFilter && bySearch;
     });
   }, [activeFilter, allItems, searchTerm]);
+
+  const listResetKey = `${activeFilter}:${searchTerm.trim()}`;
+  const { visibleItems, visibleCount, totalCount, hasMore, loadMore } =
+    useIncrementalList(filteredItems, listResetKey);
+
+  const refreshReminders = async () => {
+    try {
+      await reminderStore.getState().loadFromCloud();
+    } catch {
+      Taro.showToast({
+        title: '刷新失败，请稍后重试',
+        icon: 'none',
+        duration: 1800
+      });
+    } finally {
+      Taro.stopPullDownRefresh();
+    }
+  };
+
+  usePullDownRefresh(() => {
+    void refreshReminders();
+  });
+
+  useReachBottom(() => {
+    if (hasMore) {
+      loadMore();
+    }
+  });
 
   const closeDoneSheet = () => {
     setDoneReminderId(null);
@@ -190,15 +226,22 @@ export default function ListPage() {
 
       <View className="list-content">
         {filteredItems.length > 0 ? (
-          filteredItems.map((item) => (
-            <MedicineCard
-              key={item.id}
-              item={item}
-              showActions
-              onDone={() => handleMarkDone(item.id)}
-              onDetail={() => openDetail(item.id)}
+          <>
+            {visibleItems.map((item) => (
+              <MedicineCard
+                key={item.id}
+                item={item}
+                showActions
+                onDone={() => handleMarkDone(item.id)}
+                onDetail={() => openDetail(item.id)}
+              />
+            ))}
+            <ListLoadStatus
+              visibleCount={visibleCount}
+              totalCount={totalCount}
+              hasMore={hasMore}
             />
-          ))
+          </>
         ) : (
           <View className="list-empty">
             <Text className="list-empty__icon">💊</Text>

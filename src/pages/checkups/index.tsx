@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Input, Text, View } from '@tarojs/components';
-import Taro, { useShareAppMessage, useShareTimeline } from '@tarojs/taro';
+import Taro, {
+  usePullDownRefresh,
+  useReachBottom,
+  useShareAppMessage,
+  useShareTimeline
+} from '@tarojs/taro';
 import { Search } from '@taroify/icons';
 
 import {
@@ -17,8 +22,14 @@ import CheckupComposer from '@/components/CheckupComposer';
 import CheckupDetail from '@/components/CheckupDetail';
 import CheckupRestartSheet from '@/components/CheckupRestartSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
+import ListLoadStatus from '@/components/ListLoadStatus';
 import { useDerivedCheckups } from '@/hooks/useCheckups';
+import { useIncrementalList } from '@/hooks/useIncrementalList';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
+import { fetchCheckups } from '@/services/checkup';
+import { fetchReminders } from '@/services/reminder';
+import { checkupStore } from '@/store/checkupStore';
+import { reminderStore } from '@/store/reminderStore';
 import type { CheckupType, DerivedCheckupReminder, ReminderLevel } from '@/types';
 
 import './index.scss';
@@ -134,6 +145,40 @@ export default function CheckupsPage() {
       return byStatus && byType && bySearch;
     });
   }, [activeStatus, activeType, checkups, searchTerm]);
+
+  const listResetKey = `${activeStatus}:${activeType}:${searchTerm.trim()}`;
+  const { visibleItems, visibleCount, totalCount, hasMore, loadMore } =
+    useIncrementalList(filteredCheckups, listResetKey);
+
+  const refreshCheckups = async () => {
+    try {
+      const [nextCheckups, nextReminders] = await Promise.all([
+        fetchCheckups(),
+        fetchReminders()
+      ]);
+
+      checkupStore.setState({ checkups: nextCheckups });
+      reminderStore.setState({ reminders: nextReminders });
+    } catch {
+      Taro.showToast({
+        title: '刷新失败，请稍后重试',
+        icon: 'none',
+        duration: 1800
+      });
+    } finally {
+      Taro.stopPullDownRefresh();
+    }
+  };
+
+  usePullDownRefresh(() => {
+    void refreshCheckups();
+  });
+
+  useReachBottom(() => {
+    if (hasMore) {
+      loadMore();
+    }
+  });
 
   const openCreate = () => {
     setActiveId(undefined);
@@ -277,14 +322,21 @@ export default function CheckupsPage() {
 
       <View className="checkups-content">
         {filteredCheckups.length > 0 ? (
-          filteredCheckups.map((item) => (
-            <CheckupCard
-              key={item.id}
-              item={item}
-              onClick={() => openDetail(item.id)}
-              onComplete={() => openCompletion(item.id)}
+          <>
+            {visibleItems.map((item) => (
+              <CheckupCard
+                key={item.id}
+                item={item}
+                onClick={() => openDetail(item.id)}
+                onComplete={() => openCompletion(item.id)}
+              />
+            ))}
+            <ListLoadStatus
+              visibleCount={visibleCount}
+              totalCount={totalCount}
+              hasMore={hasMore}
             />
-          ))
+          </>
         ) : (
           <View className="checkups-empty">
             <Text className="checkups-empty__title">

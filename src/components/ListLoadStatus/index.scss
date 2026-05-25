@@ -1,0 +1,17 @@
+@use '@/assets/styles/variables' as *;
+
+.list-load-status {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px 20px;
+}
+
+.list-load-status__text {
+  color: $quiet;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}

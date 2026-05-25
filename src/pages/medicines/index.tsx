@@ -1,19 +1,27 @@
 import { useMemo, useState } from 'react';
 import { Input, Text, View } from '@tarojs/components';
-import Taro, { useShareAppMessage, useShareTimeline } from '@tarojs/taro';
+import Taro, {
+  usePullDownRefresh,
+  useReachBottom,
+  useShareAppMessage,
+  useShareTimeline
+} from '@tarojs/taro';
 import { Search } from '@taroify/icons';
 
 import { MEDICINE_FORM_OPTIONS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
+import ListLoadStatus from '@/components/ListLoadStatus';
 import MedicineComposer from '@/components/MedicineComposer';
 import MedicineInventoryCard from '@/components/MedicineInventoryCard';
+import { useIncrementalList } from '@/hooks/useIncrementalList';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
 import {
   useAllDerivedMedicines,
   useReminderActions
 } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
+import { reminderStore } from '@/store/reminderStore';
 import type { DerivedMedicine } from '@/types';
 import './index.scss';
 
@@ -94,6 +102,34 @@ const Medicines = () => {
       return byFilter && bySearch;
     });
   }, [activeFilter, medicines, searchTerm]);
+
+  const listResetKey = `${activeFilter}:${searchTerm.trim()}`;
+  const { visibleItems, visibleCount, totalCount, hasMore, loadMore } =
+    useIncrementalList(filteredMedicines, listResetKey);
+
+  const refreshMedicines = async () => {
+    try {
+      await reminderStore.getState().loadFromCloud();
+    } catch {
+      Taro.showToast({
+        title: '刷新失败，请稍后重试',
+        icon: 'none',
+        duration: 1800
+      });
+    } finally {
+      Taro.stopPullDownRefresh();
+    }
+  };
+
+  usePullDownRefresh(() => {
+    void refreshMedicines();
+  });
+
+  useReachBottom(() => {
+    if (hasMore) {
+      loadMore();
+    }
+  });
 
   const handleDelete = () => {
     if (!editReminderId) {
@@ -191,13 +227,20 @@ const Medicines = () => {
 
       <View className="medicines-content">
         {filteredMedicines.length > 0 ? (
-          filteredMedicines.map((medicine) => (
-            <MedicineInventoryCard
-              key={medicine.id}
-              medicine={medicine}
-              onClick={() => openEdit(medicine.id)}
+          <>
+            {visibleItems.map((medicine) => (
+              <MedicineInventoryCard
+                key={medicine.id}
+                medicine={medicine}
+                onClick={() => openEdit(medicine.id)}
+              />
+            ))}
+            <ListLoadStatus
+              visibleCount={visibleCount}
+              totalCount={totalCount}
+              hasMore={hasMore}
             />
-          ))
+          </>
         ) : (
           <View className="medicines-empty">
             <Text className="medicines-empty__title">{emptyTitle}</Text>
