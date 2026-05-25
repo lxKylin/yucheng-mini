@@ -6,6 +6,13 @@
   background: rgba(255, 255, 255, 0.98);
   border: 1px solid rgba(216, 235, 239, 0.92);
   box-shadow: 0 12px 28px rgba(16, 74, 91, 0.09);
+  transition:
+    transform $duration ease,
+    box-shadow $duration ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
 
   &--danger {
     border-color: rgba(202, 78, 65, 0.22);
