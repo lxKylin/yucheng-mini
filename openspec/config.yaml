@@ -1,5 +1,14 @@
 schema: spec-driven
 
+context: |
+  技术栈:
+      - 框架: React 18、Taro 4.2
+      - 语言: TypeScript 5.4
+      - UI 库: taroify
+      - 状态管理: Zustand
+      - 构建工具: Vite
+      - 样式: Sass
+
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
@@ -18,3 +27,21 @@ schema: spec-driven
 #       - Always include a "Non-goals" section
 #     tasks:
 #       - Break tasks into chunks of max 2 hours
+
+# 项目背景（可选）
+# 创建工件时会向AI展示此内容。
+# 请添加你的技术栈、规范、样式指南、领域知识等。
+# 示例：
+#   context: |
+#     技术栈：TypeScript, React, Node.js
+#     我们使用常规提交规范
+#     领域：电子商务平台
+# 按工件的规则（可选）
+# 为特定工件添加自定义规则。
+# 示例：
+#   rules:
+#     proposal:
+#       - 提案长度不超过500字
+#       - 必须包含“非目标”部分
+#     tasks:
+#       - 将任务拆分为不超过2小时的子任务
