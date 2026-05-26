@@ -1,0 +1,239 @@
+@use '@/assets/styles/variables' as *;
+@use 'sass:color';
+
+.health-status-composer {
+  display: grid;
+  gap: $spacing-5;
+  padding-bottom: 136px;
+
+  &__notice,
+  &__section {
+    border-radius: $radius;
+  }
+
+  &__notice {
+    display: grid;
+    gap: 4px;
+    padding: $spacing-4;
+    border: 1px solid rgba(21, 122, 102, 0.12);
+    background: $primary-soft;
+  }
+
+  &__notice-title {
+    color: $primary-deep;
+    font-size: $text-md;
+    font-weight: 900;
+    line-height: 1.35;
+  }
+
+  &__notice-desc,
+  &__helper,
+  &__empty-related {
+    color: $muted;
+    font-size: $text-sm;
+    line-height: 1.6;
+  }
+
+  &__section {
+    display: grid;
+    gap: $spacing-4;
+    padding: $spacing-4;
+    border: 1px solid $line-strong;
+    background: rgba(251, 255, 253, 0.94);
+    box-shadow: 0 10px 24px rgba(16, 59, 50, 0.04);
+  }
+
+  &__section-title {
+    color: $ink-strong;
+    font-size: $text-lg;
+    font-weight: 900;
+  }
+
+  &__required {
+    margin-left: 6px;
+    color: $danger;
+  }
+
+  &__options,
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    min-width: 0;
+  }
+
+  &__option,
+  &__chip {
+    max-width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid $line-soft;
+    background: #fff;
+  }
+
+  &__option {
+    min-width: 142px;
+    justify-content: center;
+    padding: 0 $spacing-4;
+    border-radius: $radius;
+
+    &--active {
+      border-color: $primary;
+      background: $primary;
+      box-shadow: 0 10px 22px rgba(21, 122, 102, 0.14);
+
+      .health-status-composer__option-text {
+        color: #fff;
+      }
+    }
+
+    &--good.health-status-composer__option--active {
+      border-color: $success;
+      background: $success;
+    }
+
+    &--warning.health-status-composer__option--active {
+      border-color: $warning;
+      background: $warning;
+    }
+
+    &--danger.health-status-composer__option--active {
+      border-color: $danger;
+      background: $danger;
+    }
+  }
+
+  &__option-text,
+  &__chip-text {
+    min-width: 0;
+    color: $muted;
+    font-size: $text-base;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  &__option--good &__option-text {
+    color: $success;
+  }
+
+  &__option--warning &__option-text {
+    color: color.mix($warning, $ink-strong, 78%);
+  }
+
+  &__option--danger &__option-text {
+    color: $danger;
+  }
+
+  &__chip {
+    padding: 0 $spacing-4;
+    border-radius: $radius-pill;
+
+    .health-status-composer__chip-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &--active {
+      border-color: $primary;
+      background: $primary;
+
+      .health-status-composer__chip-text {
+        color: #fff;
+      }
+    }
+  }
+
+  &__field {
+    display: grid;
+    gap: $spacing-2;
+    min-width: 0;
+  }
+
+  &__label {
+    color: #385750;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__textarea {
+    width: 100%;
+    max-width: 100%;
+    min-height: 124px;
+    padding: $spacing-3 $spacing-4;
+    border: 1px solid $line-strong;
+    border-radius: $radius;
+    background: #fff;
+    box-sizing: border-box;
+    display: grid;
+
+    .taroify-textarea__wrapper {
+      display: grid;
+      gap: $spacing-2;
+      min-height: 92px;
+    }
+
+    .taroify-textarea__limit {
+      color: $quiet;
+      font-size: $text-xs;
+      line-height: 1.4;
+      margin-top: 0;
+    }
+  }
+
+  &__textarea-inner {
+    width: 100%;
+    min-height: 84px !important;
+    height: 92px !important;
+    max-height: 140px !important;
+    display: block;
+    overflow-y: auto;
+    color: $ink;
+    background: transparent;
+    font-size: $text-md;
+    line-height: 1.6;
+    padding: 0;
+    margin: 0;
+    resize: none;
+  }
+
+  &__actions {
+    position: fixed;
+    left: $spacing-8;
+    right: $spacing-8;
+    bottom: 0;
+    z-index: 1030;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: $spacing-3;
+    padding: $spacing-4 0 calc(#{$spacing-2} + env(safe-area-inset-bottom));
+    background: linear-gradient(
+      180deg,
+      rgba(248, 252, 250, 0),
+      $paper 22%,
+      $paper 100%
+    );
+  }
+
+  &__cancel,
+  &__submit {
+    min-height: 52px !important;
+    border-radius: $radius-pill !important;
+    font-size: $text-md !important;
+    font-weight: 900 !important;
+  }
+
+  &__cancel {
+    border: 1px solid $line-strong !important;
+    background: #fff !important;
+    color: $muted !important;
+  }
+
+  &__submit {
+    border: none !important;
+    color: #fff !important;
+    background: $primary !important;
+  }
+}
