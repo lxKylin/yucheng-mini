@@ -1,11 +1,7 @@
 import { useMemo, useState } from 'react';
 import { EyeOutlined, Success } from '@taroify/icons';
 import { Text, View } from '@tarojs/components';
-import Taro, {
-  useLoad,
-  useShareAppMessage,
-  useShareTimeline
-} from '@tarojs/taro';
+import Taro, { useLoad, useShareAppMessage, useShareTimeline } from '@tarojs/taro';
 
 import { REMINDER_STATUS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
@@ -15,11 +11,10 @@ import CheckupDetail from '@/components/CheckupDetail';
 import CheckupRestartSheet from '@/components/CheckupRestartSheet';
 import DoneDateSheet from '@/components/DoneDateSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
-import HealthStatusComposer from '@/components/HealthStatusComposer';
+import HomeHealthStatusEntry from '@/components/HomeHealthStatusEntry';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
 import { useDerivedCheckups } from '@/hooks/useCheckups';
-import { useTodayHealthStatus } from '@/hooks/useHealthStatus';
 import {
   type HomeRiskFeedItem,
   useHomeRiskFeed
@@ -27,10 +22,6 @@ import {
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
-import {
-  buildTodayHealthStatusSummary,
-  getOverallStatusLabel
-} from '@/utils/healthStatusUtils';
 import { withPageShare } from '@/utils/pageShare';
 
 import '@/assets/images/share.jpg';
@@ -129,7 +120,6 @@ function Home() {
     useState<PendingCheckupAction | null>(null);
   const [checkupFormKey, setCheckupFormKey] = useState(0);
   const [healthStatusSheetOpen, setHealthStatusSheetOpen] = useState(false);
-  const [healthStatusSubmitting, setHealthStatusSubmitting] = useState(false);
   useTabScrollToTop();
 
   const {
@@ -151,8 +141,6 @@ function Home() {
   const allCheckups = useDerivedCheckups();
   const riskFeed = useHomeRiskFeed({ limit: 3 });
   const { markDone } = useReminderActions();
-  const todayHealthStatus = useTodayHealthStatus();
-  const healthStatusSummary = buildTodayHealthStatusSummary(todayHealthStatus);
 
   const doneTarget =
     doneReminderId === null
@@ -315,15 +303,6 @@ function Home() {
     setDoneReminderId(null);
   };
 
-  const openHealthStatusSheet = () => {
-    setHealthStatusSheetOpen(true);
-  };
-
-  const closeHealthStatusSheet = () => {
-    setHealthStatusSubmitting(false);
-    setHealthStatusSheetOpen(false);
-  };
-
   useLoad(() => {
     Taro.showShareMenu({
       withShareTicket: true,
@@ -367,31 +346,7 @@ function Home() {
         </View>
       </View>
 
-      <View
-        className={`home-health-status${
-          todayHealthStatus ? ' home-health-status--done' : ''
-        }`}
-        role="button"
-        aria-label={todayHealthStatus ? '修改今日状态' : '记录今日状态'}
-        onClick={openHealthStatusSheet}
-      >
-        <View className="home-health-status__copy">
-          <Text className="home-health-status__eyebrow">
-            {todayHealthStatus ? '今日已记录' : '今日状态'}
-          </Text>
-          <Text className="home-health-status__title">
-            {healthStatusSummary}
-          </Text>
-          {todayHealthStatus?.overallStatus === 'bad' ? (
-            <Text className="home-health-status__hint">
-              明显不适时，必要时请咨询医生。
-            </Text>
-          ) : null}
-        </View>
-        <Text className="home-health-status__action">
-          {todayHealthStatus ? '修改' : '记录'}
-        </Text>
-      </View>
+      <HomeHealthStatusEntry onOpenChange={setHealthStatusSheetOpen} />
 
       <View className="home-subhead">
         <View className="home-subhead__main">
@@ -468,24 +423,6 @@ function Home() {
         }
         onClick={() => openCreate(true)}
       />
-
-      <BottomSheet
-        open={healthStatusSheetOpen}
-        title={
-          todayHealthStatus
-            ? `修改今日状态：${getOverallStatusLabel(todayHealthStatus.overallStatus)}`
-            : '记录今日状态'
-        }
-        onClose={closeHealthStatusSheet}
-        closeDisabled={healthStatusSubmitting}
-      >
-        <HealthStatusComposer
-          record={todayHealthStatus}
-          onSuccess={closeHealthStatusSheet}
-          onCancel={closeHealthStatusSheet}
-          onSubmittingChange={setHealthStatusSubmitting}
-        />
-      </BottomSheet>
 
       <BottomSheet
         open={sheetOpen}
