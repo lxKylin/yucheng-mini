@@ -31,9 +31,15 @@ export type MedicineSchedule =
   | '空腹'
   | '睡前'
   | '固定时间'
-  | '按医嘱';
+  | '按医嘱'
+  | '无所谓';
 
-export type CheckupType = 'follow_up' | 'lab_test' | 'imaging' | 'indicator' | 'other';
+export type CheckupType =
+  | 'follow_up'
+  | 'lab_test'
+  | 'imaging'
+  | 'indicator'
+  | 'other';
 
 export type CheckupStatus = 'active' | 'paused' | 'done' | 'deleted';
 

@@ -39,6 +39,15 @@
     box-shadow: 0 16px 34px rgba(202, 78, 65, 0.24);
   }
 
+  &--warning {
+    background: linear-gradient(
+      135deg,
+      color.mix($warning, $primary, 72%),
+      color.mix($warning, $ink-strong, 66%)
+    );
+    box-shadow: 0 16px 34px rgba(184, 108, 30, 0.22);
+  }
+
   &__eyebrow {
     display: block;
     font-size: 24px;

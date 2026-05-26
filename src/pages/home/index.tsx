@@ -26,6 +26,8 @@ import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
 
+import '@/assets/images/share.jpg';
+
 import './index.scss';
 
 interface HomeRiskCardProps {
@@ -67,9 +69,7 @@ function HomeRiskCard({ item, onPrimary, onDetail }: HomeRiskCardProps) {
         <Text className="home-risk-card__title">{item.title}</Text>
         <Text className="home-risk-card__summary">{item.actionSummary}</Text>
         {item.contextSummary ? (
-          <Text className="home-risk-card__context">
-            {item.contextSummary}
-          </Text>
+          <Text className="home-risk-card__context">{item.contextSummary}</Text>
         ) : null}
         <Text
           className={`home-risk-card__time home-risk-card__time--${item.level}`}
@@ -114,9 +114,9 @@ export default function Home() {
   const [checkupSheetMode, setCheckupSheetMode] =
     useState<CheckupSheetMode>(null);
   const [activeCheckupId, setActiveCheckupId] = useState<string | undefined>();
-  const [completionCheckupId, setCompletionCheckupId] = useState<
-    string | null
-  >(null);
+  const [completionCheckupId, setCompletionCheckupId] = useState<string | null>(
+    null
+  );
   const [restartCheckupId, setRestartCheckupId] = useState<string | null>(null);
   const [pendingCheckupAction, setPendingCheckupAction] =
     useState<PendingCheckupAction | null>(null);
@@ -163,7 +163,24 @@ export default function Home() {
   );
 
   const hasDanger = riskFeed.overdueCount > 0 || riskFeed.todayCount > 0;
+  const hasWarning = !hasDanger && riskFeed.warningCount > 0;
   const hasRecords = riskFeed.sourceTotal > 0;
+  const heroClass = [
+    'home-hero',
+    hasDanger ? 'home-hero--danger' : '',
+    hasWarning ? 'home-hero--warning' : ''
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const heroEyebrow = hasWarning ? '近期待办' : '今日待办';
+  const heroTitle = hasWarning
+    ? `${riskFeed.warningCount} 个 7 天内待安排`
+    : `${riskFeed.overdueCount} 个已逾期，${riskFeed.todayCount} 个今天到期`;
+  const heroDesc = hasDanger
+    ? '建议先处理逾期或今日到期事项，再检查未来 7 天内需要提前安排的开药和复诊任务。'
+    : hasWarning
+      ? '已有事项进入准备窗口，建议先确认开药或检查安排，避免临近断药或复诊仓促。'
+      : '近期没有紧急事项，继续保持当前记录节奏。';
 
   const handleMarkDone = (id: string) => {
     const target = allItems.find((item) => item.id === id);
@@ -309,16 +326,10 @@ export default function Home() {
 
   return (
     <View className="home-page">
-      <View className={`home-hero${hasDanger ? ' home-hero--danger' : ''}`}>
-        <Text className="home-hero__eyebrow">今日待办</Text>
-        <Text className="home-hero__title">
-          {riskFeed.overdueCount} 个已逾期，{riskFeed.todayCount} 个今天到期
-        </Text>
-        <Text className="home-hero__desc">
-          {hasDanger
-            ? '建议先处理逾期或今日到期事项，再检查未来 7 天内需要提前安排的开药和复诊任务。'
-            : '近期没有紧急事项，继续保持当前记录节奏。'}
-        </Text>
+      <View className={heroClass}>
+        <Text className="home-hero__eyebrow">{heroEyebrow}</Text>
+        <Text className="home-hero__title">{heroTitle}</Text>
+        <Text className="home-hero__desc">{heroDesc}</Text>
       </View>
 
       <View className="home-metrics">

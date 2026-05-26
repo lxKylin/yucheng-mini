@@ -18,10 +18,12 @@
 
   &--danger {
     border-color: rgba(202, 78, 65, 0.22);
+    box-shadow: 0 12px 28px rgba(202, 78, 65, 0.08);
   }
 
   &--warning {
     border-color: rgba(184, 108, 30, 0.2);
+    box-shadow: 0 12px 28px rgba(184, 108, 30, 0.08);
   }
 
   &--paused,

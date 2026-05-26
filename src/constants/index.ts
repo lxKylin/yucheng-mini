@@ -42,7 +42,8 @@ export const SCHEDULE_OPTIONS: MedicineSchedule[] = [
   '空腹',
   '睡前',
   '固定时间',
-  '按医嘱'
+  '按医嘱',
+  '无所谓'
 ];
 
 export const TIMES_PER_DAY_OPTIONS = [1, 2, 3, 4] as const;
