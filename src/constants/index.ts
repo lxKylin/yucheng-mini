@@ -1,4 +1,11 @@
-import type { CheckupType, DosageUnit, MedicineSchedule } from '@/types';
+import type {
+  CheckupType,
+  DosageUnit,
+  HealthMedicationAdherence,
+  HealthOverallStatus,
+  HealthSymptomTag,
+  MedicineSchedule
+} from '@/types';
 
 /** 快捷间隔选项（天） */
 export const INTERVAL_OPTIONS = [3, 7, 14, 28, 30, 45, 60, 90] as const;
@@ -79,6 +86,48 @@ export const CHECKUP_TYPE_OPTIONS: { value: CheckupType; label: string }[] = [
 ];
 
 export const CHECKUP_BEFORE_OPTIONS = [0, 1, 3, 7, 14, 30] as const;
+
+export const HEALTH_STATUS_LOOKBACK_DAYS = 30;
+
+export const HEALTH_OVERALL_STATUS_OPTIONS: {
+  value: HealthOverallStatus;
+  label: string;
+  tone: 'good' | 'normal' | 'warning' | 'danger';
+}[] = [
+  { value: 'good', label: '良好', tone: 'good' },
+  { value: 'normal', label: '一般', tone: 'normal' },
+  { value: 'uncomfortable', label: '不舒服', tone: 'warning' },
+  { value: 'bad', label: '明显不适', tone: 'danger' }
+];
+
+export const HEALTH_SYMPTOM_TAG_OPTIONS: {
+  value: HealthSymptomTag;
+  label: string;
+}[] = [
+  { value: 'dizzy', label: '头晕' },
+  { value: 'fatigue', label: '乏力' },
+  { value: 'stomach', label: '胃不舒服' },
+  { value: 'sleep', label: '睡眠差' },
+  { value: 'appetite', label: '食欲变化' },
+  { value: 'pain', label: '疼痛' },
+  { value: 'mood', label: '情绪波动' },
+  { value: 'other', label: '其他' }
+];
+
+export const HEALTH_MEDICATION_ADHERENCE_OPTIONS: {
+  value: HealthMedicationAdherence;
+  label: string;
+}[] = [
+  { value: 'normal', label: '正常服用' },
+  { value: 'missed', label: '漏服' },
+  { value: 'delayed', label: '延迟' },
+  { value: 'paused', label: '暂停' },
+  { value: 'not_prescribed', label: '未开药' },
+  { value: 'adjusted', label: '医生调整' }
+];
+
+export const DEFAULT_HEALTH_MEDICATION_ADHERENCE: HealthMedicationAdherence =
+  'normal';
 
 /** 微信订阅授权状态 */
 export const WECHAT_SUBSCRIPTION_STATUS = {

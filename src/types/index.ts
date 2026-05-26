@@ -132,6 +132,49 @@ export interface DerivedCheckupReminder extends CheckupReminder {
   relatedMedicineNames: string[];
 }
 
+export type HealthOverallStatus = 'good' | 'normal' | 'uncomfortable' | 'bad';
+
+export type HealthMedicationAdherence =
+  | 'normal'
+  | 'missed'
+  | 'delayed'
+  | 'paused'
+  | 'not_prescribed'
+  | 'adjusted';
+
+export type HealthSymptomTag =
+  | 'dizzy'
+  | 'fatigue'
+  | 'stomach'
+  | 'sleep'
+  | 'appetite'
+  | 'pain'
+  | 'mood'
+  | 'other';
+
+export interface HealthStatusRecord {
+  id: string;
+  date: string; // YYYY-MM-DD
+  overallStatus: HealthOverallStatus;
+  symptomTags: HealthSymptomTag[];
+  medicationAdherence: HealthMedicationAdherence;
+  relatedMedicineIds: string[];
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface HealthStatusSummary {
+  totalDays: number;
+  uncomfortableDays: number;
+  abnormalAdherenceDays: number;
+  commonSymptomTags: {
+    value: HealthSymptomTag;
+    label: string;
+    count: number;
+  }[];
+}
+
 /** 历史开药记录（为后续云开发扩展预留） */
 export interface PrescriptionRecord {
   id: string;
