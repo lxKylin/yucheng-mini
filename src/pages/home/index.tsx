@@ -129,6 +129,7 @@ function Home() {
     useState<PendingCheckupAction | null>(null);
   const [checkupFormKey, setCheckupFormKey] = useState(0);
   const [healthStatusSheetOpen, setHealthStatusSheetOpen] = useState(false);
+  const [healthStatusSubmitting, setHealthStatusSubmitting] = useState(false);
   useTabScrollToTop();
 
   const {
@@ -319,6 +320,7 @@ function Home() {
   };
 
   const closeHealthStatusSheet = () => {
+    setHealthStatusSubmitting(false);
     setHealthStatusSheetOpen(false);
   };
 
@@ -475,11 +477,13 @@ function Home() {
             : '记录今日状态'
         }
         onClose={closeHealthStatusSheet}
+        closeDisabled={healthStatusSubmitting}
       >
         <HealthStatusComposer
           record={todayHealthStatus}
           onSuccess={closeHealthStatusSheet}
           onCancel={closeHealthStatusSheet}
+          onSubmittingChange={setHealthStatusSubmitting}
         />
       </BottomSheet>
 

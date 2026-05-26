@@ -26,6 +26,7 @@ interface HealthStatusComposerProps {
   record: HealthStatusRecord | null;
   onSuccess: () => void;
   onCancel: () => void;
+  onSubmittingChange?: (submitting: boolean) => void;
 }
 
 interface FormValues {
@@ -65,7 +66,8 @@ function makeFormValues(record: HealthStatusRecord | null): FormValues {
 export default function HealthStatusComposer({
   record,
   onSuccess,
-  onCancel
+  onCancel,
+  onSubmittingChange
 }: HealthStatusComposerProps) {
   const medicines = useAllDerivedMedicines();
   const { saveTodayStatus } = useHealthStatusActions();
@@ -77,6 +79,16 @@ export default function HealthStatusComposer({
   useEffect(() => {
     setValues(makeFormValues(record));
   }, [record]);
+
+  useEffect(() => {
+    onSubmittingChange?.(submitting);
+  }, [onSubmittingChange, submitting]);
+
+  useEffect(() => {
+    return () => {
+      onSubmittingChange?.(false);
+    };
+  }, [onSubmittingChange]);
 
   const setField = <K extends keyof FormValues>(
     field: K,

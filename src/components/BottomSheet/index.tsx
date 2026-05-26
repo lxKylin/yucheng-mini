@@ -24,6 +24,7 @@ interface BottomSheetProps {
   open: boolean;
   title: string;
   onClose: () => void;
+  closeDisabled?: boolean;
   onAfterOpen?: () => void;
   onAfterClose?: () => void;
   children: ReactNode;
@@ -33,6 +34,7 @@ export default function BottomSheet({
   open,
   title,
   onClose,
+  closeDisabled = false,
   onAfterOpen,
   onAfterClose,
   children
@@ -66,6 +68,10 @@ export default function BottomSheet({
   }, []);
 
   const handleClose = () => {
+    if (closeDisabled) {
+      return;
+    }
+
     onClose();
   };
 
