@@ -31,6 +31,7 @@ import { fetchReminders } from '@/services/reminder';
 import { checkupStore } from '@/store/checkupStore';
 import { reminderStore } from '@/store/reminderStore';
 import type { CheckupType, DerivedCheckupReminder, ReminderLevel } from '@/types';
+import { withPageShare } from '@/utils/pageShare';
 
 import './index.scss';
 
@@ -71,7 +72,7 @@ function buildSearchText(item: DerivedCheckupReminder) {
     .toLowerCase();
 }
 
-export default function CheckupsPage() {
+function CheckupsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeStatus, setActiveStatus] = useState<StatusFilter>('all');
   const [activeType, setActiveType] = useState<TypeFilter>('all');
@@ -396,3 +397,5 @@ export default function CheckupsPage() {
     </View>
   );
 }
+
+export default withPageShare(CheckupsPage);

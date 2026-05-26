@@ -27,6 +27,7 @@ import type { ReminderLevel } from '@/types';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
 import { reminderStore } from '@/store/reminderStore';
+import { withPageShare } from '@/utils/pageShare';
 
 import './index.scss';
 
@@ -40,7 +41,7 @@ const FILTER_TABS: { key: FilterKey; label: string }[] = [
   { key: REMINDER_LEVEL.PAUSED, label: '暂停' }
 ];
 
-export default function ListPage() {
+function ListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
@@ -291,3 +292,5 @@ export default function ListPage() {
     </View>
   );
 }
+
+export default withPageShare(ListPage);

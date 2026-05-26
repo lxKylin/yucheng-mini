@@ -34,6 +34,7 @@ import {
   updateWechatSubscriptionStatus
 } from '@/services/auth';
 import { requestWechatReminderSubscription } from '@/services/wechatReminder';
+import { withPageShare } from '@/utils/pageShare';
 import { loadSettings, saveSettings } from '@/utils/storage';
 import type { AppSettings } from '@/utils/storage';
 
@@ -66,7 +67,7 @@ function getSubscriptionSummary(status?: string) {
   };
 }
 
-export default function Profile() {
+function Profile() {
   const stats = useProfileStats();
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [inboxOpen, setInboxOpen] = useState(false);
@@ -447,3 +448,5 @@ export default function Profile() {
     </View>
   );
 }
+
+export default withPageShare(Profile);

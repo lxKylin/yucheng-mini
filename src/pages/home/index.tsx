@@ -25,6 +25,7 @@ import {
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
+import { withPageShare } from '@/utils/pageShare';
 
 import '@/assets/images/share.jpg';
 
@@ -108,7 +109,7 @@ function HomeRiskCard({ item, onPrimary, onDetail }: HomeRiskCardProps) {
   );
 }
 
-export default function Home() {
+function Home() {
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
   const [checkupSheetOpen, setCheckupSheetOpen] = useState(false);
   const [checkupSheetMode, setCheckupSheetMode] =
@@ -491,3 +492,5 @@ export default function Home() {
     </View>
   );
 }
+
+export default withPageShare(Home);

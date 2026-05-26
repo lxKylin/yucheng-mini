@@ -23,6 +23,7 @@ import {
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { reminderStore } from '@/store/reminderStore';
 import type { DerivedMedicine } from '@/types';
+import { withPageShare } from '@/utils/pageShare';
 import './index.scss';
 
 type FilterKey = 'all' | 'enabled' | 'disabled';
@@ -291,4 +292,4 @@ const Medicines = () => {
   );
 };
 
-export default Medicines;
+export default withPageShare(Medicines);

@@ -1,6 +1,6 @@
 {
   "name": "yuli",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "private": true,
   "description": "愈历",
   "templateInfo": {
@@ -21,6 +21,7 @@
     "build:qq": "taro build --type qq",
     "build:jd": "taro build --type jd",
     "build:harmony-hybrid": "taro build --type harmony-hybrid",
+    "verify:share": "node scripts/verify-share-flags.mjs",
     "dev:weapp": "npm run build:weapp -- --watch",
     "dev:swan": "npm run build:swan -- --watch",
     "dev:alipay": "npm run build:alipay -- --watch",
