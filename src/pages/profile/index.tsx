@@ -25,6 +25,7 @@ import {
   SHARE_PATH
 } from '@/constants';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
+import { useHealthStatusSummary } from '@/hooks/useHealthStatus';
 import { useProfileStats } from '@/hooks/useReminders';
 import {
   getUserId,
@@ -69,6 +70,7 @@ function getSubscriptionSummary(status?: string) {
 
 function Profile() {
   const stats = useProfileStats();
+  const healthStatusSummary = useHealthStatusSummary();
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
   const [inboxOpen, setInboxOpen] = useState(false);
   useTabScrollToTop();
@@ -313,6 +315,49 @@ function Profile() {
               {stats.checkupTotal} 个检查
             </Text>
           </View>
+        </View>
+
+        <View className="profile-page__health-summary">
+          <View className="profile-page__health-summary-head">
+            <View className="profile-page__health-summary-copy">
+              <Text className="profile-page__health-summary-title">近 30 天状态</Text>
+              <Text className="profile-page__health-summary-desc">只展示你的记录统计，不做诊断判断</Text>
+            </View>
+          </View>
+
+          {healthStatusSummary.totalDays > 0 ? (
+            <>
+              <View className="profile-page__health-summary-metrics">
+                <View className="profile-page__health-summary-metric">
+                  <Text className="profile-page__health-summary-value">
+                    {healthStatusSummary.totalDays}
+                  </Text>
+                  <Text className="profile-page__health-summary-label">记录天数</Text>
+                </View>
+                <View className="profile-page__health-summary-metric">
+                  <Text className="profile-page__health-summary-value">
+                    {healthStatusSummary.uncomfortableDays}
+                  </Text>
+                  <Text className="profile-page__health-summary-label">不适天数</Text>
+                </View>
+                <View className="profile-page__health-summary-metric">
+                  <Text className="profile-page__health-summary-value">
+                    {healthStatusSummary.abnormalAdherenceDays}
+                  </Text>
+                  <Text className="profile-page__health-summary-label">用药异常</Text>
+                </View>
+              </View>
+              <Text className="profile-page__health-summary-tags">
+                {healthStatusSummary.commonSymptomTags.length > 0
+                  ? `常见感受：${healthStatusSummary.commonSymptomTags
+                      .map((item) => item.label)
+                      .join('、')}`
+                  : '暂未记录具体感受标签'}
+              </Text>
+            </>
+          ) : (
+            <Text className="profile-page__health-summary-empty">还没有近 30 天状态记录，今天可以从首页记录一次。</Text>
+          )}
         </View>
 
         {/* <View className="profile-page__metrics">
