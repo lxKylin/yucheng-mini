@@ -4,7 +4,8 @@ export default defineAppConfig({
     'pages/list/index',
     'pages/medicines/index',
     'pages/checkups/index',
-    'pages/profile/index'
+    'pages/profile/index',
+    'pages/health-status-records/index'
   ],
   window: {
     backgroundTextStyle: 'dark',

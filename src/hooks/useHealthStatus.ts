@@ -1,9 +1,9 @@
 import { useMemo, useSyncExternalStore } from 'react';
 
-import { HEALTH_STATUS_LOOKBACK_DAYS } from '@/constants';
+import { HEALTH_STATUS_LOOKBACK_MONTHS } from '@/constants';
 import { healthStatusStore } from '@/store/healthStatusStore';
 import { buildHealthStatusSummary } from '@/utils/healthStatusUtils';
-import { addDays, today } from '@/utils/dateUtils';
+import { addMonths, today } from '@/utils/dateUtils';
 
 function useHealthStatusStore() {
   return useSyncExternalStore(
@@ -15,7 +15,7 @@ function useHealthStatusStore() {
 
 export function getHealthStatusLookbackRange() {
   const endDate = today();
-  const startDate = addDays(endDate, -(HEALTH_STATUS_LOOKBACK_DAYS - 1));
+  const startDate = addMonths(endDate, -HEALTH_STATUS_LOOKBACK_MONTHS);
   return { startDate, endDate };
 }
 

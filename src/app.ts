@@ -6,7 +6,7 @@ import { login } from '@/services/auth';
 import { reminderStore } from '@/store/reminderStore';
 import { checkupStore } from '@/store/checkupStore';
 import { healthStatusStore } from '@/store/healthStatusStore';
-import { addDays, today } from '@/utils/dateUtils';
+import { getHealthStatusLookbackRange } from '@/hooks/useHealthStatus';
 
 import './app.scss';
 
@@ -32,9 +32,8 @@ function App({ children }: PropsWithChildren<any>) {
     }
     console.log('User:', profile.openid, profile.nickName || '(未设置昵称)');
 
-    // 3. 从云端拉取当前用户的提醒数据和近 30 天每日状态
-    const endDate = today();
-    const startDate = addDays(endDate, -29);
+    // 3. 从云端拉取当前用户的提醒数据和近一个月每日状态
+    const { startDate, endDate } = getHealthStatusLookbackRange();
 
     await Promise.all([
       reminderStore.getState().loadFromCloud(),

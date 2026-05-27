@@ -38,6 +38,18 @@ export function addDays(dateStr: string, days: number): string {
   return formatDate(d);
 }
 
+/** 日期加 N 月，目标月份天数不足时自动落到月末 */
+export function addMonths(dateStr: string, months: number): string {
+  const source = parseDate(dateStr);
+  const targetMonth = source.getMonth() + months;
+  const targetYear = source.getFullYear() + Math.floor(targetMonth / 12);
+  const normalizedMonth = ((targetMonth % 12) + 12) % 12;
+  const lastDay = new Date(targetYear, normalizedMonth + 1, 0).getDate();
+  const targetDay = Math.min(source.getDate(), lastDay);
+
+  return formatDate(new Date(targetYear, normalizedMonth, targetDay));
+}
+
 /**
  * 计算两个日期字符串之间的天数差
  * @returns to - from 的天数（to 在 from 之后为正数）

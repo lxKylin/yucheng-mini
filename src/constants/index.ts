@@ -87,7 +87,7 @@ export const CHECKUP_TYPE_OPTIONS: { value: CheckupType; label: string }[] = [
 
 export const CHECKUP_BEFORE_OPTIONS = [0, 1, 3, 7, 14, 30] as const;
 
-export const HEALTH_STATUS_LOOKBACK_DAYS = 30;
+export const HEALTH_STATUS_LOOKBACK_MONTHS = 1;
 
 export const HEALTH_OVERALL_STATUS_OPTIONS: {
   value: HealthOverallStatus;

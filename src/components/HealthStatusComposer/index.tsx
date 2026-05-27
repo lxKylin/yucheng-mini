@@ -11,7 +11,6 @@ import {
   HEALTH_SYMPTOM_TAG_OPTIONS
 } from '@/constants';
 import { useHealthStatusActions } from '@/hooks/useHealthStatus';
-import { useAllDerivedMedicines } from '@/hooks/useReminders';
 import type {
   HealthMedicationAdherence,
   HealthOverallStatus,
@@ -21,6 +20,11 @@ import type {
 import { getMedicationAdherenceLabel } from '@/utils/healthStatusUtils';
 
 import './index.scss';
+
+const ABNORMAL_HEALTH_MEDICATION_OPTIONS =
+  HEALTH_MEDICATION_ADHERENCE_OPTIONS.filter(
+    (option) => option.value !== DEFAULT_HEALTH_MEDICATION_ADHERENCE
+  );
 
 interface HealthStatusComposerProps {
   record: HealthStatusRecord | null;
@@ -69,15 +73,26 @@ export default function HealthStatusComposer({
   onCancel,
   onSubmittingChange
 }: HealthStatusComposerProps) {
-  const medicines = useAllDerivedMedicines();
   const { saveTodayStatus } = useHealthStatusActions();
   const [values, setValues] = useState<FormValues>(() =>
     makeFormValues(record)
   );
+  const [showMedicationOptions, setShowMedicationOptions] = useState(
+    () =>
+      record?.medicationAdherence !== undefined &&
+      record.medicationAdherence !== DEFAULT_HEALTH_MEDICATION_ADHERENCE
+  );
   const [submitting, setSubmitting] = useState(false);
+  const hasMedicationChange =
+    values.medicationAdherence !== DEFAULT_HEALTH_MEDICATION_ADHERENCE;
+  const medicationOptionsVisible = showMedicationOptions || hasMedicationChange;
 
   useEffect(() => {
     setValues(makeFormValues(record));
+    setShowMedicationOptions(
+      record?.medicationAdherence !== undefined &&
+        record.medicationAdherence !== DEFAULT_HEALTH_MEDICATION_ADHERENCE
+    );
   }, [record]);
 
   useEffect(() => {
@@ -103,15 +118,6 @@ export default function HealthStatusComposer({
       symptomTags: prev.symptomTags.includes(tag)
         ? prev.symptomTags.filter((item) => item !== tag)
         : [...prev.symptomTags, tag]
-    }));
-  };
-
-  const toggleMedicine = (id: string) => {
-    setValues((prev) => ({
-      ...prev,
-      relatedMedicineIds: prev.relatedMedicineIds.includes(id)
-        ? prev.relatedMedicineIds.filter((item) => item !== id)
-        : [...prev.relatedMedicineIds, id]
     }));
   };
 
@@ -159,6 +165,11 @@ export default function HealthStatusComposer({
     }
 
     onCancel();
+  };
+
+  const resetMedicationAdherence = () => {
+    setField('medicationAdherence', DEFAULT_HEALTH_MEDICATION_ADHERENCE);
+    setShowMedicationOptions(false);
   };
 
   return (
@@ -223,58 +234,62 @@ export default function HealthStatusComposer({
       </View>
 
       <View className="health-status-composer__section">
-        <Text className="health-status-composer__section-title">用药情况</Text>
-        <Text className="health-status-composer__helper">
-          默认：{getMedicationAdherenceLabel(DEFAULT_HEALTH_MEDICATION_ADHERENCE)}
-        </Text>
-        <View className="health-status-composer__chips">
-          {HEALTH_MEDICATION_ADHERENCE_OPTIONS.map((option) => {
-            const selected = values.medicationAdherence === option.value;
-            return (
-              <View
-                key={option.value}
-                className={`health-status-composer__chip${selected ? ' health-status-composer__chip--active' : ''}`}
-                role="button"
-                aria-label={`选择${option.label}`}
-                onClick={() => setField('medicationAdherence', option.value)}
-              >
-                <Text className="health-status-composer__chip-text">
-                  {option.label}
-                </Text>
-              </View>
-            );
-          })}
+        <View className="health-status-composer__section-head">
+          <Text className="health-status-composer__section-title">
+            用药情况
+          </Text>
+          {medicationOptionsVisible ? (
+            <View
+              className="health-status-composer__text-action"
+              role="button"
+              aria-label="恢复正常服用"
+              onClick={resetMedicationAdherence}
+            >
+              <Text className="health-status-composer__text-action-label">
+                恢复默认
+              </Text>
+            </View>
+          ) : null}
         </View>
-      </View>
-
-      <View className="health-status-composer__section">
-        <Text className="health-status-composer__section-title">相关药品</Text>
         <Text className="health-status-composer__helper">
-          这里只做相关记录，不表示药品导致这些感受。
+          默认为{getMedicationAdherenceLabel(DEFAULT_HEALTH_MEDICATION_ADHERENCE)}
+          ；只有今天有漏服、延迟、暂停等变化时再记录。
         </Text>
-        {medicines.length > 0 ? (
+        {medicationOptionsVisible ? (
           <View className="health-status-composer__chips">
-            {medicines.map((medicine) => {
-              const selected = values.relatedMedicineIds.includes(medicine.id);
+            {ABNORMAL_HEALTH_MEDICATION_OPTIONS.map((option) => {
+              const selected = values.medicationAdherence === option.value;
               return (
                 <View
-                  key={medicine.id}
+                  key={option.value}
                   className={`health-status-composer__chip${selected ? ' health-status-composer__chip--active' : ''}`}
                   role="button"
-                  aria-label={`${selected ? '取消关联' : '关联'}${medicine.name}`}
-                  onClick={() => toggleMedicine(medicine.id)}
+                  aria-label={`选择${option.label}`}
+                  onClick={() => setField('medicationAdherence', option.value)}
                 >
                   <Text className="health-status-composer__chip-text">
-                    {medicine.name}
+                    {option.label}
                   </Text>
                 </View>
               );
             })}
           </View>
         ) : (
-          <Text className="health-status-composer__empty-related">
-            当前药箱暂无药品，可只记录今天的身体感受。
-          </Text>
+          <View className="health-status-composer__default-row">
+            <Text className="health-status-composer__default-text">
+              默认：{getMedicationAdherenceLabel(DEFAULT_HEALTH_MEDICATION_ADHERENCE)}
+            </Text>
+            <View
+              className="health-status-composer__default-action"
+              role="button"
+              aria-label="记录用药变化"
+              onClick={() => setShowMedicationOptions(true)}
+            >
+              <Text className="health-status-composer__default-action-text">
+                有变化
+              </Text>
+            </View>
+          </View>
         )}
       </View>
 

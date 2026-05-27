@@ -49,15 +49,81 @@
     font-weight: 900;
   }
 
+  &__section-head,
+  &__default-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    min-width: 0;
+  }
+
+  &__text-action,
+  &__default-action {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-pill;
+  }
+
+  &__text-action {
+    min-height: 40px;
+    padding: 0 $spacing-3;
+    background: rgba(21, 122, 102, 0.08);
+  }
+
+  &__text-action-label {
+    color: $primary-deep;
+    font-size: $text-xs;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  &__default-row {
+    min-height: 58px;
+    padding: 0 $spacing-3 0 $spacing-4;
+    border: 1px solid rgba(21, 122, 102, 0.12);
+    border-radius: $radius;
+    background: rgba(216, 241, 232, 0.38);
+  }
+
+  &__default-text {
+    min-width: 0;
+    color: $primary-deep;
+    font-size: $text-base;
+    font-weight: 900;
+    line-height: 1.35;
+  }
+
+  &__default-action {
+    min-height: 42px;
+    padding: 0 $spacing-4;
+    background: $primary;
+  }
+
+  &__default-action-text {
+    color: #fff;
+    font-size: $text-sm;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
   &__required {
     margin-left: 6px;
     color: $danger;
   }
 
-  &__options,
   &__chips {
     display: flex;
     flex-wrap: wrap;
+    gap: $spacing-2;
+    min-width: 0;
+  }
+
+  &__options {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: $spacing-2;
     min-width: 0;
   }
@@ -74,19 +140,15 @@
   }
 
   &__option {
-    min-width: 142px;
+    min-width: 0;
     justify-content: center;
-    padding: 0 $spacing-4;
+    padding: 0 $spacing-2;
     border-radius: $radius;
 
     &--active {
       border-color: $primary;
       background: $primary;
       box-shadow: 0 10px 22px rgba(21, 122, 102, 0.14);
-
-      .health-status-composer__option-text {
-        color: #fff;
-      }
     }
 
     &--good.health-status-composer__option--active {
@@ -124,6 +186,10 @@
 
   &__option--danger &__option-text {
     color: $danger;
+  }
+
+  &__option--active &__option-text {
+    color: #fff;
   }
 
   &__chip {
