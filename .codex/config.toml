@@ -1,0 +1,9 @@
+#:schema https://developers.openai.com/codex/config-schema.json
+
+[features]
+hooks = true
+
+[mcp_servers.taroify]
+command = "npx"
+args = ["-y", "@taroify/mcp"]
+env = {}
