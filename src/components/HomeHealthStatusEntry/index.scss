@@ -27,6 +27,55 @@
     background: linear-gradient(135deg, #fff, color.mix($success-soft, #fff, 64%));
   }
 
+  &--good {
+    border-color: color.mix($success, $line-soft, 26%);
+    background: linear-gradient(135deg, #fff, color.mix($success-soft, #fff, 68%));
+
+    .home-health-status__eyebrow {
+      color: $success;
+    }
+
+    .home-health-status__action {
+      background: $success;
+      box-shadow: 0 10px 18px rgba(31, 134, 87, 0.14);
+    }
+  }
+
+  &--normal {
+    border-color: color.mix($primary, $line-soft, 18%);
+    background: linear-gradient(135deg, #fff, color.mix($primary-soft, #fff, 54%));
+  }
+
+  &--warning {
+    border-color: color.mix($warning, $line-soft, 34%);
+    background: linear-gradient(135deg, #fff, color.mix($warning-soft, #fff, 76%));
+
+    .home-health-status__eyebrow,
+    .home-health-status__hint {
+      color: color.mix($warning, $ink-strong, 70%);
+    }
+
+    .home-health-status__action {
+      background: $warning;
+      box-shadow: 0 10px 18px rgba(184, 108, 30, 0.16);
+    }
+  }
+
+  &--danger {
+    border-color: color.mix($danger, $line-soft, 38%);
+    background: linear-gradient(135deg, #fff, color.mix($danger-soft, #fff, 78%));
+
+    .home-health-status__eyebrow,
+    .home-health-status__hint {
+      color: color.mix($danger, $ink-strong, 70%);
+    }
+
+    .home-health-status__action {
+      background: color.mix($danger, $ink-strong, 86%);
+      box-shadow: 0 10px 18px rgba(202, 78, 65, 0.18);
+    }
+  }
+
   &__copy {
     min-width: 0;
     display: flex;

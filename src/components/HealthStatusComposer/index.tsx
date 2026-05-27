@@ -179,7 +179,7 @@ export default function HealthStatusComposer({
           记录今天的身体感受
         </Text>
         <Text className="health-status-composer__notice-desc">
-          这里记录的是你的主观感受，不做诊断，也不判断是否为药品副作用。
+          这里记录的是你的主观感受，帮助之后回看近期变化。
         </Text>
       </View>
 
@@ -252,7 +252,8 @@ export default function HealthStatusComposer({
           ) : null}
         </View>
         <Text className="health-status-composer__helper">
-          默认为{getMedicationAdherenceLabel(DEFAULT_HEALTH_MEDICATION_ADHERENCE)}
+          默认为
+          {getMedicationAdherenceLabel(DEFAULT_HEALTH_MEDICATION_ADHERENCE)}
           ；只有今天有漏服、延迟、暂停等变化时再记录。
         </Text>
         {medicationOptionsVisible ? (
@@ -277,7 +278,8 @@ export default function HealthStatusComposer({
         ) : (
           <View className="health-status-composer__default-row">
             <Text className="health-status-composer__default-text">
-              默认：{getMedicationAdherenceLabel(DEFAULT_HEALTH_MEDICATION_ADHERENCE)}
+              默认：
+              {getMedicationAdherenceLabel(DEFAULT_HEALTH_MEDICATION_ADHERENCE)}
             </Text>
             <View
               className="health-status-composer__default-action"
