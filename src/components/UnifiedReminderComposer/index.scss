@@ -1,0 +1,51 @@
+@use '@/assets/styles/variables' as *;
+
+.unified-reminder-composer {
+  display: grid;
+  gap: $spacing-4;
+
+  &__switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid $line-soft;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  &__switch-item {
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    transition:
+      background $duration ease,
+      box-shadow $duration ease;
+
+    &--active {
+      background: $primary;
+      box-shadow: 0 10px 22px rgba(21, 122, 102, 0.18);
+
+      .unified-reminder-composer__switch-text {
+        color: #fff;
+      }
+    }
+  }
+
+  &__switch-text {
+    color: $muted;
+    font-size: $text-md;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  &__panel {
+    min-width: 0;
+
+    &--hidden {
+      display: none;
+    }
+  }
+}
