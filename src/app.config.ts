@@ -39,12 +39,6 @@ export default defineAppConfig({
         selectedIconPath: 'assets/tabbar/medicines-active.png'
       },
       {
-        pagePath: 'pages/checkups/index',
-        text: '检查',
-        iconPath: 'assets/tabbar/checkup.png',
-        selectedIconPath: 'assets/tabbar/checkup-active.png'
-      },
-      {
         pagePath: 'pages/profile/index',
         text: '我的',
         iconPath: 'assets/tabbar/user.png',

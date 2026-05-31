@@ -226,10 +226,6 @@ function Home() {
     Taro.switchTab({ url: '/pages/list/index' });
   };
 
-  const handleViewCheckups = () => {
-    Taro.switchTab({ url: '/pages/checkups/index' });
-  };
-
   const openCheckupDetail = (id: string) => {
     setActiveCheckupId(id);
     setCheckupSheetMode('detail');
@@ -355,10 +351,7 @@ function Home() {
         </View>
         <View className="home-subhead__actions">
           <View className="home-subhead__action" onClick={handleViewAll}>
-            <Text>提醒</Text>
-          </View>
-          <View className="home-subhead__action" onClick={handleViewCheckups}>
-            <Text>检查</Text>
+            <Text>全部提醒</Text>
           </View>
         </View>
       </View>
@@ -404,8 +397,8 @@ function Home() {
                 <Text className="home-empty__hint">
                   点击右下角 + 新增开药提醒
                 </Text>
-                <Text className="home-empty__link" onClick={handleViewCheckups}>
-                  检查/复诊提醒可在「检查」页新增
+                <Text className="home-empty__link" onClick={handleViewAll}>
+                  检查/复诊提醒可在「提醒」页新增
                 </Text>
               </>
             ) : null}
