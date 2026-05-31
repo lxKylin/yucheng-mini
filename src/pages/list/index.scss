@@ -55,6 +55,41 @@
   }
 }
 
+.list-type-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: $spacing-3;
+  padding: 6px;
+  border: 1px solid $line-soft;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.list-type-filter {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+
+  &__text {
+    color: $muted;
+    font-size: $text-base;
+    font-weight: 900;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  &--active {
+    background: $primary;
+
+    .list-type-filter__text {
+      color: #fff;
+    }
+  }
+}
+
 .list-filter {
   flex-shrink: 0;
   min-height: 52px;
