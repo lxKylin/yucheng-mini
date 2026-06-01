@@ -17,18 +17,7 @@
 - 遵循函数式组件 + Hooks 模式
 - 确保类型安全,完善 TypeScript 类型定义
 - 使用 **Zustand** 进行全局状态管理。
-- 必须优先使用 `taroify` 提供的组件，其没有适合的组件时再使用 `taro-ui`，可以通过 `MCP` 来检索组件：
-  ```json
-  {
-    "mcpServers": {
-      "@taroify/mcp": {
-        "command": "npx",
-        "args": ["-y", "@taroify/mcp"],
-        "env": {}
-      }
-    }
-  }
-  ```
+- 必须优先使用 `taroify` 提供的组件，其没有适合的组件时再使用 `taro-ui`，可以通过 `@taroify/mcp` 来检索组件及文档
 
 ### 开发规则
 

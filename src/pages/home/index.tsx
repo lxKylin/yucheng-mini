@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react';
 import { EyeOutlined, Success } from '@taroify/icons';
 import { Text, View } from '@tarojs/components';
-import Taro, { useLoad, useShareAppMessage, useShareTimeline } from '@tarojs/taro';
+import Taro, {
+  useLoad,
+  useShareAppMessage,
+  useShareTimeline
+} from '@tarojs/taro';
 
 import { REMINDER_STATUS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
@@ -14,6 +18,7 @@ import FloatingAddReminder from '@/components/FloatingAddReminder';
 import HomeHealthStatusEntry from '@/components/HomeHealthStatusEntry';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
+import UnifiedReminderComposer from '@/components/UnifiedReminderComposer';
 import { useDerivedCheckups } from '@/hooks/useCheckups';
 import {
   type HomeRiskFeedItem,
@@ -141,6 +146,8 @@ function Home() {
   const allCheckups = useDerivedCheckups();
   const riskFeed = useHomeRiskFeed({ limit: 3 });
   const { markDone } = useReminderActions();
+  const medicineSheetTitle =
+    sheetMode === 'form' && !editReminderId ? '新增提醒' : sheetTitle;
 
   const doneTarget =
     doneReminderId === null
@@ -304,7 +311,6 @@ function Home() {
       withShareTicket: true,
       showShareItems: ['shareAppMessage', 'shareTimeline']
     });
-    console.log('home page loaded');
   });
 
   useShareAppMessage(() => ({
@@ -382,7 +388,7 @@ function Home() {
         ) : (
           <View className="home-empty home-empty--card">
             <Text className="home-empty__badge">
-              {hasRecords ? '当前节奏稳定' : '开始建立开药提醒'}
+              {hasRecords ? '当前节奏稳定' : '开始建立提醒'}
             </Text>
             <Text className="home-empty__title">
               {hasRecords ? '暂无待处理事项' : '还没有提醒'}
@@ -390,15 +396,13 @@ function Home() {
             <Text className="home-empty__desc">
               {hasRecords
                 ? '你最近没有需要立即处理的任务，下一次临近提醒会优先显示在这里。'
-                : '先建立第一条开药提醒，首页会优先显示逾期、今天和临近事项。'}
+                : '先建立第一条提醒，首页会优先显示逾期、今天和临近事项。'}
             </Text>
             {!hasRecords ? (
               <>
-                <Text className="home-empty__hint">
-                  点击右下角 + 新增开药提醒
-                </Text>
+                <Text className="home-empty__hint">点击右下角 + 新增提醒</Text>
                 <Text className="home-empty__link" onClick={handleViewAll}>
-                  检查/复诊提醒可在「提醒」页新增
+                  也可前往提醒页管理全部提醒
                 </Text>
               </>
             ) : null}
@@ -407,6 +411,7 @@ function Home() {
       </View>
 
       <FloatingAddReminder
+        ariaLabel="新增提醒"
         hidden={
           sheetActive ||
           healthStatusSheetOpen ||
@@ -419,7 +424,7 @@ function Home() {
 
       <BottomSheet
         open={sheetOpen}
-        title={sheetTitle}
+        title={medicineSheetTitle}
         onClose={closeSheet}
         onAfterClose={handleSheetExited}
       >
@@ -430,11 +435,18 @@ function Home() {
             onEdit={openEdit}
           />
         ) : null}
-        {sheetMode === 'form' ? (
+        {sheetMode === 'form' && editReminderId ? (
           <MedicineComposer
             key={formKey}
             medicineId={editReminderId}
             defaultReminderEnabled={true}
+            onSuccess={handleFormSuccess}
+            onCancel={closeSheet}
+          />
+        ) : null}
+        {sheetMode === 'form' && !editReminderId ? (
+          <UnifiedReminderComposer
+            resetKey={formKey}
             onSuccess={handleFormSuccess}
             onCancel={closeSheet}
           />

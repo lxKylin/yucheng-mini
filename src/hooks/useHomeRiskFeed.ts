@@ -149,7 +149,7 @@ export function useHomeRiskFeed(options: HomeRiskFeedOptions = {}) {
           item.nextRemindDate,
           item.remindTime
         ),
-        primaryActionLabel: '记录已开药',
+        primaryActionLabel: '已开药',
         item
       }));
     const checkupItems: HomeRiskFeedItem[] = checkups
@@ -173,7 +173,7 @@ export function useHomeRiskFeed(options: HomeRiskFeedOptions = {}) {
           item.remindDate,
           item.remindTime
         ),
-        primaryActionLabel: '完成检查',
+        primaryActionLabel: '已检查',
         item
       }));
     const candidates = [...medicineItems, ...checkupItems].sort((a, b) => {

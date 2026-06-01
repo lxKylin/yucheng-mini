@@ -328,7 +328,7 @@ function CheckupsPage() {
               <CheckupCard
                 key={item.id}
                 item={item}
-                onClick={() => openDetail(item.id)}
+                onDetail={() => openDetail(item.id)}
                 onComplete={() => openCompletion(item.id)}
               />
             ))}

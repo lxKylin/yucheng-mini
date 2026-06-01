@@ -45,6 +45,33 @@
     gap: 12px;
   }
 
+  &__title-wrap {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__type-tag {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: $radius-pill;
+    background: $primary-soft;
+  }
+
+  &__type-tag-text {
+    color: $primary-deep;
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
   &__name {
     flex: 1;
     min-width: 0;

@@ -293,19 +293,24 @@ function ListPage() {
       <CheckupCard
         key={entry.listKey}
         item={entry.item}
-        onClick={() => openCheckupDetail(entry.id)}
+        onDetail={() => openCheckupDetail(entry.id)}
         onComplete={() => openCompletion(entry.id)}
       />
     );
   };
 
-  const emptyText = searchTerm.trim()
-    ? '没有符合条件的提醒'
-    : activeType === 'checkup'
-      ? '还没有检查提醒，点击下方 + 添加'
-      : activeType === 'medicine'
-        ? '还没有开药提醒，点击下方 + 添加'
-        : '暂无提醒，点击下方 + 添加';
+  const activeTypeCount =
+    activeType === 'all' ? sourceTotal : counts.type[activeType];
+  const emptyText =
+    sourceTotal === 0
+      ? '暂无提醒，点击下方 + 添加'
+      : searchTerm.trim()
+        ? '没有符合条件的提醒'
+        : activeTypeCount === 0
+          ? activeType === 'checkup'
+            ? '还没有检查提醒，点击下方 + 添加'
+            : '还没有开药提醒，点击下方 + 添加'
+          : '当前筛选没有结果，换个状态试试';
   const sheetActive =
     createOpen ||
     medicineSheetOpen ||

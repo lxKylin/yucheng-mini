@@ -174,16 +174,16 @@ export default function CheckupDetail({
           </Button>
         ) : null}
         {!done ? (
-          <Button className="checkup-detail__ghost" onClick={handleTogglePause}>
-            {paused ? '恢复提醒' : '暂停提醒'}
-          </Button>
-        ) : null}
-        {!done ? (
           <Button
             className="checkup-detail__primary"
             onClick={() => onEdit(item.id)}
           >
             编辑提醒
+          </Button>
+        ) : null}
+        {!done ? (
+          <Button className="checkup-detail__ghost" onClick={handleTogglePause}>
+            {paused ? '恢复提醒' : '暂停提醒'}
           </Button>
         ) : null}
         <Button className="checkup-detail__danger" onClick={handleDelete}>

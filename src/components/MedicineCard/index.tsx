@@ -41,7 +41,12 @@ export default function MedicineCard({
       className={`medicine-card medicine-card--${accentColor}${item.status === REMINDER_STATUS.PAUSED ? ' medicine-card--paused' : ''}`}
     >
       <View className="medicine-card__header">
-        <Text className="medicine-card__name">{item.name}</Text>
+        <View className="medicine-card__title-wrap">
+          <View className="medicine-card__type-tag">
+            <Text className="medicine-card__type-tag-text">开药</Text>
+          </View>
+          <Text className="medicine-card__name">{item.name}</Text>
+        </View>
         <StatusTag level={item.level} label={item.levelLabel} />
       </View>
       <Text className="medicine-card__meta">

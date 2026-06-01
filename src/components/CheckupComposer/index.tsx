@@ -152,7 +152,7 @@ export default function CheckupComposer({
 
     if (!values.targetDate) {
       Taro.showToast({
-        title: '请选择目标日期',
+        title: '请选择检查日期',
         icon: 'none',
         duration: 1500
       });
@@ -277,7 +277,7 @@ export default function CheckupComposer({
         <View className="checkup-composer__grid">
           <View className="checkup-composer__field">
             <Text className="checkup-composer__label">
-              目标日期
+              检查日期
               <Text className="checkup-composer__required">*</Text>
             </Text>
             <Picker
