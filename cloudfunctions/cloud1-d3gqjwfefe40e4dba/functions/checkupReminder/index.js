@@ -165,7 +165,7 @@ async function sendSubscribeMessage({ openId, checkup }) {
     body: {
       touser: openId,
       template_id: TEMPLATE_ID,
-      page: 'pages/checkups/index',
+      page: 'pages/list/index',
       lang: 'zh_CN',
       data: {
         thing3: {

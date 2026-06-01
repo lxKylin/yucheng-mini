@@ -3,7 +3,6 @@ export default defineAppConfig({
     'pages/home/index',
     'pages/list/index',
     'pages/medicines/index',
-    'pages/checkups/index',
     'pages/profile/index',
     'pages/health-status-records/index'
   ],
