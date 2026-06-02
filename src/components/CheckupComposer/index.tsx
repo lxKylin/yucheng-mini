@@ -207,9 +207,6 @@ export default function CheckupComposer({
   return (
     <View className="checkup-composer">
       <View className="checkup-composer__notice">
-        <Text className="checkup-composer__notice-title">
-          复诊和检查独立管理
-        </Text>
         <Text className="checkup-composer__notice-desc">
           可关联药品，也可以只作为复诊、化验或影像检查的单独提醒。
         </Text>

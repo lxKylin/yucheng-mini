@@ -15,6 +15,7 @@ import Taro, {
 } from '@tarojs/taro';
 
 import BottomSheet from '@/components/BottomSheet';
+import GlobalReminderComposerHost from '@/components/GlobalReminderComposerHost';
 import ProfileHealthSummary from '@/components/ProfileHealthSummary';
 import {
   AUTHOR_WECHAT_ID,
@@ -448,6 +449,8 @@ function Profile() {
           <Text>通知记录功能将在 M7 中实现。</Text>
         </View>
       </BottomSheet>
+
+      <GlobalReminderComposerHost pagePath="pages/profile/index" />
     </View>
   );
 }

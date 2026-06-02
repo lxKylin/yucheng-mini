@@ -11,6 +11,7 @@ import { Search } from '@taroify/icons';
 import { MEDICINE_FORM_OPTIONS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
 import FloatingAddReminder from '@/components/FloatingAddReminder';
+import GlobalReminderComposerHost from '@/components/GlobalReminderComposerHost';
 import ListLoadStatus from '@/components/ListLoadStatus';
 import MedicineComposer from '@/components/MedicineComposer';
 import MedicineInventoryCard from '@/components/MedicineInventoryCard';
@@ -255,6 +256,8 @@ const Medicines = () => {
         hidden={sheetActive}
         onClick={() => openCreate(false)}
       />
+
+      <GlobalReminderComposerHost pagePath="pages/medicines/index" />
 
       <BottomSheet
         open={sheetOpen}

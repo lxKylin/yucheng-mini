@@ -4,20 +4,20 @@ import { ScrollView, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { Popup } from '@taroify/core';
 
+import { bottomSheetStore } from '@/store/bottomSheetStore';
+
 import './index.scss';
 
 let activeSheetCount = 0;
 
 function registerActiveSheet() {
   activeSheetCount += 1;
+  bottomSheetStore.getState().register();
 }
 
 function unregisterActiveSheet() {
   activeSheetCount = Math.max(0, activeSheetCount - 1);
-}
-
-function shouldShowTabBar() {
-  return activeSheetCount === 0;
+  bottomSheetStore.getState().unregister();
 }
 
 interface BottomSheetProps {
@@ -60,10 +60,6 @@ export default function BottomSheet({
 
       registeredRef.current = false;
       unregisterActiveSheet();
-
-      if (shouldShowTabBar()) {
-        void Taro.showTabBar({ animation: false }).catch(() => undefined);
-      }
     };
   }, []);
 
@@ -85,10 +81,6 @@ export default function BottomSheet({
     if (registeredRef.current) {
       registeredRef.current = false;
       unregisterActiveSheet();
-
-      if (shouldShowTabBar()) {
-        void Taro.showTabBar({ animation: false }).catch(() => undefined);
-      }
     }
 
     onAfterClose?.();

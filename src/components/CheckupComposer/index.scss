@@ -18,17 +18,10 @@
     background: $primary-soft;
   }
 
-  &__notice-title {
-    color: $primary-deep;
-    font-size: $text-md;
-    font-weight: 900;
-    line-height: 1.35;
-  }
-
   &__notice-desc,
   &__helper,
   &__empty-related {
-    color: $muted;
+    color: $primary;
     font-size: $text-sm;
     line-height: 1.6;
   }

@@ -1,0 +1,86 @@
+@use '../assets/styles/variables' as *;
+
+.custom-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+}
+
+.custom-tab-bar__shell {
+  position: relative;
+  min-height: 112px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 10px 18px 12px;
+  border-top: 1px solid $line-soft;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 -12px 32px rgba(16, 59, 50, 0.1);
+}
+
+.custom-tab-bar__side {
+  width: calc((100% - 132px) / 2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.custom-tab-bar__item {
+  min-width: 0;
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: $quiet;
+}
+
+.custom-tab-bar__item--active {
+  color: $primary;
+}
+
+.custom-tab-bar__icon {
+  width: 44px;
+  height: 44px;
+  display: block;
+}
+
+.custom-tab-bar__text {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.custom-tab-bar__add {
+  position: absolute;
+  left: 50%;
+  top: -36px;
+  width: 108px;
+  height: 108px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 8px solid rgba(255, 255, 255, 0.98);
+  border-radius: 50%;
+  background: linear-gradient(135deg, $primary, $primary-deep);
+  box-shadow: 0 18px 36px rgba(12, 91, 75, 0.28);
+  transform: translateX(-50%);
+}
+
+.custom-tab-bar__add--disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.custom-tab-bar__add-icon {
+  color: #fff;
+  font-size: 48px;
+  font-weight: 400;
+  line-height: 1;
+}

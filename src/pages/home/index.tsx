@@ -14,11 +14,10 @@ import CheckupComposer from '@/components/CheckupComposer';
 import CheckupDetail from '@/components/CheckupDetail';
 import CheckupRestartSheet from '@/components/CheckupRestartSheet';
 import DoneDateSheet from '@/components/DoneDateSheet';
-import FloatingAddReminder from '@/components/FloatingAddReminder';
+import GlobalReminderComposerHost from '@/components/GlobalReminderComposerHost';
 import HomeHealthStatusEntry from '@/components/HomeHealthStatusEntry';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
-import UnifiedReminderComposer from '@/components/UnifiedReminderComposer';
 import { useDerivedCheckups } from '@/hooks/useCheckups';
 import {
   type HomeRiskFeedItem,
@@ -124,21 +123,18 @@ function Home() {
   const [pendingCheckupAction, setPendingCheckupAction] =
     useState<PendingCheckupAction | null>(null);
   const [checkupFormKey, setCheckupFormKey] = useState(0);
-  const [healthStatusSheetOpen, setHealthStatusSheetOpen] = useState(false);
   useTabScrollToTop();
 
   const {
     detailId,
     editReminderId,
     formKey,
-    sheetActive,
     sheetMode,
     sheetOpen,
     sheetTitle,
     closeSheet,
     handleFormSuccess,
     handleSheetExited,
-    openCreate,
     openDetail,
     openEdit
   } = useReminderSheet();
@@ -146,8 +142,6 @@ function Home() {
   const allCheckups = useDerivedCheckups();
   const riskFeed = useHomeRiskFeed({ limit: 3 });
   const { markDone } = useReminderActions();
-  const medicineSheetTitle =
-    sheetMode === 'form' && !editReminderId ? '新增提醒' : sheetTitle;
 
   const doneTarget =
     doneReminderId === null
@@ -348,7 +342,7 @@ function Home() {
         </View>
       </View>
 
-      <HomeHealthStatusEntry onOpenChange={setHealthStatusSheetOpen} />
+      <HomeHealthStatusEntry />
 
       <View className="home-subhead">
         <View className="home-subhead__main">
@@ -400,7 +394,7 @@ function Home() {
             </Text>
             {!hasRecords ? (
               <>
-                <Text className="home-empty__hint">点击右下角 + 新增提醒</Text>
+                <Text className="home-empty__hint">点击底部中间 + 新增提醒</Text>
                 <Text className="home-empty__link" onClick={handleViewAll}>
                   也可前往提醒页管理全部提醒
                 </Text>
@@ -410,21 +404,11 @@ function Home() {
         )}
       </View>
 
-      <FloatingAddReminder
-        ariaLabel="新增提醒"
-        hidden={
-          sheetActive ||
-          healthStatusSheetOpen ||
-          checkupSheetOpen ||
-          completionTarget !== null ||
-          restartTarget !== null
-        }
-        onClick={() => openCreate(true)}
-      />
+      <GlobalReminderComposerHost pagePath="pages/home/index" />
 
       <BottomSheet
         open={sheetOpen}
-        title={medicineSheetTitle}
+        title={sheetTitle}
         onClose={closeSheet}
         onAfterClose={handleSheetExited}
       >
@@ -440,13 +424,6 @@ function Home() {
             key={formKey}
             medicineId={editReminderId}
             defaultReminderEnabled={true}
-            onSuccess={handleFormSuccess}
-            onCancel={closeSheet}
-          />
-        ) : null}
-        {sheetMode === 'form' && !editReminderId ? (
-          <UnifiedReminderComposer
-            resetKey={formKey}
             onSuccess={handleFormSuccess}
             onCancel={closeSheet}
           />

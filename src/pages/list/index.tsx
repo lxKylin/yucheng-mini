@@ -16,12 +16,11 @@ import CheckupComposer from '@/components/CheckupComposer';
 import CheckupDetail from '@/components/CheckupDetail';
 import CheckupRestartSheet from '@/components/CheckupRestartSheet';
 import DoneDateSheet from '@/components/DoneDateSheet';
-import FloatingAddReminder from '@/components/FloatingAddReminder';
+import GlobalReminderComposerHost from '@/components/GlobalReminderComposerHost';
 import ListLoadStatus from '@/components/ListLoadStatus';
 import MedicineCard from '@/components/MedicineCard';
 import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
-import UnifiedReminderComposer from '@/components/UnifiedReminderComposer';
 import { useDerivedCheckups } from '@/hooks/useCheckups';
 import { useIncrementalList } from '@/hooks/useIncrementalList';
 import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
@@ -53,8 +52,6 @@ function ListPage() {
   const [activeType, setActiveType] = useState<UnifiedReminderType>('all');
   const [activeStatus, setActiveStatus] =
     useState<UnifiedReminderStatus>('all');
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createKey, setCreateKey] = useState(0);
   const [medicineSheetOpen, setMedicineSheetOpen] = useState(false);
   const [medicineSheetMode, setMedicineSheetMode] =
     useState<MedicineSheetMode>(null);
@@ -134,15 +131,6 @@ function ListPage() {
       loadMore();
     }
   });
-
-  const openCreate = () => {
-    setCreateKey((key) => key + 1);
-    setCreateOpen(true);
-  };
-
-  const closeCreate = () => {
-    setCreateOpen(false);
-  };
 
   const openMedicineDetail = (id: string) => {
     setActiveMedicineId(id);
@@ -303,21 +291,14 @@ function ListPage() {
     activeType === 'all' ? sourceTotal : counts.type[activeType];
   const emptyText =
     sourceTotal === 0
-      ? '暂无提醒，点击下方 + 添加'
+      ? '暂无提醒，点击底部 + 添加'
       : searchTerm.trim()
         ? '没有符合条件的提醒'
         : activeTypeCount === 0
           ? activeType === 'checkup'
-            ? '还没有检查提醒，点击下方 + 添加'
-            : '还没有开药提醒，点击下方 + 添加'
+            ? '还没有检查提醒，点击底部 + 添加'
+            : '还没有开药提醒，点击底部 + 添加'
           : '当前筛选没有结果，换个状态试试';
-  const sheetActive =
-    createOpen ||
-    medicineSheetOpen ||
-    checkupSheetOpen ||
-    doneTarget !== null ||
-    completionTarget !== null ||
-    restartTarget !== null;
 
   Taro.useLoad(() => {
     Taro.showShareMenu({
@@ -405,19 +386,7 @@ function ListPage() {
         )}
       </View>
 
-      <FloatingAddReminder
-        ariaLabel="新增提醒"
-        hidden={sheetActive}
-        onClick={openCreate}
-      />
-
-      <BottomSheet open={createOpen} title="新增提醒" onClose={closeCreate}>
-        <UnifiedReminderComposer
-          resetKey={createKey}
-          onSuccess={closeCreate}
-          onCancel={closeCreate}
-        />
-      </BottomSheet>
+      <GlobalReminderComposerHost pagePath="pages/list/index" />
 
       <BottomSheet
         open={medicineSheetOpen}
