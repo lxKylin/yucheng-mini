@@ -394,7 +394,7 @@ function Home() {
             </Text>
             {!hasRecords ? (
               <>
-                <Text className="home-empty__hint">点击底部中间 + 新增提醒</Text>
+                <Text className="home-empty__hint">点击底部中间 + 新增</Text>
                 <Text className="home-empty__link" onClick={handleViewAll}>
                   也可前往提醒页管理全部提醒
                 </Text>

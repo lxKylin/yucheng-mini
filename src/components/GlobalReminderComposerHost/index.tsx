@@ -63,13 +63,14 @@ export default function GlobalReminderComposerHost({
       <CustomTabBar />
       <BottomSheet
         open={sheetOpen}
-        title="新增提醒"
+        title="新增"
         onClose={handleClose}
         onAfterClose={handleAfterClose}
       >
         <UnifiedReminderComposer
           resetKey={resetKey}
           defaultType="medicine"
+          defaultMedicineReminderEnabled={false}
           onSuccess={handleClose}
           onCancel={handleClose}
         />

@@ -121,7 +121,7 @@ export default function CustomTabBar() {
             addDisabled ? ' custom-tab-bar__add--disabled' : ''
           }`}
           role="button"
-          aria-label="新增提醒"
+          aria-label="新增"
           aria-disabled={addDisabled}
           onClick={handleAddReminder}
         >

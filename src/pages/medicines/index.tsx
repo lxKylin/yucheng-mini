@@ -10,7 +10,6 @@ import { Search } from '@taroify/icons';
 
 import { MEDICINE_FORM_OPTIONS, SHARE_IMAGE, SHARE_PATH } from '@/constants';
 import BottomSheet from '@/components/BottomSheet';
-import FloatingAddReminder from '@/components/FloatingAddReminder';
 import GlobalReminderComposerHost from '@/components/GlobalReminderComposerHost';
 import ListLoadStatus from '@/components/ListLoadStatus';
 import MedicineComposer from '@/components/MedicineComposer';
@@ -68,14 +67,12 @@ const Medicines = () => {
     defaultReminderEnabled,
     editReminderId,
     formKey,
-    sheetActive,
     sheetMode,
     sheetOpen,
     sheetTitle,
     closeSheet,
     handleFormSuccess,
     handleSheetExited,
-    openCreate,
     openEdit
   } = useReminderSheet();
 
@@ -250,12 +247,6 @@ const Medicines = () => {
           </View>
         )}
       </View>
-
-      <FloatingAddReminder
-        ariaLabel="新增药品"
-        hidden={sheetActive}
-        onClick={() => openCreate(false)}
-      />
 
       <GlobalReminderComposerHost pagePath="pages/medicines/index" />
 

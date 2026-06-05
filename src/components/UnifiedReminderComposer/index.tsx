@@ -10,18 +10,20 @@ type ReminderType = 'medicine' | 'checkup';
 
 interface UnifiedReminderComposerProps {
   defaultType?: ReminderType;
+  defaultMedicineReminderEnabled?: boolean;
   resetKey: number;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
 const TYPE_OPTIONS: Array<{ key: ReminderType; label: string }> = [
-  { key: 'medicine', label: '开药提醒' },
+  { key: 'medicine', label: '药品' },
   { key: 'checkup', label: '检查提醒' }
 ];
 
 export default function UnifiedReminderComposer({
   defaultType = 'medicine',
+  defaultMedicineReminderEnabled = false,
   resetKey,
   onSuccess,
   onCancel
@@ -74,7 +76,7 @@ export default function UnifiedReminderComposer({
       >
         <MedicineComposer
           key={medicineKey}
-          defaultReminderEnabled
+          defaultReminderEnabled={defaultMedicineReminderEnabled}
           onSuccess={onSuccess}
           onCancel={onCancel}
         />
