@@ -1,17 +1,22 @@
 @use '@/assets/styles/variables' as *;
 
 .health-metric-page {
+  width: 100%;
   min-height: 100vh;
   padding: $spacing-4 $spacing-4 120px;
+  box-sizing: border-box;
+  overflow-x: hidden;
   background: $bg;
 
   &__hero,
-  &__status {
+  &__status,
+  &__inline-status {
     padding: $spacing-5;
     border-radius: $radius-lg;
     background: $surface-raised;
     border: 1px solid $line-soft;
     box-shadow: $shadow-card;
+    box-sizing: border-box;
   }
 
   &__hero {
@@ -19,6 +24,7 @@
     align-items: center;
     justify-content: space-between;
     gap: $spacing-4;
+    min-width: 0;
   }
 
   &__eyebrow,
@@ -70,6 +76,13 @@
     display: grid;
     gap: $spacing-4;
     margin-top: $spacing-4;
+    min-width: 0;
+  }
+
+  &__inline-status {
+    display: grid;
+    gap: $spacing-3;
+    margin-top: 0;
   }
 
   &__status-title {

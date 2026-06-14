@@ -22,9 +22,9 @@
 
 | 索引名 | 字段 | 用途 |
 | --- | --- | --- |
-| `idx_user_openid_date` | `_openid` 升序、`date` 降序 | 按用户和日期窗口加载记录 |
-| `idx_userid_date` | `userId` 升序、`date` 降序 | 按显式用户 ID 和日期窗口加载记录 |
+| `idx_user_openid_metric_date` | `_openid` 升序、`metricTypeId` 升序、`date` 降序 | 兼容微信云开发默认用户查询某指标的趋势和最近记录 |
 | `idx_userid_metric_date` | `userId` 升序、`metricTypeId` 升序、`date` 降序 | 查询某指标的趋势和最近记录 |
+| `idx_user_openid_metric_same_day` | `_openid` 升序、`metricTypeId` 升序、`date` 升序 | 兼容微信云开发默认用户查询同日同指标记录 |
 | `idx_userid_metric_same_day` | `userId` 升序、`metricTypeId` 升序、`date` 升序 | 保存前查找同日同指标记录 |
 
 同一天同一指标的唯一性由保存逻辑先查后写保证；云数据库索引用于降低查询成本。

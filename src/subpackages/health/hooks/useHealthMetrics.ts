@@ -32,12 +32,10 @@ export function useHealthMetricPageState() {
     () =>
       currentMetric
         ? sortHealthMetricRecords(
-            state.records.filter(
-              (record) => record.metricTypeId === currentMetric.id
-            )
+            state.recordsByMetricId[currentMetric.id] ?? []
           )
         : [],
-    [currentMetric, state.records]
+    [currentMetric, state.recordsByMetricId]
   );
   const trendPoints = useMemo(
     () =>
@@ -50,15 +48,24 @@ export function useHealthMetricPageState() {
   );
   const summaries = useMemo<HealthMetricSummary[]>(
     () =>
-      state.metricTypes.map((metric) => ({
-        metric,
-        latestRecord: getLatestHealthMetricRecord(state.records, metric.id),
-        recordCount: state.records.filter(
-          (record) => record.metricTypeId === metric.id
-        ).length
-      })),
-    [state.metricTypes, state.records]
+      state.metricTypes.map((metric) => {
+        const records = state.recordsByMetricId[metric.id] ?? [];
+
+        return {
+          metric,
+          latestRecord: getLatestHealthMetricRecord(records, metric.id),
+          recordCount: records.length
+        };
+      }),
+    [state.metricTypes, state.recordsByMetricId]
   );
+  const recordsLoading =
+    Boolean(state.selectedMetricTypeId) &&
+    state.recordsLoadingMetricTypeId === state.selectedMetricTypeId;
+  const recordsError =
+    state.recordsErrorMetricTypeId === state.selectedMetricTypeId
+      ? state.recordsError
+      : '';
 
   return {
     ...state,
@@ -67,6 +74,8 @@ export function useHealthMetricPageState() {
     trendPoints,
     recentRecords,
     summaries,
+    recordsLoading,
+    recordsError,
     isEmpty:
       !state.loading && !state.error && state.metricTypes.length === 0
   };
@@ -80,11 +89,26 @@ export function useHealthMetricActions() {
       load: state.load,
       retryLoad: state.retryLoad,
       selectMetric: state.selectMetric,
+      loadMetricRecords: state.loadMetricRecords,
+      retryCurrentRecords: () =>
+        state.selectedMetricTypeId
+          ? state.loadMetricRecords(state.selectedMetricTypeId, { force: true })
+          : Promise.resolve(),
       createMetricType: state.createMetricType,
       updateMetricType: state.updateMetricType,
       saveRecord: state.saveRecord,
       findSameDayRecord: state.findSameDayRecord
     }),
-    [state]
+    [
+      state.createMetricType,
+      state.findSameDayRecord,
+      state.load,
+      state.loadMetricRecords,
+      state.retryLoad,
+      state.saveRecord,
+      state.selectMetric,
+      state.selectedMetricTypeId,
+      state.updateMetricType
+    ]
   );
 }

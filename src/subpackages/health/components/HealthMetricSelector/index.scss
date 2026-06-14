@@ -3,18 +3,23 @@
 .metric-selector {
   display: grid;
   gap: $spacing-3;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 
   &__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: $spacing-3;
+    min-width: 0;
   }
 
   &__title {
     color: $ink-strong;
     font-size: $text-md;
     font-weight: 900;
+    min-width: 0;
   }
 
   &__actions {
@@ -46,6 +51,8 @@
 
   &__scroll {
     width: 100%;
+    min-width: 0;
+    overflow: hidden;
   }
 
   &__list {
@@ -63,6 +70,7 @@
     display: inline-flex;
     align-items: center;
     flex: 0 0 auto;
+    max-width: 280px;
     padding: 0 2px;
     box-sizing: border-box;
 
@@ -99,6 +107,10 @@
   }
 
   &__name {
+    display: block;
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     color: $ink-strong;
     font-size: $text-base;
     font-weight: 900;

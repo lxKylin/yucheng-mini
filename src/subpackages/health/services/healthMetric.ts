@@ -9,6 +9,14 @@ import { sortHealthMetricRecords } from '@/subpackages/health/utils/healthMetric
 const TYPE_COL = 'healthMetricTypes';
 const RECORD_COL = 'healthMetricRecords';
 const DOC_LIMIT = 100;
+const RECORD_LIMIT = 20;
+
+interface FetchHealthMetricRecordsOptions {
+  metricTypeId: string;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+}
 
 type HealthMetricTypeCloudRecord = Partial<HealthMetricType> & {
   _id?: string | number;
@@ -129,15 +137,19 @@ export async function fetchHealthMetricTypes(): Promise<HealthMetricType[]> {
   }
 }
 
-export async function fetchHealthMetricRecords(
-  startDate?: string,
-  endDate?: string
-): Promise<HealthMetricRecord[]> {
+export async function fetchHealthMetricRecords({
+  metricTypeId,
+  startDate,
+  endDate,
+  limit = RECORD_LIMIT
+}: FetchHealthMetricRecordsOptions): Promise<HealthMetricRecord[]> {
   const userId = getUserId();
-  if (!userId) return [];
+  if (!userId || !metricTypeId) return [];
 
   const db = Taro.cloud.database();
   const _ = db.command;
+  const queryLimit =
+    Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : RECORD_LIMIT;
   const dateQuery =
     startDate && endDate
       ? {
@@ -149,10 +161,11 @@ export async function fetchHealthMetricRecords(
     return getCollection(RECORD_COL)
       .where({
         [field]: userId,
+        metricTypeId,
         ...dateQuery
       })
-      .limit(DOC_LIMIT)
       .orderBy('date', 'desc')
+      .limit(queryLimit)
       .get();
   }
 

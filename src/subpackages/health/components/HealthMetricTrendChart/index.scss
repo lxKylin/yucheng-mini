@@ -3,17 +3,22 @@
 .metric-trend {
   display: grid;
   gap: $spacing-3;
+  width: 100%;
+  min-width: 0;
   padding: $spacing-5;
   border-radius: $radius-lg;
   background: $surface-raised;
   border: 1px solid $line-soft;
   box-shadow: $shadow-card;
+  box-sizing: border-box;
+  overflow: hidden;
 
   &__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: $spacing-3;
+    min-width: 0;
   }
 
   &__title,
@@ -25,8 +30,18 @@
     line-height: 1.3;
   }
 
+  &__title-wrap {
+    min-width: 0;
+  }
+
   &__unit {
+    min-width: 0;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: $primary-deep;
+    text-align: right;
   }
 
   &__empty-action {
@@ -45,6 +60,7 @@
   &__plot {
     position: relative;
     height: 360px;
+    min-width: 0;
     overflow: hidden;
     border-radius: $radius;
     background: linear-gradient(
@@ -56,6 +72,7 @@
 
   &__scroll {
     width: 100%;
+    min-width: 0;
     height: 100%;
     white-space: nowrap;
   }
@@ -87,6 +104,9 @@
     font-size: 22px;
     font-weight: 900;
     line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__static {
@@ -157,6 +177,7 @@
     justify-items: start;
     gap: $spacing-2;
     min-height: 260px;
+    min-width: 0;
     align-content: center;
     padding: $spacing-5;
     border-radius: $radius;
@@ -173,5 +194,6 @@
     color: $muted;
     font-size: $text-xs;
     line-height: 1.6;
+    word-break: break-word;
   }
 }

@@ -14,7 +14,6 @@ import type { HealthMetricRecord, HealthMetricType } from '@/types';
 import { genId } from '@/utils/commonUtils';
 import {
   findSameDayHealthMetricRecord,
-  pickDefaultHealthMetricId,
   sortHealthMetricRecords
 } from '@/subpackages/health/utils/healthMetricUtils';
 
@@ -32,14 +31,22 @@ interface SaveHealthMetricRecordPayload {
 
 interface HealthMetricStore {
   metricTypes: HealthMetricType[];
-  records: HealthMetricRecord[];
+  recordsByMetricId: Record<string, HealthMetricRecord[]>;
+  recordLoadedByMetricId: Record<string, boolean>;
   selectedMetricTypeId: string;
   loading: boolean;
   error: string;
+  recordsLoadingMetricTypeId: string;
+  recordsErrorMetricTypeId: string;
+  recordsError: string;
   submitting: boolean;
   load: () => Promise<void>;
   retryLoad: () => Promise<void>;
   selectMetric: (metricTypeId: string) => void;
+  loadMetricRecords: (
+    metricTypeId: string,
+    options?: { force?: boolean }
+  ) => Promise<void>;
   createMetricType: (
     payload: Pick<HealthMetricType, 'name' | 'unit' | 'referenceMin' | 'referenceMax'>
   ) => Promise<HealthMetricType>;
@@ -58,26 +65,28 @@ interface HealthMetricStore {
 
 export const healthMetricStore = createStore<HealthMetricStore>((set, get) => ({
   metricTypes: [],
-  records: [],
+  recordsByMetricId: {},
+  recordLoadedByMetricId: {},
   selectedMetricTypeId: '',
   loading: false,
   error: '',
+  recordsLoadingMetricTypeId: '',
+  recordsErrorMetricTypeId: '',
+  recordsError: '',
   submitting: false,
 
   async load() {
     set({ loading: true, error: '' });
 
     try {
-      const [metricTypes, records] = await Promise.all([
-        fetchHealthMetricTypes(),
-        fetchHealthMetricRecords()
-      ]);
+      const metricTypes = await fetchHealthMetricTypes();
       set((state) => ({
         metricTypes,
-        records,
         selectedMetricTypeId:
-          state.selectedMetricTypeId ||
-          pickDefaultHealthMetricId(metricTypes, records),
+          state.selectedMetricTypeId &&
+          metricTypes.some((metric) => metric.id === state.selectedMetricTypeId)
+            ? state.selectedMetricTypeId
+            : metricTypes[0]?.id ?? '',
         loading: false
       }));
     } catch (err) {
@@ -92,6 +101,47 @@ export const healthMetricStore = createStore<HealthMetricStore>((set, get) => ({
 
   selectMetric(metricTypeId) {
     set({ selectedMetricTypeId: metricTypeId });
+  },
+
+  async loadMetricRecords(metricTypeId, options = {}) {
+    if (!metricTypeId) return;
+
+    const state = get();
+    if (!options.force && state.recordLoadedByMetricId[metricTypeId]) return;
+
+    set({
+      recordsLoadingMetricTypeId: metricTypeId,
+      recordsErrorMetricTypeId: '',
+      recordsError: ''
+    });
+
+    try {
+      const records = await fetchHealthMetricRecords({ metricTypeId });
+      set((current) => ({
+        recordsByMetricId: {
+          ...current.recordsByMetricId,
+          [metricTypeId]: records
+        },
+        recordLoadedByMetricId: {
+          ...current.recordLoadedByMetricId,
+          [metricTypeId]: true
+        },
+        recordsLoadingMetricTypeId:
+          current.recordsLoadingMetricTypeId === metricTypeId
+            ? ''
+            : current.recordsLoadingMetricTypeId
+      }));
+    } catch (err) {
+      console.error('[healthMetricStore] 加载指标记录失败：', err);
+      set((current) => ({
+        recordsLoadingMetricTypeId:
+          current.recordsLoadingMetricTypeId === metricTypeId
+            ? ''
+            : current.recordsLoadingMetricTypeId,
+        recordsErrorMetricTypeId: metricTypeId,
+        recordsError: '指标记录加载失败，请重试'
+      }));
+    }
   },
 
   async createMetricType(payload) {
@@ -113,6 +163,14 @@ export const healthMetricStore = createStore<HealthMetricStore>((set, get) => ({
       await createHealthMetricTypeToCloud(metric);
       set((state) => ({
         metricTypes: [metric, ...state.metricTypes],
+        recordsByMetricId: {
+          ...state.recordsByMetricId,
+          [metric.id]: []
+        },
+        recordLoadedByMetricId: {
+          ...state.recordLoadedByMetricId,
+          [metric.id]: true
+        },
         selectedMetricTypeId: metric.id,
         submitting: false
       }));
@@ -165,9 +223,10 @@ export const healthMetricStore = createStore<HealthMetricStore>((set, get) => ({
 
   async saveRecord(payload) {
     const now = new Date().toISOString();
+    const metricRecords = get().recordsByMetricId[payload.metricTypeId] ?? [];
     const sameDay =
       findSameDayHealthMetricRecord(
-        get().records,
+        metricRecords,
         payload.metricTypeId,
         payload.date
       ) ||
@@ -203,10 +262,11 @@ export const healthMetricStore = createStore<HealthMetricStore>((set, get) => ({
       }
 
       set((state) => {
-        const hasExisting = state.records.some((item) => item.id === record.id);
+        const currentRecords = state.recordsByMetricId[record.metricTypeId] ?? [];
+        const hasExisting = currentRecords.some((item) => item.id === record.id);
         const records = hasExisting
-          ? state.records.map((item) => (item.id === record.id ? record : item))
-          : [record, ...state.records];
+          ? currentRecords.map((item) => (item.id === record.id ? record : item))
+          : [record, ...currentRecords];
         const metricTypes = payload.saveAsDefault
           ? state.metricTypes.map((item) =>
               item.id === record.metricTypeId
@@ -222,7 +282,14 @@ export const healthMetricStore = createStore<HealthMetricStore>((set, get) => ({
           : state.metricTypes;
 
         return {
-          records: sortHealthMetricRecords(records),
+          recordsByMetricId: {
+            ...state.recordsByMetricId,
+            [record.metricTypeId]: sortHealthMetricRecords(records)
+          },
+          recordLoadedByMetricId: {
+            ...state.recordLoadedByMetricId,
+            [record.metricTypeId]: true
+          },
           metricTypes,
           selectedMetricTypeId: record.metricTypeId,
           submitting: false

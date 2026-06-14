@@ -25,10 +25,12 @@ const NORMAL_COLOR = '#157a66';
 const WARNING_COLOR = '#b86c1e';
 const DANGER_COLOR = '#ca4e41';
 const CHART_FIT_WIDTH_RPX = 682;
-const CHART_MIN_WIDTH_RPX = 760;
-const CHART_POINT_WIDTH_RPX = 132;
-const CHART_HEIGHT_RPX = 360;
+const CHART_SIDE_PADDING_RPX = 56;
 const CHART_VISIBLE_POINT_LIMIT = 7;
+const CHART_POINT_GAP_RPX =
+  (CHART_FIT_WIDTH_RPX - CHART_SIDE_PADDING_RPX * 2) /
+  (CHART_VISIBLE_POINT_LIMIT - 1);
+const CHART_HEIGHT_RPX = 360;
 
 function getPointColor(point: HealthMetricTrendPoint) {
   if (point.rangeStatus === 'low') return WARNING_COLOR;
@@ -111,16 +113,13 @@ function shouldShowDateLabel(index: number, pointsLength: number) {
 }
 
 function getScrollableChartWidth(points: HealthMetricTrendPoint[]) {
-  if (points.length < CHART_VISIBLE_POINT_LIMIT) return CHART_FIT_WIDTH_RPX;
+  if (points.length <= CHART_VISIBLE_POINT_LIMIT) return CHART_FIT_WIDTH_RPX;
 
-  const pointWidth =
-    points.length <= 7 ? CHART_POINT_WIDTH_RPX : points.length <= 30 ? 112 : 88;
-
-  return Math.max(CHART_MIN_WIDTH_RPX, points.length * pointWidth);
+  return CHART_SIDE_PADDING_RPX * 2 + (points.length - 1) * CHART_POINT_GAP_RPX;
 }
 
 function shouldScrollChart(points: HealthMetricTrendPoint[]) {
-  return points.length >= CHART_VISIBLE_POINT_LIMIT;
+  return points.length > CHART_VISIBLE_POINT_LIMIT;
 }
 
 function buildStaticPositions(
@@ -130,15 +129,19 @@ function buildStaticPositions(
   const { min, max } = getYAxisBounds(points);
 
   return points.map((point, index) => {
-    const leftPercent =
+    const left =
       points.length === 1
-        ? 50
-        : 8 + (index / Math.max(points.length - 1, 1)) * 84;
+        ? chartWidth / 2
+        : points.length <= CHART_VISIBLE_POINT_LIMIT
+          ? (8 + (index / Math.max(points.length - 1, 1)) * 84) /
+            100 *
+            chartWidth
+          : CHART_SIDE_PADDING_RPX + index * CHART_POINT_GAP_RPX;
     const topPercent = getPointTop(point.value ?? 0, min, max);
 
     return {
       point,
-      left: (leftPercent / 100) * chartWidth,
+      left,
       top: (topPercent / 100) * CHART_HEIGHT_RPX
     };
   });
@@ -241,7 +244,7 @@ function HealthMetricTrendChart(
 ) {
   const valuePoints = points.filter((point) => point.value !== null);
   const visiblePoints = useMemo(
-    () => valuePoints.slice(-CHART_VISIBLE_POINT_LIMIT),
+    () => valuePoints,
     [valuePoints]
   );
   const chartLabel = metricName || '当前指标';
@@ -264,7 +267,7 @@ function HealthMetricTrendChart(
   return (
     <View className="metric-trend">
       <View className="metric-trend__head">
-        <View>
+        <View className="metric-trend__title-wrap">
           <Text className="metric-trend__title">指标趋势</Text>
         </View>
         <Text className="metric-trend__unit">{unit || '未填单位'}</Text>

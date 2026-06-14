@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, View } from '@tarojs/components';
 import Taro, {
   useLoad,
@@ -47,6 +47,12 @@ function HealthMetricPage() {
     });
     void actions.load();
   });
+
+  useEffect(() => {
+    if (!state.selectedMetricTypeId) return;
+
+    void actions.loadMetricRecords(state.selectedMetricTypeId);
+  }, [actions, state.selectedMetricTypeId]);
 
   useShareAppMessage(() => ({
     title: '愈历：指标追踪',
@@ -182,6 +188,14 @@ function HealthMetricPage() {
     }
   };
 
+  const recordsLoaded = state.currentMetric
+    ? state.recordLoadedByMetricId[state.currentMetric.id]
+    : false;
+  const showRecordsLoading =
+    Boolean(state.currentMetric) &&
+    !state.recordsError &&
+    (state.recordsLoading || !recordsLoaded);
+
   return (
     <View className="health-metric-page">
       <View className="health-metric-page__hero">
@@ -258,17 +272,48 @@ function HealthMetricPage() {
             onEdit={(metricTypeId) => void openEditTypeSheet(metricTypeId)}
           />
 
-          <HealthMetricTrendChart
-            ref={trendChartRef}
-            metricId={state.currentMetric?.id}
-            metricName={state.currentMetric?.name}
-            points={state.trendPoints}
-            unit={state.currentMetric?.unit ?? ''}
-            coveredBySheet={activeSheet !== null}
-            onRecord={() => void openRecordSheet()}
-          />
+          {showRecordsLoading ? (
+            <View className="health-metric-page__inline-status">
+              <Text className="health-metric-page__status-title">
+                加载指标记录中
+              </Text>
+              <Text className="health-metric-page__status-desc">
+                正在读取当前指标的最近记录。
+              </Text>
+            </View>
+          ) : null}
 
-          <HealthMetricRecordList records={state.recentRecords} />
+          {state.recordsError ? (
+            <View className="health-metric-page__inline-status">
+              <Text className="health-metric-page__status-title">
+                {state.recordsError}
+              </Text>
+              <View
+                className="health-metric-page__status-action"
+                role="button"
+                aria-label="重试加载当前指标记录"
+                onClick={actions.retryCurrentRecords}
+              >
+                <Text>重试</Text>
+              </View>
+            </View>
+          ) : null}
+
+          {!showRecordsLoading && !state.recordsError ? (
+            <>
+              <HealthMetricTrendChart
+                ref={trendChartRef}
+                metricId={state.currentMetric?.id}
+                metricName={state.currentMetric?.name}
+                points={state.trendPoints}
+                unit={state.currentMetric?.unit ?? ''}
+                coveredBySheet={activeSheet !== null}
+                onRecord={() => void openRecordSheet()}
+              />
+
+              <HealthMetricRecordList records={state.recentRecords} />
+            </>
+          ) : null}
         </View>
       ) : null}
 
