@@ -1,0 +1,115 @@
+@use '@/assets/styles/variables' as *;
+
+.metric-type-sheet {
+  display: grid;
+  gap: $spacing-5;
+
+  &__intro {
+    display: grid;
+    gap: 6px;
+    padding: $spacing-4;
+    border-radius: $radius;
+    background: linear-gradient(
+      135deg,
+      rgba(216, 241, 232, 0.78),
+      rgba(255, 255, 255, 0.94)
+    );
+    border: 1px solid rgba(21, 122, 102, 0.12);
+  }
+
+  &__intro-title {
+    color: $ink-strong;
+    font-size: $text-sm;
+    font-weight: 900;
+    line-height: 1.35;
+  }
+
+  &__intro-desc {
+    color: $muted;
+    font-size: $text-xs;
+    line-height: 1.55;
+  }
+
+  &__field {
+    display: grid;
+    gap: $spacing-2;
+    min-width: 0;
+  }
+
+  &__label-row {
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: $spacing-2;
+  }
+
+  &__label {
+    color: $ink-strong;
+    font-size: $text-sm;
+    font-weight: 900;
+  }
+
+  &__required-star {
+    margin-left: 4px;
+    color: $danger;
+    font-weight: 900;
+  }
+
+  &__input {
+    min-height: 76px;
+    padding: 0 $spacing-4;
+    border-radius: 22px;
+    background: rgba(239, 245, 243, 0.9);
+    border: 1px solid $line-soft;
+    color: $ink-strong;
+    font-size: $text-sm;
+    box-sizing: border-box;
+    transition:
+      border-color $duration ease-out,
+      background $duration ease-out;
+  }
+
+  &__range {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-3;
+  }
+
+  &__error {
+    color: $danger;
+    font-size: $text-xs;
+    font-weight: 800;
+    line-height: 1.4;
+  }
+
+  &__submit {
+    width: 100%;
+    min-height: 82px;
+    margin-top: $spacing-2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-pill;
+    background: $primary-deep;
+    color: #fff;
+    font-size: $text-md;
+    font-weight: 900;
+    line-height: 1.2;
+    padding: 0 $spacing-6;
+    border: none;
+    box-shadow: 0 16px 30px rgba(12, 91, 75, 0.22);
+    transition:
+      opacity $duration ease-out,
+      transform $duration ease-out;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &[disabled] {
+      opacity: 0.56;
+      box-shadow: none;
+    }
+  }
+}

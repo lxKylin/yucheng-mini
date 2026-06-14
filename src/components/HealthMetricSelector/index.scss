@@ -1,0 +1,108 @@
+@use '@/assets/styles/variables' as *;
+
+.metric-selector {
+  display: grid;
+  gap: $spacing-3;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+  }
+
+  &__title {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    flex-shrink: 0;
+  }
+
+  &__add,
+  &__edit {
+    min-width: 88px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-pill;
+    color: #fff;
+    background: $primary-deep;
+    font-size: $text-sm;
+    font-weight: 900;
+  }
+
+  &__edit {
+    color: $primary-deep;
+    background: rgba(216, 241, 232, 0.82);
+    border: 1px solid rgba(21, 122, 102, 0.16);
+  }
+
+  &__scroll {
+    width: 100%;
+  }
+
+  &__list {
+    min-width: 100%;
+    display: inline-flex;
+    align-items: flex-end;
+    gap: $spacing-6;
+    padding: 0 2px 6px;
+    box-sizing: border-box;
+  }
+
+  &__item {
+    position: relative;
+    min-height: 56px;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    padding: 0 2px;
+    box-sizing: border-box;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      right: 50%;
+      bottom: 0;
+      height: 5px;
+      border-radius: $radius-pill;
+      background: $primary-deep;
+      opacity: 0;
+      transition:
+        left $duration ease,
+        right $duration ease,
+        opacity $duration ease;
+    }
+
+    &--active {
+      &::after {
+        left: 0;
+        right: 0;
+        opacity: 1;
+      }
+
+      .metric-selector__name {
+        max-width: 260px;
+        color: $primary-deep;
+        white-space: normal;
+        word-break: break-all;
+      }
+    }
+  }
+
+  &__name {
+    color: $ink-strong;
+    font-size: $text-base;
+    font-weight: 900;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+}

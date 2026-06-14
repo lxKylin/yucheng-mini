@@ -1,0 +1,83 @@
+@use '@/assets/styles/variables' as *;
+
+.health-metric-page {
+  min-height: 100vh;
+  padding: $spacing-4 $spacing-4 120px;
+  background: $bg;
+
+  &__hero,
+  &__status {
+    padding: $spacing-5;
+    border-radius: $radius-lg;
+    background: $surface-raised;
+    border: 1px solid $line-soft;
+    box-shadow: $shadow-card;
+  }
+
+  &__hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-4;
+  }
+
+  &__eyebrow,
+  &__desc,
+  &__status-desc {
+    display: block;
+    color: $muted;
+    font-size: $text-xs;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  &__eyebrow {
+    color: $primary-deep;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  &__title {
+    display: block;
+    margin-top: 4px;
+    color: $ink-strong;
+    font-size: $text-xl;
+    font-weight: 900;
+    line-height: 1.25;
+  }
+
+  &__desc {
+    margin-top: 6px;
+  }
+
+  &__record-btn,
+  &__status-action {
+    min-width: 120px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-pill;
+    color: #fff;
+    background: $primary-deep;
+    font-size: $text-md;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  &__status,
+  &__content {
+    display: grid;
+    gap: $spacing-4;
+    margin-top: $spacing-4;
+  }
+
+  &__status-title {
+    display: block;
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+    line-height: 1.35;
+  }
+
+}

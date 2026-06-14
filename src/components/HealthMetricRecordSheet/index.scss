@@ -1,0 +1,98 @@
+@use '@/assets/styles/variables' as *;
+
+.metric-record-sheet {
+  display: grid;
+  gap: $spacing-5;
+
+  &__metric-picker,
+  &__picker {
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-4;
+    padding: 0 $spacing-4;
+    border-radius: 22px;
+    background: rgba(216, 241, 232, 0.56);
+    border: 1px solid rgba(21, 122, 102, 0.12);
+  }
+
+  &__locked-label,
+  &__label {
+    color: $muted;
+    font-size: $text-sm;
+    font-weight: 800;
+    line-height: 1.4;
+  }
+
+  &__locked-name,
+  &__metric-action,
+  &__picker-value {
+    color: $ink-strong;
+    font-size: $text-base;
+    font-weight: 900;
+    line-height: 1.3;
+  }
+
+  &__metric-action {
+    color: $primary-deep;
+    flex-shrink: 0;
+  }
+
+  &__field {
+    display: grid;
+    gap: $spacing-2;
+    min-width: 0;
+  }
+
+  &__input {
+    min-height: 76px;
+    padding: 0 $spacing-4;
+    border-radius: 22px;
+    background: rgba(239, 245, 243, 0.9);
+    border: 1px solid $line-soft;
+    color: $ink-strong;
+    font-size: $text-sm;
+    box-sizing: border-box;
+    transition:
+      border-color $duration ease-out,
+      background $duration ease-out;
+  }
+
+  &__error {
+    color: $danger;
+    font-size: $text-xs;
+    font-weight: 800;
+    line-height: 1.4;
+  }
+
+  &__submit {
+    width: 100%;
+    min-height: 82px;
+    margin-top: $spacing-2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-pill;
+    background: $primary-deep;
+    color: #fff;
+    font-size: $text-md;
+    font-weight: 900;
+    line-height: 1.2;
+    padding: 0 $spacing-6;
+    border: none;
+    box-shadow: 0 16px 30px rgba(12, 91, 75, 0.22);
+    transition:
+      opacity $duration ease-out,
+      transform $duration ease-out;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &[disabled] {
+      opacity: 0.56;
+      box-shadow: none;
+    }
+  }
+}

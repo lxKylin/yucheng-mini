@@ -72,7 +72,6 @@ function getSubscriptionSummary(status?: string) {
 function Profile() {
   const stats = useProfileStats();
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
-  const [inboxOpen, setInboxOpen] = useState(false);
   useTabScrollToTop();
 
   const [profile, setProfile] = useState(getUserProfile);
@@ -276,6 +275,10 @@ function Profile() {
     }
   };
 
+  const handleOpenHealthMetrics = () => {
+    Taro.navigateTo({ url: '/pages/health-metrics/index' });
+  };
+
   return (
     <View className="profile-page">
       <View className="profile-page__content">
@@ -315,6 +318,21 @@ function Profile() {
               {stats.checkupTotal} 个检查
             </Text>
           </View>
+        </View>
+
+        <View className="profile-page__menu-item">
+          <View className="profile-page__menu-copy">
+            <Text className="profile-page__menu-label">订阅消息授权</Text>
+            <Text className="profile-page__menu-desc">
+              {subscriptionSummary.label} · {subscriptionSummary.desc}
+            </Text>
+          </View>
+          <View
+            className={`profile-page__switch${subscriptionSummary.enabled ? ' profile-page__switch--on' : ''}`}
+            onClick={handleToggleSubscribe}
+            role="switch"
+            aria-checked={subscriptionSummary.enabled}
+          />
         </View>
 
         <ProfileHealthSummary />
@@ -371,19 +389,19 @@ function Profile() {
         </View> */}
 
         <View className="profile-page__menu">
-          <View className="profile-page__menu-item">
+          <View
+            className="profile-page__menu-item"
+            role="button"
+            aria-label="打开指标追踪"
+            onClick={handleOpenHealthMetrics}
+          >
             <View className="profile-page__menu-copy">
-              <Text className="profile-page__menu-label">订阅消息授权</Text>
+              <Text className="profile-page__menu-label">指标追踪</Text>
               <Text className="profile-page__menu-desc">
-                {subscriptionSummary.label} · {subscriptionSummary.desc}
+                记录关键数值，按趋势复盘
               </Text>
             </View>
-            <View
-              className={`profile-page__switch${subscriptionSummary.enabled ? ' profile-page__switch--on' : ''}`}
-              onClick={handleToggleSubscribe}
-              role="switch"
-              aria-checked={subscriptionSummary.enabled}
-            />
+            <Text className="profile-page__menu-value">进入</Text>
           </View>
 
           <Picker
@@ -435,20 +453,9 @@ function Profile() {
                 问题反馈、功能建议或使用场景交流
               </Text>
             </View>
-            <Text className="profile-page__menu-value">复制</Text>
           </View>
         </View>
       </View>
-
-      <BottomSheet
-        open={inboxOpen}
-        title="历史提醒记录"
-        onClose={() => setInboxOpen(false)}
-      >
-        <View className="profile-page__inbox-placeholder">
-          <Text>通知记录功能将在 M7 中实现。</Text>
-        </View>
-      </BottomSheet>
 
       <GlobalReminderComposerHost pagePath="pages/profile/index" />
     </View>

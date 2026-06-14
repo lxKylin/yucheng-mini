@@ -175,6 +175,69 @@ export interface HealthStatusSummary {
   }[];
 }
 
+export type HealthMetricStatus = 'active' | 'hidden' | 'deleted';
+
+export type HealthMetricRangeStatus = 'low' | 'normal' | 'high' | 'unknown';
+
+export interface HealthMetricType {
+  id: string;
+  name: string;
+  unit: string;
+  referenceMin: number | null;
+  referenceMax: number | null;
+  note: string;
+  status: HealthMetricStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface HealthMetricRecord {
+  id: string;
+  metricTypeId: string;
+  date: string; // YYYY-MM-DD
+  value: number;
+  unit: string;
+  referenceMin: number | null;
+  referenceMax: number | null;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface HealthMetricTrendPoint {
+  date: string;
+  dayLabel: string;
+  value: number | null;
+  displayValue: string;
+  unit: string;
+  rangeStatus: HealthMetricRangeStatus;
+  record: HealthMetricRecord | null;
+}
+
+export interface HealthMetricTypeForm {
+  name: string;
+  unit: string;
+  referenceMin: string;
+  referenceMax: string;
+}
+
+export interface HealthMetricRecordForm {
+  metricTypeId: string;
+  date: string;
+  value: string;
+  unit: string;
+  referenceMin: string;
+  referenceMax: string;
+  note: string;
+  saveAsDefault: boolean;
+}
+
+export interface HealthMetricSummary {
+  metric: HealthMetricType;
+  latestRecord: HealthMetricRecord | null;
+  recordCount: number;
+}
+
 /** 历史开药记录（为后续云开发扩展预留） */
 export interface PrescriptionRecord {
   id: string;

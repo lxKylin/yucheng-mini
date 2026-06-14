@@ -1,0 +1,177 @@
+@use '@/assets/styles/variables' as *;
+
+.metric-trend {
+  display: grid;
+  gap: $spacing-3;
+  padding: $spacing-5;
+  border-radius: $radius-lg;
+  background: $surface-raised;
+  border: 1px solid $line-soft;
+  box-shadow: $shadow-card;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+  }
+
+  &__title,
+  &__unit {
+    display: block;
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+    line-height: 1.3;
+  }
+
+  &__unit {
+    color: $primary-deep;
+  }
+
+  &__empty-action {
+    min-width: 118px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-pill;
+    background: rgba(216, 241, 232, 0.74);
+    color: $primary-deep;
+    font-size: $text-xs;
+    font-weight: 900;
+  }
+
+  &__plot {
+    position: relative;
+    height: 360px;
+    overflow: hidden;
+    border-radius: $radius;
+    background: linear-gradient(
+      180deg,
+      rgba(216, 241, 232, 0.5),
+      rgba(255, 255, 255, 0.95)
+    );
+  }
+
+  &__scroll {
+    width: 100%;
+    height: 100%;
+    white-space: nowrap;
+  }
+
+  &__scroll-inner {
+    position: relative;
+    height: 100%;
+    min-width: 100%;
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  &__scroll-end {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  &__range-hint {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    right: 18px;
+    z-index: 1;
+    color: $primary-deep;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.4;
+  }
+
+  &__static {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  &__static-segment {
+    position: absolute;
+    height: 5px;
+    border-radius: $radius-pill;
+    background: rgba(21, 122, 102, 0.32);
+    transform-origin: left center;
+  }
+
+  &__static-point {
+    position: absolute;
+    width: 80px;
+    height: 18px;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__static-value {
+    position: absolute;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    color: $ink-strong;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  &__static-dot {
+    width: 18px;
+    height: 18px;
+    border: 5px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 8px 16px rgba(21, 122, 102, 0.18);
+  }
+
+  &__static-dates {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 22px;
+    height: 24px;
+  }
+
+  &__static-date {
+    position: absolute;
+    top: 0;
+    min-width: 44px;
+    transform: translateX(-50%);
+    color: $muted;
+    font-size: 18px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  &__empty {
+    display: grid;
+    justify-items: start;
+    gap: $spacing-2;
+    min-height: 260px;
+    align-content: center;
+    padding: $spacing-5;
+    border-radius: $radius;
+    background: rgba(216, 241, 232, 0.48);
+  }
+
+  &__empty-title {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+  }
+
+  &__empty-desc {
+    color: $muted;
+    font-size: $text-xs;
+    line-height: 1.6;
+  }
+}
