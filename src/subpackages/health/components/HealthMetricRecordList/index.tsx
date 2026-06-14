@@ -6,7 +6,7 @@ import {
   formatHealthMetricValue,
   getHealthMetricRangeLabel,
   getHealthMetricRangeStatus
-} from '@/utils/healthMetricUtils';
+} from '@/subpackages/health/utils/healthMetricUtils';
 
 import './index.scss';
 

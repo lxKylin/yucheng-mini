@@ -1,10 +1,10 @@
 import Taro from '@tarojs/taro';
 
-import { HEALTH_METRIC_STATUS } from '@/constants/healthMetric';
+import { getUserId } from '@/services/auth';
+import { getCollection } from '@/services/cloud';
+import { HEALTH_METRIC_STATUS } from '@/subpackages/health/constants/healthMetric';
 import type { HealthMetricRecord, HealthMetricType } from '@/types';
-import { sortHealthMetricRecords } from '@/utils/healthMetricUtils';
-import { getUserId } from './auth';
-import { getCollection } from './cloud';
+import { sortHealthMetricRecords } from '@/subpackages/health/utils/healthMetricUtils';
 
 const TYPE_COL = 'healthMetricTypes';
 const RECORD_COL = 'healthMetricRecords';

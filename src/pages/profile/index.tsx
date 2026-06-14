@@ -14,7 +14,6 @@ import Taro, {
   useShareTimeline
 } from '@tarojs/taro';
 
-import BottomSheet from '@/components/BottomSheet';
 import GlobalReminderComposerHost from '@/components/GlobalReminderComposerHost';
 import ProfileHealthSummary from '@/components/ProfileHealthSummary';
 import {
@@ -276,7 +275,9 @@ function Profile() {
   };
 
   const handleOpenHealthMetrics = () => {
-    Taro.navigateTo({ url: '/pages/health-metrics/index' });
+    Taro.navigateTo({
+      url: '/subpackages/health/pages/health-metrics/index'
+    });
   };
 
   return (

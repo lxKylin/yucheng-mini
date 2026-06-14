@@ -5,9 +5,16 @@ export default defineAppConfig({
     'pages/home/index',
     'pages/list/index',
     'pages/medicines/index',
-    'pages/profile/index',
-    'pages/health-status-records/index',
-    'pages/health-metrics/index'
+    'pages/profile/index'
+  ],
+  subPackages: [
+    {
+      root: 'subpackages/health',
+      pages: [
+        'pages/health-status-records/index',
+        'pages/health-metrics/index'
+      ]
+    }
   ],
   window: {
     backgroundTextStyle: 'dark',

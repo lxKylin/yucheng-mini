@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla';
 
-import { HEALTH_METRIC_STATUS } from '@/constants/healthMetric';
+import { HEALTH_METRIC_STATUS } from '@/subpackages/health/constants/healthMetric';
 import {
   createHealthMetricTypeToCloud,
   fetchHealthMetricRecords,
@@ -9,14 +9,14 @@ import {
   saveHealthMetricRecordToCloud,
   updateHealthMetricTypeDefaults,
   updateHealthMetricTypeToCloud
-} from '@/services/healthMetric';
+} from '@/subpackages/health/services/healthMetric';
 import type { HealthMetricRecord, HealthMetricType } from '@/types';
 import { genId } from '@/utils/commonUtils';
 import {
   findSameDayHealthMetricRecord,
   pickDefaultHealthMetricId,
   sortHealthMetricRecords
-} from '@/utils/healthMetricUtils';
+} from '@/subpackages/health/utils/healthMetricUtils';
 
 interface SaveHealthMetricRecordPayload {
   metricTypeId: string;

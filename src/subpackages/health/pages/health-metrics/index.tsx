@@ -6,20 +6,20 @@ import Taro, {
   useShareTimeline
 } from '@tarojs/taro';
 
-import HealthMetricRecordList from '@/components/HealthMetricRecordList';
-import HealthMetricRecordSheet from '@/components/HealthMetricRecordSheet';
-import HealthMetricSelector from '@/components/HealthMetricSelector';
-import HealthMetricTrendChart from '@/components/HealthMetricTrendChart';
-import type { HealthMetricTrendChartHandle } from '@/components/HealthMetricTrendChart';
-import HealthMetricTypeSheet from '@/components/HealthMetricTypeSheet';
-import { HEALTH_METRIC_COPY } from '@/constants/healthMetric';
 import { SHARE_IMAGE } from '@/constants';
+import HealthMetricRecordList from '@/subpackages/health/components/HealthMetricRecordList';
+import HealthMetricRecordSheet from '@/subpackages/health/components/HealthMetricRecordSheet';
+import HealthMetricSelector from '@/subpackages/health/components/HealthMetricSelector';
+import HealthMetricTrendChart from '@/subpackages/health/components/HealthMetricTrendChart';
+import type { HealthMetricTrendChartHandle } from '@/subpackages/health/components/HealthMetricTrendChart';
+import HealthMetricTypeSheet from '@/subpackages/health/components/HealthMetricTypeSheet';
+import { HEALTH_METRIC_COPY } from '@/subpackages/health/constants/healthMetric';
 import {
   useHealthMetricActions,
   useHealthMetricPageState
-} from '@/hooks/useHealthMetrics';
+} from '@/subpackages/health/hooks/useHealthMetrics';
 import type { HealthMetricRecordForm, HealthMetricType } from '@/types';
-import { parseOptionalMetricNumber } from '@/utils/healthMetricUtils';
+import { parseOptionalMetricNumber } from '@/subpackages/health/utils/healthMetricUtils';
 import { withPageShare } from '@/utils/pageShare';
 
 import './index.scss';
@@ -50,7 +50,7 @@ function HealthMetricPage() {
 
   useShareAppMessage(() => ({
     title: '愈历：指标追踪',
-    path: '/pages/health-metrics/index',
+    path: '/subpackages/health/pages/health-metrics/index',
     imageUrl: SHARE_IMAGE
   }));
 

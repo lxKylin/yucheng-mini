@@ -4,13 +4,13 @@ import type { BaseEventOrig, InputProps } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 
 import BottomSheet from '@/components/BottomSheet';
-import { HEALTH_METRIC_DEFAULT_TYPE_FORM } from '@/constants/healthMetric';
+import { HEALTH_METRIC_DEFAULT_TYPE_FORM } from '@/subpackages/health/constants/healthMetric';
 import type { HealthMetricType, HealthMetricTypeForm } from '@/types';
 import {
   hasInvalidHealthMetricRange,
   isSameHealthMetricName,
   parseOptionalMetricNumber
-} from '@/utils/healthMetricUtils';
+} from '@/subpackages/health/utils/healthMetricUtils';
 
 import './index.scss';
 

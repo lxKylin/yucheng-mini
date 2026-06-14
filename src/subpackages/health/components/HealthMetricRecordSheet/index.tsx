@@ -8,9 +8,9 @@ import type {
 } from '@tarojs/components';
 
 import BottomSheet from '@/components/BottomSheet';
-import { createDefaultHealthMetricRecordForm } from '@/constants/healthMetric';
+import { createDefaultHealthMetricRecordForm } from '@/subpackages/health/constants/healthMetric';
 import type { HealthMetricRecordForm, HealthMetricType } from '@/types';
-import { isFutureHealthMetricDate } from '@/utils/healthMetricUtils';
+import { isFutureHealthMetricDate } from '@/subpackages/health/utils/healthMetricUtils';
 
 import './index.scss';
 

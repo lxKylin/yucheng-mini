@@ -2,7 +2,7 @@ import { forwardRef, useImperativeHandle, useMemo } from 'react';
 import type { Ref } from 'react';
 import { ScrollView, Text, View } from '@tarojs/components';
 
-import { HEALTH_METRIC_COPY } from '@/constants/healthMetric';
+import { HEALTH_METRIC_COPY } from '@/subpackages/health/constants/healthMetric';
 import type { HealthMetricTrendPoint } from '@/types';
 
 import './index.scss';

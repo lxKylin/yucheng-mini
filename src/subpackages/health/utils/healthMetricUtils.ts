@@ -1,4 +1,4 @@
-import { HEALTH_METRIC_VALUE_PRECISION } from '@/constants/healthMetric';
+import { HEALTH_METRIC_VALUE_PRECISION } from '@/subpackages/health/constants/healthMetric';
 import type {
   HealthMetricRangeStatus,
   HealthMetricRecord,

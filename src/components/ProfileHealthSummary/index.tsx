@@ -10,7 +10,9 @@ export default function ProfileHealthSummary() {
   const healthStatusSummary = useHealthStatusSummary();
 
   const openRecords = () => {
-    Taro.navigateTo({ url: '/pages/health-status-records/index' });
+    Taro.navigateTo({
+      url: '/subpackages/health/pages/health-status-records/index'
+    });
   };
 
   return (

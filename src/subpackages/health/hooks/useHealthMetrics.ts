@@ -2,14 +2,14 @@ import { useMemo, useSyncExternalStore } from 'react';
 
 import {
   HEALTH_METRIC_RECENT_RECORD_LIMIT
-} from '@/constants/healthMetric';
-import { healthMetricStore } from '@/store/healthMetricStore';
+} from '@/subpackages/health/constants/healthMetric';
+import { healthMetricStore } from '@/subpackages/health/store/healthMetricStore';
 import type { HealthMetricRecord, HealthMetricSummary } from '@/types';
 import {
   buildHealthMetricTrendPoints,
   getLatestHealthMetricRecord,
   sortHealthMetricRecords
-} from '@/utils/healthMetricUtils';
+} from '@/subpackages/health/utils/healthMetricUtils';
 
 function useHealthMetricStoreState() {
   return useSyncExternalStore(
