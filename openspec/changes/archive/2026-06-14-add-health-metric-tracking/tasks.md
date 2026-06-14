@@ -44,10 +44,10 @@
 
 - [x] 6.1 运行 `openspec validate --changes add-health-metric-tracking --json`
 - [x] 6.2 运行 `pnpm exec tsc --noEmit --ignoreDeprecations 5.0 --skipLibCheck true`
-- [ ] 6.3 手动验收无指标空态：从个人页进入指标追踪页，创建新指标后自动进入首次记录
-- [ ] 6.4 手动验收已有指标记录：从当前指标点击「+ 记录」时指标名称锁定，保存后趋势图和最近记录刷新
-- [ ] 6.5 手动验收同日同指标更新：重复保存同一日期记录时出现确认，确认后更新原记录
-- [ ] 6.6 手动验收趋势图：最近 7 次记录直接显示数值，Y 轴顶部显示单位，低频记录不因当前周无数据而隐藏
+- [x] 6.3 手动验收无指标空态：从个人页进入指标追踪页，创建新指标后自动进入首次记录
+- [x] 6.4 手动验收已有指标记录：从当前指标点击「+ 记录」时指标名称锁定，保存后趋势图和最近记录刷新
+- [x] 6.5 手动验收同日同指标更新：重复保存同一日期记录时出现确认，确认后更新原记录
+- [x] 6.6 手动验收趋势图：最近 7 次记录直接显示数值，Y 轴顶部显示单位，低频记录不因当前周无数据而隐藏
 - [x] 6.7 若 `pnpm run dev:weapp` 或 `pnpm run build:weapp` 因本地 Taro/Rust 环境失败，记录完整错误和剩余风险
 
   记录：`pnpm run build:weapp` 启动 Taro v4.2.0 后，本地 Rust 依赖 `system-configuration-0.5.1/src/dynamic_store.rs:154:1` panic：`Attempted to create a NULL object.`；进程随后无业务编译输出并被结束，最终 `ELIFECYCLE Command failed`。剩余风险：需在微信开发者工具或可用的本机构建环境中完成 6.3-6.6 的交互验收。
