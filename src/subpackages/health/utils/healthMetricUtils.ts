@@ -2,6 +2,7 @@ import { HEALTH_METRIC_VALUE_PRECISION } from '@/subpackages/health/constants/he
 import type {
   HealthMetricRangeStatus,
   HealthMetricRecord,
+  HealthMetricSummary,
   HealthMetricTrendPoint,
   HealthMetricType
 } from '@/types';
@@ -108,6 +109,35 @@ export function getLatestHealthMetricRecord(
   return sortHealthMetricRecords(
     records.filter((record) => record.metricTypeId === metricTypeId)
   )[0] ?? null;
+}
+
+export function sortHealthMetricSummaries(
+  summaries: HealthMetricSummary[]
+): HealthMetricSummary[] {
+  return summaries
+    .slice()
+    .sort(
+      (a, b) =>
+        (b.latestRecord?.date ?? '').localeCompare(a.latestRecord?.date ?? '') ||
+        b.metric.updatedAt.localeCompare(a.metric.updatedAt)
+    );
+}
+
+export function buildHealthMetricSummaries(
+  metrics: HealthMetricType[],
+  recordsByMetricId: Record<string, HealthMetricRecord[]>
+): HealthMetricSummary[] {
+  return sortHealthMetricSummaries(
+    metrics.map((metric) => {
+      const records = recordsByMetricId[metric.id] ?? [];
+
+      return {
+        metric,
+        latestRecord: getLatestHealthMetricRecord(records, metric.id),
+        recordCount: records.length
+      };
+    })
+  );
 }
 
 export function pickDefaultHealthMetricId(

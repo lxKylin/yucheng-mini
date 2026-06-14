@@ -138,6 +138,18 @@ function HealthMetricPage() {
     }
   };
 
+  const handleDeleteMetric = async (metric: HealthMetricType) => {
+    try {
+      await actions.deleteMetricType(metric.id);
+      Taro.showToast({ title: '已停止追踪', icon: 'success', duration: 1200 });
+      setRecordMetric((prev) => (prev?.id === metric.id ? null : prev));
+      setActiveSheet(null);
+      trendChartRef.current?.clearSnapshot();
+    } catch {
+      Taro.showToast({ title: '删除失败，请稍后重试', icon: 'none' });
+    }
+  };
+
   const saveRecord = async (
     form: HealthMetricRecordForm,
     confirmUpdate = false
@@ -325,6 +337,7 @@ function HealthMetricPage() {
         onClose={closeSheet}
         onAfterClose={handleTypeSheetExited}
         onSubmit={editingMetric ? handleUpdateMetric : handleCreateMetric}
+        onDelete={editingMetric ? handleDeleteMetric : undefined}
       />
 
       <HealthMetricRecordSheet

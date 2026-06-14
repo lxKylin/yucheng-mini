@@ -22,11 +22,17 @@ interface HealthMetricTypeSheetProps {
   onClose: () => void;
   onAfterClose?: () => void;
   onSubmit: (
-    payload: Pick<HealthMetricType, 'name' | 'unit' | 'referenceMin' | 'referenceMax'>
+    payload: Pick<
+      HealthMetricType,
+      'name' | 'unit' | 'referenceMin' | 'referenceMax'
+    >
   ) => Promise<void>;
+  onDelete?: (metric: HealthMetricType) => Promise<void>;
 }
 
-type TypeFormErrors = Partial<Record<keyof HealthMetricTypeForm | 'range', string>>;
+type TypeFormErrors = Partial<
+  Record<keyof HealthMetricTypeForm | 'range', string>
+>;
 
 function getInputValue(e: BaseEventOrig<InputProps.inputValueEventDetail>) {
   return e.detail.value;
@@ -39,7 +45,8 @@ export default function HealthMetricTypeSheet({
   submitting,
   onClose,
   onAfterClose,
-  onSubmit
+  onSubmit,
+  onDelete
 }: HealthMetricTypeSheetProps) {
   const [form, setForm] = useState<HealthMetricTypeForm>(
     HEALTH_METRIC_DEFAULT_TYPE_FORM
@@ -116,6 +123,22 @@ export default function HealthMetricTypeSheet({
     });
   };
 
+  const handleDelete = async () => {
+    if (!editingMetric || !onDelete) return;
+
+    const modal = await Taro.showModal({
+      title: '停止追踪该指标',
+      content: `删除后「${editingMetric.name}」将不再展示在指标列表、趋势图和最近记录中，历史记录会保留。`,
+      confirmText: '停止追踪',
+      cancelText: '取消',
+      confirmColor: '#c2413a'
+    });
+
+    if (!modal.confirm) return;
+
+    await onDelete(editingMetric);
+  };
+
   return (
     <BottomSheet
       open={open}
@@ -179,9 +202,7 @@ export default function HealthMetricTypeSheet({
               placeholder="可不填"
               value={form.referenceMin}
               aria-label="参考下限"
-              onInput={(e) =>
-                patchForm({ referenceMin: getInputValue(e) })
-              }
+              onInput={(e) => patchForm({ referenceMin: getInputValue(e) })}
             />
           </View>
           <View className="metric-type-sheet__field">
@@ -194,14 +215,24 @@ export default function HealthMetricTypeSheet({
               placeholder="可不填"
               value={form.referenceMax}
               aria-label="参考上限"
-              onInput={(e) =>
-                patchForm({ referenceMax: getInputValue(e) })
-              }
+              onInput={(e) => patchForm({ referenceMax: getInputValue(e) })}
             />
           </View>
         </View>
         {errors.range ? (
           <Text className="metric-type-sheet__error">{errors.range}</Text>
+        ) : null}
+
+        {editingMetric && onDelete ? (
+          <Button
+            className="metric-type-sheet__delete"
+            loading={submitting}
+            disabled={submitting}
+            aria-label="停止追踪当前指标"
+            onClick={() => void handleDelete()}
+          >
+            停止追踪/删除指标
+          </Button>
         ) : null}
 
         <Button

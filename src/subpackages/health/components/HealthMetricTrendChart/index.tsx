@@ -105,11 +105,7 @@ function shouldShowValueLabel(
 }
 
 function shouldShowDateLabel(index: number, pointsLength: number) {
-  if (pointsLength <= 7) return true;
-  if (index === 0 || index === pointsLength - 1) return true;
-
-  const step = Math.ceil(pointsLength / 6);
-  return index % step === 0;
+  return index >= 0 && index < pointsLength;
 }
 
 function getScrollableChartWidth(points: HealthMetricTrendPoint[]) {

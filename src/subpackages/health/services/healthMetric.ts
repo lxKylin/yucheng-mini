@@ -231,6 +231,28 @@ export async function updateHealthMetricTypeToCloud(
     .update({ data: { ...patch, updatedAt: new Date().toISOString() } });
 }
 
+export async function deleteHealthMetricTypeFromCloud(
+  metricTypeId: string
+): Promise<void> {
+  const userId = getUserId();
+  if (!userId) {
+    throw new Error('[healthMetricService] 缺少用户身份，无法删除指标类型');
+  }
+
+  const doc = await findMetricTypeDoc(metricTypeId);
+
+  if (!doc?._id) return;
+
+  await getCollection(TYPE_COL)
+    .doc(String(doc._id))
+    .update({
+      data: {
+        status: HEALTH_METRIC_STATUS.DELETED,
+        updatedAt: new Date().toISOString()
+      }
+    });
+}
+
 export async function findSameDayHealthMetricRecordFromCloud(
   metricTypeId: string,
   date: string

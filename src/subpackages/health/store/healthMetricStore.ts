@@ -3,6 +3,7 @@ import { createStore } from 'zustand/vanilla';
 import { HEALTH_METRIC_STATUS } from '@/subpackages/health/constants/healthMetric';
 import {
   createHealthMetricTypeToCloud,
+  deleteHealthMetricTypeFromCloud,
   fetchHealthMetricRecords,
   fetchHealthMetricTypes,
   findSameDayHealthMetricRecordFromCloud,
@@ -13,6 +14,7 @@ import {
 import type { HealthMetricRecord, HealthMetricType } from '@/types';
 import { genId } from '@/utils/commonUtils';
 import {
+  buildHealthMetricSummaries,
   findSameDayHealthMetricRecord,
   sortHealthMetricRecords
 } from '@/subpackages/health/utils/healthMetricUtils';
@@ -54,6 +56,7 @@ interface HealthMetricStore {
     metricTypeId: string,
     payload: Pick<HealthMetricType, 'name' | 'unit' | 'referenceMin' | 'referenceMax'>
   ) => Promise<HealthMetricType>;
+  deleteMetricType: (metricTypeId: string) => Promise<void>;
   saveRecord: (
     payload: SaveHealthMetricRecordPayload
   ) => Promise<{ record: HealthMetricRecord; updated: boolean }>;
@@ -217,6 +220,40 @@ export const healthMetricStore = createStore<HealthMetricStore>((set, get) => ({
     } catch (err) {
       console.error('[healthMetricStore] 更新指标失败：', err);
       set({ submitting: false, error: '保存失败，请稍后重试' });
+      throw err;
+    }
+  },
+
+  async deleteMetricType(metricTypeId) {
+    const current = get().metricTypes.find((item) => item.id === metricTypeId);
+    if (!current) {
+      throw new Error('HEALTH_METRIC_TYPE_NOT_FOUND');
+    }
+
+    set({ submitting: true, error: '' });
+    try {
+      await deleteHealthMetricTypeFromCloud(metricTypeId);
+      set((state) => {
+        const metricTypes = state.metricTypes.filter(
+          (item) => item.id !== metricTypeId
+        );
+        const nextSelectedMetricTypeId =
+          state.selectedMetricTypeId === metricTypeId
+            ? buildHealthMetricSummaries(
+                metricTypes,
+                state.recordsByMetricId
+              )[0]?.metric.id ?? ''
+            : state.selectedMetricTypeId;
+
+        return {
+          metricTypes,
+          selectedMetricTypeId: nextSelectedMetricTypeId,
+          submitting: false
+        };
+      });
+    } catch (err) {
+      console.error('[healthMetricStore] 删除指标失败：', err);
+      set({ submitting: false, error: '删除失败，请稍后重试' });
       throw err;
     }
   },

@@ -6,8 +6,8 @@ import {
 import { healthMetricStore } from '@/subpackages/health/store/healthMetricStore';
 import type { HealthMetricRecord, HealthMetricSummary } from '@/types';
 import {
+  buildHealthMetricSummaries,
   buildHealthMetricTrendPoints,
-  getLatestHealthMetricRecord,
   sortHealthMetricRecords
 } from '@/subpackages/health/utils/healthMetricUtils';
 
@@ -48,15 +48,7 @@ export function useHealthMetricPageState() {
   );
   const summaries = useMemo<HealthMetricSummary[]>(
     () =>
-      state.metricTypes.map((metric) => {
-        const records = state.recordsByMetricId[metric.id] ?? [];
-
-        return {
-          metric,
-          latestRecord: getLatestHealthMetricRecord(records, metric.id),
-          recordCount: records.length
-        };
-      }),
+      buildHealthMetricSummaries(state.metricTypes, state.recordsByMetricId),
     [state.metricTypes, state.recordsByMetricId]
   );
   const recordsLoading =
@@ -96,11 +88,13 @@ export function useHealthMetricActions() {
           : Promise.resolve(),
       createMetricType: state.createMetricType,
       updateMetricType: state.updateMetricType,
+      deleteMetricType: state.deleteMetricType,
       saveRecord: state.saveRecord,
       findSameDayRecord: state.findSameDayRecord
     }),
     [
       state.createMetricType,
+      state.deleteMetricType,
       state.findSameDayRecord,
       state.load,
       state.loadMetricRecords,
