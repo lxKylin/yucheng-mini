@@ -61,6 +61,15 @@ function assert(condition: boolean, message: string) {
   }
 }
 
+function getSummaryMetricIds(
+  metrics: HealthMetricType[],
+  recordsByMetricId: Record<string, HealthMetricRecord[]>
+): string {
+  return buildHealthMetricSummaries(metrics, recordsByMetricId)
+    .map((summary) => summary.metric.id)
+    .join(',');
+}
+
 export function verifyHealthMetricUtils() {
   assert(
     getHealthMetricRangeStatus(3.2, 3.9, 6.1) === 'low',
@@ -85,24 +94,23 @@ export function verifyHealthMetricUtils() {
     '同日同指标匹配失败'
   );
   assert(
-    buildHealthMetricSummaries(
+    getSummaryMetricIds(
       [newerMetricType, sampleMetricType],
       {
         [sampleMetricType.id]: [sampleRecord],
         [newerMetricType.id]: []
       }
-    )[0].metric.id === sampleMetricType.id,
-    '有记录指标优先排序失败'
+    ) ===
+      [newerMetricType.id, sampleMetricType.id].join(','),
+    '加载记录后指标顺序不应变化'
   );
   assert(
-    buildHealthMetricSummaries(
-      [olderMetricType, newerMetricType],
-      {}
-    )[0].metric.id === newerMetricType.id,
-    '无记录指标按更新时间排序失败'
+    getSummaryMetricIds([olderMetricType, newerMetricType], {}) ===
+      [olderMetricType.id, newerMetricType.id].join(','),
+    '无记录指标应保持原始顺序'
   );
   assert(
-    buildHealthMetricSummaries(
+    getSummaryMetricIds(
       [olderMetricType, newerMetricType],
       {
         [olderMetricType.id]: [olderSameDayRecord],
@@ -110,8 +118,9 @@ export function verifyHealthMetricUtils() {
           { ...olderSameDayRecord, id: 'metric_record_3', metricTypeId: newerMetricType.id }
         ]
       }
-    )[0].metric.id === newerMetricType.id,
-    '同日期记录按指标更新时间兜底排序失败'
+    ) ===
+      [olderMetricType.id, newerMetricType.id].join(','),
+    '同日期记录不应改变指标顺序'
   );
   assert(
     buildHealthMetricSummaries(
