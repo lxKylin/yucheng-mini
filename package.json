@@ -2,6 +2,7 @@
   "name": "yuli",
   "version": "1.5.2",
   "private": true,
+  "license": "AGPL-3.0-only",
   "description": "愈历",
   "templateInfo": {
     "name": "default",
