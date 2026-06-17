@@ -9,3 +9,5 @@ node_modules/
 .env.*
 database/
 ui*/
+project.config.json
+project.private.config.json
