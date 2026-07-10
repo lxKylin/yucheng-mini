@@ -123,10 +123,7 @@ async function queryUserReminders(field: '_openid' | 'userId', userId: string) {
     .get();
 }
 
-async function findUserMedicineDoc(id: string) {
-  const userId = getUserId();
-  if (!userId) return '';
-
+async function findUserMedicineDoc(id: string, userId: string) {
   const byOpenId = await getCollection(COL)
     .where({ id, _openid: userId })
     .limit(1)
@@ -143,7 +140,16 @@ async function findUserMedicineDoc(id: string) {
     return byUserId.data[0]._id;
   }
 
-  return id;
+  return null;
+}
+
+function requireUserId(action: string): string {
+  const userId = getUserId();
+  if (!userId) {
+    throw new Error(`[reminderService] 缺少用户身份，无法${action}`);
+  }
+
+  return userId;
 }
 
 /** 拉取当前用户的全部提醒（排除 deleted） */
@@ -180,8 +186,7 @@ export async function fetchReminders(): Promise<Medicine[]> {
 
 /** 新增提醒（本地 id 作为 id 字段存入云文档） */
 export async function addReminderToCloud(medicine: Medicine): Promise<void> {
-  const userId = getUserId();
-  if (!userId) return;
+  const userId = requireUserId('新增药品');
 
   try {
     await getCollection(COL).add({
@@ -198,12 +203,19 @@ export async function updateReminderInCloud(
   id: string,
   payload: Partial<Medicine>
 ): Promise<void> {
-  if (!getUserId()) return;
+  const userId = requireUserId('更新药品');
 
   try {
-    const docId = await findUserMedicineDoc(id);
-    if (!docId) return;
-    await getCollection(COL).doc(docId).update({ data: payload });
+    const docId = await findUserMedicineDoc(id, userId);
+    if (!docId) {
+      throw new Error('[reminderService] 药品不存在或不属于当前用户');
+    }
+    const result = await getCollection(COL)
+      .doc(docId)
+      .update({ data: payload });
+    if (result.stats.updated !== 1) {
+      throw new Error('[reminderService] 药品未实际更新');
+    }
   } catch (err) {
     console.error('[reminderService] 更新失败：', err);
     throw err;
@@ -212,16 +224,23 @@ export async function updateReminderInCloud(
 
 /** 软删除（将 status 设为 deleted） */
 export async function deleteReminderInCloud(id: string): Promise<void> {
-  if (!getUserId()) return;
+  const userId = requireUserId('删除药品');
 
   try {
     const payload = {
       status: REMINDER_STATUS.DELETED,
       updatedAt: new Date().toISOString()
     };
-    const docId = await findUserMedicineDoc(id);
-    if (!docId) return;
-    await getCollection(COL).doc(docId).update({ data: payload });
+    const docId = await findUserMedicineDoc(id, userId);
+    if (!docId) {
+      throw new Error('[reminderService] 药品不存在或不属于当前用户');
+    }
+    const result = await getCollection(COL)
+      .doc(docId)
+      .update({ data: payload });
+    if (result.stats.updated !== 1) {
+      throw new Error('[reminderService] 药品未实际删除');
+    }
   } catch (err) {
     console.error('[reminderService] 删除失败：', err);
     throw err;

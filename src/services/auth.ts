@@ -37,6 +37,15 @@ function toUserProfile(result: AuthResult): UserProfile | null {
   };
 }
 
+function requireUserProfile(result: AuthResult, fallbackMessage: string) {
+  const profile = toUserProfile(result);
+  if (!profile) {
+    throw new Error(result.error || fallbackMessage);
+  }
+
+  return profile;
+}
+
 /**
  * 调用 auth 云函数完成微信登录，获取并缓存用户信息。
  * 重复调用直接返回缓存值。
@@ -67,21 +76,16 @@ export async function login(): Promise<UserProfile | null> {
 export async function updateProfile(
   nickName: string,
   avatarUrl: string
-): Promise<void> {
-  try {
-    console.log('[auth] 更新用户信息：', { nickName, avatarUrl });
-    const result = await callCloudFn<AuthResult>('auth', {
-      nickName,
-      avatarUrl
-    });
-    console.log('[auth] 更新结果：', result);
-    const profile = toUserProfile(result);
-    if (profile) {
-      cachedProfile = profile;
-    }
-  } catch (err) {
-    console.error('[auth] 更新用户信息失败：', err);
-  }
+): Promise<UserProfile> {
+  console.log('[auth] 更新用户信息：', { nickName, avatarUrl });
+  const result = await callCloudFn<AuthResult>('auth', {
+    nickName,
+    avatarUrl
+  });
+  console.log('[auth] 更新结果：', result);
+  const profile = requireUserProfile(result, '更新用户信息失败');
+  cachedProfile = profile;
+  return profile;
 }
 
 export async function refreshUserProfile(): Promise<UserProfile | null> {
@@ -101,21 +105,13 @@ export async function refreshUserProfile(): Promise<UserProfile | null> {
 
 export async function updateWechatSubscriptionStatus(
   status: UserWechatSubscriptionStatus
-): Promise<UserProfile | null> {
-  try {
-    const result = await callCloudFn<AuthResult>('auth', {
-      wechatSubscriptionStatus: status
-    });
-    const profile = toUserProfile(result);
-    if (profile) {
-      cachedProfile = profile;
-      return cachedProfile;
-    }
-    return cachedProfile;
-  } catch (err) {
-    console.error('[auth] 更新微信订阅资格失败：', err);
-    return cachedProfile;
-  }
+): Promise<UserProfile> {
+  const result = await callCloudFn<AuthResult>('auth', {
+    wechatSubscriptionStatus: status
+  });
+  const profile = requireUserProfile(result, '更新微信订阅资格失败');
+  cachedProfile = profile;
+  return profile;
 }
 
 /** 获取当前已缓存的用户 profile，未登录时返回 null */

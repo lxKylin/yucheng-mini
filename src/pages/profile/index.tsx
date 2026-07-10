@@ -130,8 +130,9 @@ function Profile() {
         cloudPath: `avatars/${getUserId()}.${ext}`,
         filePath: tmpPath
       });
-      await updateProfile(nickName, fileID);
-      setProfile(getUserProfile());
+      const nextProfile = await updateProfile(nickName, fileID);
+      setProfile(nextProfile);
+      setNickName(nextProfile.nickName);
     } catch (err) {
       console.error('[profile] 头像上传失败：', err);
       Taro.showToast({
@@ -150,14 +151,25 @@ function Profile() {
     setNickName(e.detail.value);
   };
 
-  const handleNicknameBlur = (
+  const handleNicknameBlur = async (
     e: BaseEventOrig<InputProps.inputValueEventDetail>
   ) => {
     const value = e.detail.value.trim();
     if (!value || value === profile?.nickName) return;
-    updateProfile(value, profile?.avatarUrl ?? '').then(() => {
-      setProfile(getUserProfile());
-    });
+
+    try {
+      const nextProfile = await updateProfile(value, profile?.avatarUrl ?? '');
+      setProfile(nextProfile);
+      setNickName(nextProfile.nickName);
+    } catch (err) {
+      console.error('[profile] 昵称更新失败：', err);
+      setNickName(profile?.nickName ?? '');
+      Taro.showToast({
+        title: '昵称保存失败，请重试',
+        icon: 'none',
+        duration: 1500
+      });
+    }
   };
 
   const handleToggleSubscribe = async () => {
@@ -176,29 +188,46 @@ function Profile() {
     const result = await requestWechatReminderSubscription();
 
     if (result.enabled) {
-      const nextProfile = await updateWechatSubscriptionStatus(
-        USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
-      );
-      setProfile(nextProfile ?? getUserProfile());
-      Taro.showToast({
-        title: result.message,
-        icon: 'success',
-        duration: 1800
-      });
+      try {
+        const nextProfile = await updateWechatSubscriptionStatus(
+          USER_WECHAT_SUBSCRIPTION_STATUS.AVAILABLE
+        );
+        setProfile(nextProfile);
+        Taro.showToast({
+          title: result.message,
+          icon: 'success',
+          duration: 1800
+        });
+      } catch (err) {
+        console.error('[profile] 订阅授权状态同步失败：', err);
+        Taro.showToast({
+          title: '授权状态同步失败，请稍后重试',
+          icon: 'none',
+          duration: 2200
+        });
+      }
       return;
     }
 
+    let subscriptionStatusSyncFailed = false;
     if (result.status === WECHAT_SUBSCRIPTION_STATUS.REJECTED) {
-      const nextProfile = await updateWechatSubscriptionStatus(
-        USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED
-      );
-      setProfile(nextProfile ?? getUserProfile());
+      try {
+        const nextProfile = await updateWechatSubscriptionStatus(
+          USER_WECHAT_SUBSCRIPTION_STATUS.REJECTED
+        );
+        setProfile(nextProfile);
+      } catch (err) {
+        console.error('[profile] 订阅拒绝状态同步失败：', err);
+        subscriptionStatusSyncFailed = true;
+      }
     }
 
     if (result.shouldOpenSetting) {
       const modalRes = await Taro.showModal({
         title: '订阅未开启',
-        content: result.message,
+        content: subscriptionStatusSyncFailed
+          ? `${result.message}\n授权状态同步失败，但仍可前往设置。`
+          : result.message,
         confirmText: '去设置',
         cancelText: '知道了'
       });
@@ -210,7 +239,9 @@ function Profile() {
     }
 
     Taro.showToast({
-      title: result.message,
+      title: subscriptionStatusSyncFailed
+        ? '授权状态同步失败，请稍后重试'
+        : result.message,
       icon: 'none',
       duration: 2200
     });

@@ -77,7 +77,9 @@ export const checkupStore = createStore<CheckupStore>((set, get) => ({
 
   async updateCheckup(id, payload) {
     const target = get().checkups.find((item) => item.id === id);
-    if (!target) return;
+    if (!target) {
+      throw new Error('检查提醒不存在或已删除');
+    }
 
     const nextPayload = { ...payload, updatedAt: new Date().toISOString() };
     await updateCheckupInCloud(id, nextPayload);
@@ -91,6 +93,10 @@ export const checkupStore = createStore<CheckupStore>((set, get) => ({
 
   async deleteCheckup(id) {
     const updatedAt = new Date().toISOString();
+    const target = get().checkups.find((item) => item.id === id);
+    if (!target) {
+      throw new Error('检查提醒不存在或已删除');
+    }
     await deleteCheckupInCloud(id);
 
     set((state) => ({
@@ -104,7 +110,9 @@ export const checkupStore = createStore<CheckupStore>((set, get) => ({
 
   async togglePause(id) {
     const target = get().checkups.find((item) => item.id === id);
-    if (!target) return;
+    if (!target) {
+      throw new Error('检查提醒不存在或已删除');
+    }
 
     const status =
       target.status === CHECKUP_STATUS.PAUSED
@@ -115,7 +123,9 @@ export const checkupStore = createStore<CheckupStore>((set, get) => ({
 
   async completeCheckup(id, options = {}) {
     const target = get().checkups.find((item) => item.id === id);
-    if (!target) return;
+    if (!target) {
+      throw new Error('检查提醒不存在或已删除');
+    }
 
     const now = new Date().toISOString();
     const doneDate = options.doneDate || today();

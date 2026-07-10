@@ -88,7 +88,9 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
   async updateReminder(id, payload) {
     const updatedAt = new Date().toISOString();
     const nextItem = get().reminders.find((r) => r.id === id);
-    if (!nextItem) return;
+    if (!nextItem) {
+      throw new Error('药品不存在或已删除');
+    }
 
     const nextPayload = { ...payload, updatedAt };
     await updateReminderInCloud(id, nextPayload);
@@ -102,6 +104,10 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
   async deleteReminder(id) {
     const updatedAt = new Date().toISOString();
+    const target = get().reminders.find((r) => r.id === id);
+    if (!target) {
+      throw new Error('药品不存在或已删除');
+    }
 
     await deleteReminderInCloud(id);
 
@@ -114,7 +120,9 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
   async markDone(id, date) {
     const target = get().reminders.find((r) => r.id === id);
-    if (!target) return;
+    if (!target) {
+      throw new Error('药品不存在或已删除');
+    }
 
     const doneDate =
       date ?? calcNextDate(target.currentPrescriptionDate, target.intervalDays);
@@ -141,7 +149,9 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
 
   async togglePause(id) {
     const target = get().reminders.find((r) => r.id === id);
-    if (!target) return;
+    if (!target) {
+      throw new Error('药品不存在或已删除');
+    }
 
     const updatedAt = new Date().toISOString();
     const status: Medicine['status'] =

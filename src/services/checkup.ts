@@ -82,10 +82,7 @@ async function queryUserCheckups(field: '_openid' | 'userId', userId: string) {
     .get();
 }
 
-async function findUserCheckupDoc(id: string) {
-  const userId = getUserId();
-  if (!userId) return '';
-
+async function findUserCheckupDoc(id: string, userId: string) {
   const byOpenId = await getCollection(COL)
     .where({ id, _openid: userId })
     .limit(1)
@@ -102,7 +99,16 @@ async function findUserCheckupDoc(id: string) {
     return byUserId.data[0]._id;
   }
 
-  return id;
+  return null;
+}
+
+function requireUserId(action: string): string {
+  const userId = getUserId();
+  if (!userId) {
+    throw new Error(`[checkupService] 缺少用户身份，无法${action}`);
+  }
+
+  return userId;
 }
 
 export async function fetchCheckups(): Promise<CheckupReminder[]> {
@@ -135,8 +141,7 @@ export async function fetchCheckups(): Promise<CheckupReminder[]> {
 export async function addCheckupToCloud(
   checkup: CheckupReminder
 ): Promise<void> {
-  const userId = getUserId();
-  if (!userId) return;
+  const userId = requireUserId('新增检查提醒');
 
   try {
     await getCollection(COL).add({
@@ -152,12 +157,19 @@ export async function updateCheckupInCloud(
   id: string,
   payload: Partial<CheckupReminder>
 ): Promise<void> {
-  if (!getUserId()) return;
+  const userId = requireUserId('更新检查提醒');
 
   try {
-    const docId = await findUserCheckupDoc(id);
-    if (!docId) return;
-    await getCollection(COL).doc(docId).update({ data: payload });
+    const docId = await findUserCheckupDoc(id, userId);
+    if (!docId) {
+      throw new Error('[checkupService] 检查提醒不存在或不属于当前用户');
+    }
+    const result = await getCollection(COL)
+      .doc(docId)
+      .update({ data: payload });
+    if (result.stats.updated !== 1) {
+      throw new Error('[checkupService] 检查提醒未实际更新');
+    }
   } catch (err) {
     console.error('[checkupService] 更新失败：', err);
     throw err;
@@ -165,16 +177,23 @@ export async function updateCheckupInCloud(
 }
 
 export async function deleteCheckupInCloud(id: string): Promise<void> {
-  if (!getUserId()) return;
+  const userId = requireUserId('删除检查提醒');
 
   try {
     const payload = {
       status: CHECKUP_STATUS.DELETED,
       updatedAt: new Date().toISOString()
     };
-    const docId = await findUserCheckupDoc(id);
-    if (!docId) return;
-    await getCollection(COL).doc(docId).update({ data: payload });
+    const docId = await findUserCheckupDoc(id, userId);
+    if (!docId) {
+      throw new Error('[checkupService] 检查提醒不存在或不属于当前用户');
+    }
+    const result = await getCollection(COL)
+      .doc(docId)
+      .update({ data: payload });
+    if (result.stats.updated !== 1) {
+      throw new Error('[checkupService] 检查提醒未实际删除');
+    }
   } catch (err) {
     console.error('[checkupService] 删除失败：', err);
     throw err;

@@ -55,10 +55,13 @@ exports.main = async (event = {}) => {
           patch.wechatSubscriptionStatus = wechatSubscriptionStatus;
           patch.wechatSubscriptionUpdatedAt = patch.updatedAt;
         }
-        await db
+        const updateResult = await db
           .collection('users')
-          .where({ _openid: OPENID })
+          .doc(userRecord._id)
           .update({ data: patch });
+        if (updateResult.stats.updated !== 1) {
+          throw new Error('用户信息未实际更新');
+        }
         Object.assign(userRecord, patch);
       }
     }
@@ -74,6 +77,6 @@ exports.main = async (event = {}) => {
     };
   } catch (err) {
     console.error('[auth] 用户记录操作失败：', err);
-    return { success: true, openid: OPENID, nickName: '', avatarUrl: '' };
+    return { success: false, error: '用户信息加载或更新失败，请稍后重试' };
   }
 };
