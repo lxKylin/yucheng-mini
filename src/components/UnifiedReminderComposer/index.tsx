@@ -14,6 +14,7 @@ interface UnifiedReminderComposerProps {
   resetKey: number;
   onSuccess: () => void;
   onCancel: () => void;
+  onSubmittingChange?: (submitting: boolean) => void;
 }
 
 const TYPE_OPTIONS: Array<{ key: ReminderType; label: string }> = [
@@ -26,9 +27,12 @@ export default function UnifiedReminderComposer({
   defaultMedicineReminderEnabled = false,
   resetKey,
   onSuccess,
-  onCancel
+  onCancel,
+  onSubmittingChange
 }: UnifiedReminderComposerProps) {
   const [activeType, setActiveType] = useState<ReminderType>(defaultType);
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [medicineKey, setMedicineKey] = useState(0);
   const [checkupKey, setCheckupKey] = useState(0);
   const previousResetRef = useRef({ defaultType, resetKey });
@@ -48,9 +52,33 @@ export default function UnifiedReminderComposer({
     setCheckupKey((value) => value + 1);
   }, [defaultType, resetKey]);
 
+  useEffect(() => {
+    onSubmittingChange?.(submitting);
+  }, [onSubmittingChange, submitting]);
+
+  useEffect(() => {
+    return () => {
+      onSubmittingChange?.(false);
+    };
+  }, [onSubmittingChange]);
+
+  const handleTypeChange = (type: ReminderType) => {
+    if (!submittingRef.current) {
+      setActiveType(type);
+    }
+  };
+
+  const handleSubmittingChange = (nextSubmitting: boolean) => {
+    submittingRef.current = nextSubmitting;
+    setSubmitting(nextSubmitting);
+  };
+
   return (
     <View className="unified-reminder-composer">
-      <View className="unified-reminder-composer__switch">
+      <View
+        className={`unified-reminder-composer__switch${submitting ? ' unified-reminder-composer__switch--disabled' : ''}`}
+        aria-disabled={submitting}
+      >
         {TYPE_OPTIONS.map((option) => {
           const selected = option.key === activeType;
 
@@ -61,7 +89,7 @@ export default function UnifiedReminderComposer({
               role="button"
               aria-label={`切换到${option.label}`}
               aria-pressed={selected}
-              onClick={() => setActiveType(option.key)}
+              onClick={() => handleTypeChange(option.key)}
             >
               <Text className="unified-reminder-composer__switch-text">
                 {option.label}
@@ -79,6 +107,7 @@ export default function UnifiedReminderComposer({
           defaultReminderEnabled={defaultMedicineReminderEnabled}
           onSuccess={onSuccess}
           onCancel={onCancel}
+          onSubmittingChange={handleSubmittingChange}
         />
       </View>
 
@@ -89,6 +118,7 @@ export default function UnifiedReminderComposer({
           key={checkupKey}
           onSuccess={onSuccess}
           onCancel={onCancel}
+          onSubmittingChange={handleSubmittingChange}
         />
       </View>
     </View>

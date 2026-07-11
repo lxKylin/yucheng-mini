@@ -123,11 +123,13 @@ function Home() {
   const [pendingCheckupAction, setPendingCheckupAction] =
     useState<PendingCheckupAction | null>(null);
   const [checkupFormKey, setCheckupFormKey] = useState(0);
+  const [checkupFormSubmitting, setCheckupFormSubmitting] = useState(false);
   useTabScrollToTop();
 
   const {
     detailId,
     editReminderId,
+    formSubmitting,
     formKey,
     sheetMode,
     sheetOpen,
@@ -136,7 +138,8 @@ function Home() {
     handleFormSuccess,
     handleSheetExited,
     openDetail,
-    openEdit
+    openEdit,
+    setFormSubmitting
   } = useReminderSheet();
   const allItems = useDerivedList();
   const allCheckups = useDerivedCheckups();
@@ -228,12 +231,14 @@ function Home() {
   };
 
   const openCheckupDetail = (id: string) => {
+    setCheckupFormSubmitting(false);
     setActiveCheckupId(id);
     setCheckupSheetMode('detail');
     setCheckupSheetOpen(true);
   };
 
   const openCheckupEdit = (id: string) => {
+    setCheckupFormSubmitting(false);
     setActiveCheckupId(id);
     setCheckupSheetMode('form');
     setCheckupFormKey((key) => key + 1);
@@ -247,6 +252,7 @@ function Home() {
   const handleCheckupSheetExited = () => {
     const nextAction = pendingCheckupAction;
 
+    setCheckupFormSubmitting(false);
     setCheckupSheetMode(null);
     setActiveCheckupId(undefined);
 
@@ -409,6 +415,7 @@ function Home() {
       <BottomSheet
         open={sheetOpen}
         title={sheetTitle}
+        closeDisabled={sheetMode === 'form' && formSubmitting}
         onClose={closeSheet}
         onAfterClose={handleSheetExited}
       >
@@ -426,6 +433,7 @@ function Home() {
             defaultReminderEnabled={true}
             onSuccess={handleFormSuccess}
             onCancel={closeSheet}
+            onSubmittingChange={setFormSubmitting}
           />
         ) : null}
       </BottomSheet>
@@ -433,6 +441,9 @@ function Home() {
       <BottomSheet
         open={checkupSheetOpen}
         title={checkupSheetMode === 'detail' ? '检查详情' : '编辑检查提醒'}
+        closeDisabled={
+          checkupSheetMode === 'form' && checkupFormSubmitting
+        }
         onClose={closeCheckupSheet}
         onAfterClose={handleCheckupSheetExited}
       >
@@ -451,6 +462,7 @@ function Home() {
             checkupId={activeCheckupId}
             onSuccess={handleCheckupFormSuccess}
             onCancel={closeCheckupSheet}
+            onSubmittingChange={setCheckupFormSubmitting}
           />
         ) : null}
       </BottomSheet>

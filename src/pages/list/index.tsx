@@ -59,11 +59,13 @@ function ListPage() {
     string | undefined
   >();
   const [medicineFormKey, setMedicineFormKey] = useState(0);
+  const [medicineFormSubmitting, setMedicineFormSubmitting] = useState(false);
   const [checkupSheetOpen, setCheckupSheetOpen] = useState(false);
   const [checkupSheetMode, setCheckupSheetMode] =
     useState<CheckupSheetMode>(null);
   const [activeCheckupId, setActiveCheckupId] = useState<string | undefined>();
   const [checkupFormKey, setCheckupFormKey] = useState(0);
+  const [checkupFormSubmitting, setCheckupFormSubmitting] = useState(false);
   const [doneReminderId, setDoneReminderId] = useState<string | null>(null);
   const [completionId, setCompletionId] = useState<string | null>(null);
   const [restartId, setRestartId] = useState<string | null>(null);
@@ -133,12 +135,14 @@ function ListPage() {
   });
 
   const openMedicineDetail = (id: string) => {
+    setMedicineFormSubmitting(false);
     setActiveMedicineId(id);
     setMedicineSheetMode('detail');
     setMedicineSheetOpen(true);
   };
 
   const openMedicineEdit = (id: string) => {
+    setMedicineFormSubmitting(false);
     setActiveMedicineId(id);
     setMedicineSheetMode('form');
     setMedicineFormKey((key) => key + 1);
@@ -150,17 +154,20 @@ function ListPage() {
   };
 
   const handleMedicineSheetExited = () => {
+    setMedicineFormSubmitting(false);
     setMedicineSheetMode(null);
     setActiveMedicineId(undefined);
   };
 
   const openCheckupDetail = (id: string) => {
+    setCheckupFormSubmitting(false);
     setActiveCheckupId(id);
     setCheckupSheetMode('detail');
     setCheckupSheetOpen(true);
   };
 
   const openCheckupEdit = (id: string) => {
+    setCheckupFormSubmitting(false);
     setActiveCheckupId(id);
     setCheckupSheetMode('form');
     setCheckupFormKey((key) => key + 1);
@@ -174,6 +181,7 @@ function ListPage() {
   const handleCheckupSheetExited = () => {
     const nextAction = pendingCheckupAction;
 
+    setCheckupFormSubmitting(false);
     setCheckupSheetMode(null);
     setActiveCheckupId(undefined);
 
@@ -391,6 +399,9 @@ function ListPage() {
       <BottomSheet
         open={medicineSheetOpen}
         title={medicineSheetMode === 'detail' ? '提醒详情' : '编辑药品'}
+        closeDisabled={
+          medicineSheetMode === 'form' && medicineFormSubmitting
+        }
         onClose={closeMedicineSheet}
         onAfterClose={handleMedicineSheetExited}
       >
@@ -408,6 +419,7 @@ function ListPage() {
             defaultReminderEnabled
             onSuccess={closeMedicineSheet}
             onCancel={closeMedicineSheet}
+            onSubmittingChange={setMedicineFormSubmitting}
           />
         ) : null}
       </BottomSheet>
@@ -415,6 +427,9 @@ function ListPage() {
       <BottomSheet
         open={checkupSheetOpen}
         title={checkupSheetMode === 'detail' ? '检查详情' : '编辑检查提醒'}
+        closeDisabled={
+          checkupSheetMode === 'form' && checkupFormSubmitting
+        }
         onClose={closeCheckupSheet}
         onAfterClose={handleCheckupSheetExited}
       >
@@ -433,6 +448,7 @@ function ListPage() {
             checkupId={activeCheckupId}
             onSuccess={closeCheckupSheet}
             onCancel={closeCheckupSheet}
+            onSubmittingChange={setCheckupFormSubmitting}
           />
         ) : null}
       </BottomSheet>

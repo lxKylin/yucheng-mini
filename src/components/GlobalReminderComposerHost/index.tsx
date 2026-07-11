@@ -22,6 +22,7 @@ export default function GlobalReminderComposerHost({
 }: GlobalReminderComposerHostProps) {
   const normalizedPagePath = normalizePagePath(pagePath);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [composerSubmitting, setComposerSubmitting] = useState(false);
   const [resetKey, setResetKey] = useState(0);
   const lastHandledRequestKeyRef = useRef(0);
   const { openRequestKey, requestPagePath } =
@@ -45,6 +46,7 @@ export default function GlobalReminderComposerHost({
     }
 
     lastHandledRequestKeyRef.current = openRequestKey;
+    setComposerSubmitting(false);
     setResetKey((key) => key + 1);
     setSheetOpen(true);
     markOpen(normalizedPagePath);
@@ -55,6 +57,7 @@ export default function GlobalReminderComposerHost({
   };
 
   const handleAfterClose = () => {
+    setComposerSubmitting(false);
     close();
   };
 
@@ -64,6 +67,7 @@ export default function GlobalReminderComposerHost({
       <BottomSheet
         open={sheetOpen}
         title="新增"
+        closeDisabled={composerSubmitting}
         onClose={handleClose}
         onAfterClose={handleAfterClose}
       >
@@ -73,6 +77,7 @@ export default function GlobalReminderComposerHost({
           defaultMedicineReminderEnabled={false}
           onSuccess={handleClose}
           onCancel={handleClose}
+          onSubmittingChange={setComposerSubmitting}
         />
       </BottomSheet>
     </>

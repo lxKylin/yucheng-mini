@@ -18,6 +18,7 @@ import {
 } from '@/constants';
 import { useCheckupActions, useDerivedCheckupById } from '@/hooks/useCheckups';
 import { useAllDerivedMedicines } from '@/hooks/useReminders';
+import { useSubmissionGuard } from '@/hooks/useSubmissionGuard';
 import type { CheckupReminder, CheckupType } from '@/types';
 import { calcCheckupRemindDate } from '@/utils/checkupUtils';
 import { today } from '@/utils/dateUtils';
@@ -28,6 +29,7 @@ interface CheckupComposerProps {
   checkupId?: string;
   onSuccess: (checkup?: CheckupReminder) => void;
   onCancel: () => void;
+  onSubmittingChange?: (submitting: boolean) => void;
 }
 
 interface FormValues {
@@ -76,12 +78,15 @@ function findIndexOrZero<T extends readonly unknown[]>(
 export default function CheckupComposer({
   checkupId,
   onSuccess,
-  onCancel
+  onCancel,
+  onSubmittingChange
 }: CheckupComposerProps) {
   const isEdit = Boolean(checkupId);
   const existingItem = useDerivedCheckupById(checkupId ?? '');
   const medicines = useAllDerivedMedicines();
   const { addCheckup, updateCheckup } = useCheckupActions();
+  const { submitting, runSubmission, isSubmitting } =
+    useSubmissionGuard(onSubmittingChange);
   const [values, setValues] = useState<FormValues>(() => makeDefaults());
 
   useEffect(() => {
@@ -141,6 +146,8 @@ export default function CheckupComposer({
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting()) return;
+
     if (!values.title.trim()) {
       Taro.showToast({
         title: '请填写检查事项',
@@ -180,27 +187,35 @@ export default function CheckupComposer({
     };
 
     try {
-      if (isEdit && checkupId) {
-        await updateCheckup(checkupId, payload);
-        Taro.showToast({ title: '检查提醒已更新', icon: 'success' });
-      } else {
-        await addCheckup({
-          ...payload,
-          status: CHECKUP_STATUS.ACTIVE,
-          completionHistory: [],
-          lastWechatReminderDate: '',
-          lastWechatReminderAt: ''
-        });
-        Taro.showToast({ title: '检查提醒已创建', icon: 'success' });
-      }
+      await runSubmission(async () => {
+        if (isEdit && checkupId) {
+          await updateCheckup(checkupId, payload);
+          Taro.showToast({ title: '检查提醒已更新', icon: 'success' });
+        } else {
+          await addCheckup({
+            ...payload,
+            status: CHECKUP_STATUS.ACTIVE,
+            completionHistory: [],
+            lastWechatReminderDate: '',
+            lastWechatReminderAt: ''
+          });
+          Taro.showToast({ title: '检查提醒已创建', icon: 'success' });
+        }
 
-      onSuccess();
+        onSuccess();
+      });
     } catch {
       Taro.showToast({
         title: '保存失败，请稍后重试',
         icon: 'none',
         duration: 1800
       });
+    }
+  };
+
+  const handleCancel = () => {
+    if (!isSubmitting()) {
+      onCancel();
     }
   };
 
@@ -384,15 +399,21 @@ export default function CheckupComposer({
       </View>
 
       <View className="checkup-composer__actions">
-        <Button className="checkup-composer__cancel" onClick={onCancel}>
+        <Button
+          className="checkup-composer__cancel"
+          disabled={submitting}
+          onClick={handleCancel}
+        >
           取消
         </Button>
         <Button
           className="checkup-composer__submit"
           color="primary"
+          loading={submitting}
+          disabled={submitting}
           onClick={handleSubmit}
         >
-          {isEdit ? '保存修改' : '保存提醒'}
+          {submitting ? '保存中...' : isEdit ? '保存修改' : '保存提醒'}
         </Button>
       </View>
     </View>

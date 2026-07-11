@@ -66,6 +66,7 @@ const Medicines = () => {
   const {
     defaultReminderEnabled,
     editReminderId,
+    formSubmitting,
     formKey,
     sheetMode,
     sheetOpen,
@@ -73,7 +74,8 @@ const Medicines = () => {
     closeSheet,
     handleFormSuccess,
     handleSheetExited,
-    openEdit
+    openEdit,
+    setFormSubmitting
   } = useReminderSheet();
 
   const medicines = useAllDerivedMedicines();
@@ -131,7 +133,7 @@ const Medicines = () => {
   });
 
   const handleDelete = () => {
-    if (!editReminderId) {
+    if (!editReminderId || formSubmitting) {
       return;
     }
 
@@ -253,6 +255,7 @@ const Medicines = () => {
       <BottomSheet
         open={sheetOpen}
         title={sheetTitle}
+        closeDisabled={sheetMode === 'form' && formSubmitting}
         onClose={closeSheet}
         onAfterClose={handleSheetExited}
       >
@@ -265,9 +268,10 @@ const Medicines = () => {
               editReminderId ? (
                 <View className="medicines-delete">
                   <View
-                    className="medicines-delete__button"
+                    className={`medicines-delete__button${formSubmitting ? ' medicines-delete__button--disabled' : ''}`}
                     role="button"
                     aria-label="删除药品"
+                    aria-disabled={formSubmitting}
                     onClick={handleDelete}
                   >
                     <Text className="medicines-delete__button-text">
@@ -279,6 +283,7 @@ const Medicines = () => {
             }
             onSuccess={handleFormSuccess}
             onCancel={closeSheet}
+            onSubmittingChange={setFormSubmitting}
           />
         ) : null}
       </BottomSheet>

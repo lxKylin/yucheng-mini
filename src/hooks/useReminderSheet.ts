@@ -6,6 +6,7 @@ export function useReminderSheet() {
   const [formKey, setFormKey] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetActive, setSheetActive] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
   const [sheetMode, setSheetMode] = useState<ReminderSheetMode>('form');
   const [detailId, setDetailId] = useState('');
   const [editReminderId, setEditReminderId] = useState<string | undefined>();
@@ -21,6 +22,7 @@ export function useReminderSheet() {
           : '新增药品';
 
   const openDetail = (id: string) => {
+    setFormSubmitting(false);
     setEditReminderId(undefined);
     setDetailId(id);
     setSheetMode('detail');
@@ -29,6 +31,7 @@ export function useReminderSheet() {
   };
 
   const openCreate = (nextDefaultReminderEnabled = true) => {
+    setFormSubmitting(false);
     setDefaultReminderEnabled(nextDefaultReminderEnabled);
     setFormKey((current) => current + 1);
     setDetailId('');
@@ -39,6 +42,7 @@ export function useReminderSheet() {
   };
 
   const openEdit = (id: string) => {
+    setFormSubmitting(false);
     setDefaultReminderEnabled(true);
     setDetailId('');
     setEditReminderId(id);
@@ -60,6 +64,7 @@ export function useReminderSheet() {
   };
 
   const handleSheetExited = () => {
+    setFormSubmitting(false);
     setSheetActive(false);
     setDetailId('');
     setEditReminderId(undefined);
@@ -69,6 +74,7 @@ export function useReminderSheet() {
     defaultReminderEnabled,
     detailId,
     editReminderId,
+    formSubmitting,
     formKey,
     sheetActive,
     sheetMode,
@@ -79,6 +85,7 @@ export function useReminderSheet() {
     handleSheetExited,
     openCreate,
     openDetail,
-    openEdit
+    openEdit,
+    setFormSubmitting
   };
 }

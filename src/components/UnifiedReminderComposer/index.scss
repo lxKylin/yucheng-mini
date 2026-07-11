@@ -12,6 +12,10 @@
     border: 1px solid $line-soft;
     border-radius: 22px;
     background: rgba(255, 255, 255, 0.72);
+
+    &--disabled {
+      opacity: 0.68;
+    }
   }
 
   &__switch-item {
