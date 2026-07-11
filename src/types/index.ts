@@ -46,6 +46,16 @@ export type CheckupStatus = 'active' | 'paused' | 'done' | 'deleted';
 /** 药品状态（兼容原 ReminderStatus） */
 export type MedicineStatus = ReminderStatus;
 
+export type InventoryEstimateMode = 'automatic' | 'manual';
+
+export type InventoryDisplayStatus =
+  | 'disabled'
+  | 'automatic'
+  | 'manual'
+  | 'needs_calibration'
+  | 'low'
+  | 'depleted';
+
 /** 用户级微信订阅资格状态 */
 export type UserWechatSubscriptionStatus =
   (typeof USER_WECHAT_SUBSCRIPTION_STATUS)[keyof typeof USER_WECHAT_SUBSCRIPTION_STATUS];
@@ -67,6 +77,14 @@ export interface Medicine {
   timesPerDay: number;
   scheduleTiming: MedicineSchedule;
   scheduleTime: string;
+
+  // 库存与余量
+  inventoryTrackingEnabled: boolean;
+  inventoryEstimateMode: InventoryEstimateMode;
+  inventoryBaseQuantity: number;
+  inventoryBaseDate: string;
+  inventoryNeedsCalibration: boolean;
+  inventoryUpdatedAt: string;
 
   // 开药提醒
   reminderEnabled: boolean;
@@ -92,6 +110,10 @@ export interface DerivedMedicine extends Medicine {
   levelLabel: string; // "5 天后" / "逾期 2 天" / "今日" / "已暂停"
   progress: number; // 进度条百分比 0-100
   scheduleLabel: string;
+  plannedDailyDosage: number;
+  estimatedRemainingQuantity: number | null;
+  estimatedAvailableDays: number | null;
+  inventoryDisplayStatus: InventoryDisplayStatus;
 }
 
 export type Reminder = Medicine;

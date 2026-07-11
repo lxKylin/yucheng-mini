@@ -18,6 +18,7 @@ import { useIncrementalList } from '@/hooks/useIncrementalList';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
 import {
   useAllDerivedMedicines,
+  useMedicineLoadState,
   useReminderActions
 } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
@@ -26,12 +27,13 @@ import type { DerivedMedicine } from '@/types';
 import { withPageShare } from '@/utils/pageShare';
 import './index.scss';
 
-type FilterKey = 'all' | 'enabled' | 'disabled';
+type FilterKey = 'all' | 'enabled' | 'disabled' | 'low';
 
 const FILTER_TABS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: '全部' },
   { key: 'enabled', label: '已开提醒' },
-  { key: 'disabled', label: '未开提醒' }
+  { key: 'disabled', label: '未开提醒' },
+  { key: 'low', label: '余量不足' }
 ];
 
 const FORM_LABEL_MAP = MEDICINE_FORM_OPTIONS.reduce<Record<string, string>>(
@@ -79,13 +81,19 @@ const Medicines = () => {
   } = useReminderSheet();
 
   const medicines = useAllDerivedMedicines();
+  const { error, loading } = useMedicineLoadState();
   const { deleteReminder } = useReminderActions();
 
   const counts = useMemo<Record<FilterKey, number>>(
     () => ({
       all: medicines.length,
       enabled: medicines.filter((item) => item.reminderEnabled).length,
-      disabled: medicines.filter((item) => !item.reminderEnabled).length
+      disabled: medicines.filter((item) => !item.reminderEnabled).length,
+      low: medicines.filter(
+        (item) =>
+          item.inventoryDisplayStatus === 'low' ||
+          item.inventoryDisplayStatus === 'depleted'
+      ).length
     }),
     [medicines]
   );
@@ -97,7 +105,10 @@ const Medicines = () => {
       const byFilter =
         activeFilter === 'all' ||
         (activeFilter === 'enabled' && item.reminderEnabled) ||
-        (activeFilter === 'disabled' && !item.reminderEnabled);
+        (activeFilter === 'disabled' && !item.reminderEnabled) ||
+        (activeFilter === 'low' &&
+          (item.inventoryDisplayStatus === 'low' ||
+            item.inventoryDisplayStatus === 'depleted'));
       const bySearch = !term || buildSearchText(item).includes(term);
 
       return byFilter && bySearch;
@@ -170,11 +181,17 @@ const Medicines = () => {
   };
 
   const emptyTitle =
-    medicines.length === 0 ? '药箱还是空的' : '当前筛选下没有药品';
+    medicines.length === 0
+      ? '药箱还是空的'
+      : activeFilter === 'low'
+        ? '暂无余量不足药品'
+        : '当前筛选下没有药品';
   const emptyDesc =
     medicines.length === 0
       ? '先保存一个药品，之后也可以随时开启开药提醒。'
-      : '换个关键词，或切换筛选查看全部药箱记录。';
+      : activeFilter === 'low'
+        ? '仅展示自动估算中预计可用不超过 7 天或余量为 0 的药品。'
+        : '换个关键词，或切换筛选查看全部药箱记录。';
 
   Taro.useLoad(() => {
     Taro.showShareMenu({
@@ -227,13 +244,32 @@ const Medicines = () => {
       </View>
 
       <View className="medicines-content">
-        {filteredMedicines.length > 0 ? (
+        {loading && medicines.length === 0 ? (
+          <View className="medicines-empty">
+            <Text className="medicines-empty__title">正在整理药箱</Text>
+            <Text className="medicines-empty__desc">正在加载药品与余量信息…</Text>
+          </View>
+        ) : error && medicines.length === 0 ? (
+          <View className="medicines-empty medicines-empty--error">
+            <Text className="medicines-empty__title">药箱加载失败</Text>
+            <Text className="medicines-empty__desc">请检查网络后重试，已有数据不会被修改。</Text>
+            <View
+              className="medicines-empty__button"
+              role="button"
+              aria-label="重新加载药箱"
+              onClick={() => void refreshMedicines()}
+            >
+              <Text className="medicines-empty__button-text">重新加载</Text>
+            </View>
+          </View>
+        ) : filteredMedicines.length > 0 ? (
           <>
             {visibleItems.map((medicine) => (
               <MedicineInventoryCard
                 key={medicine.id}
                 medicine={medicine}
                 onClick={() => openEdit(medicine.id)}
+                onInventoryClick={() => openEdit(medicine.id)}
               />
             ))}
             <ListLoadStatus

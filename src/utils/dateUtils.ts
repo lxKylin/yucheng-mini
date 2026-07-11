@@ -4,6 +4,7 @@ import type {
   ReminderLevel
 } from '@/types';
 import { LEVEL_ORDER, REMINDER_LEVEL, REMINDER_STATUS } from '@/constants';
+import { deriveMedicineInventory } from '@/utils/medicineInventory';
 
 // ─── 基础日期工具 ─────────────────────────────────────────────────
 
@@ -145,6 +146,7 @@ export function derive(medicine: Medicine): DerivedMedicine {
   const progress = medicine.reminderEnabled
     ? calcProgress(currentPrescriptionDate, nextPrescriptionDate, todayStr)
     : 0;
+  const inventory = deriveMedicineInventory(medicine, todayStr);
 
   return {
     ...medicine,
@@ -155,7 +157,8 @@ export function derive(medicine: Medicine): DerivedMedicine {
     level,
     levelLabel,
     progress,
-    scheduleLabel: buildScheduleLabel(medicine)
+    scheduleLabel: buildScheduleLabel(medicine),
+    ...inventory
   };
 }
 

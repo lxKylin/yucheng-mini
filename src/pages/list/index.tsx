@@ -23,7 +23,7 @@ import MedicineComposer from '@/components/MedicineComposer';
 import ReminderDetail from '@/components/ReminderDetail';
 import { useDerivedCheckups } from '@/hooks/useCheckups';
 import { useIncrementalList } from '@/hooks/useIncrementalList';
-import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
+import { useDerivedList } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import {
   type UnifiedReminderItem,
@@ -81,7 +81,6 @@ function ListPage() {
       status: activeStatus,
       searchTerm
     });
-  const { markDone } = useReminderActions();
   const { visibleItems, visibleCount, totalCount, hasMore, loadMore } =
     useIncrementalList(filteredItems, resetKey);
 
@@ -238,38 +237,7 @@ function ListPage() {
       return;
     }
 
-    if (target.daysLeft < 0) {
-      setDoneReminderId(id);
-      return;
-    }
-
-    Taro.showModal({
-      title: '确认已开药',
-      content: `确认已完成「${target.name}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
-      confirmText: '确认',
-      cancelText: '取消',
-      confirmColor: '#157a66',
-      success: async (result) => {
-        if (!result.confirm) {
-          return;
-        }
-
-        try {
-          await markDone(id);
-          Taro.showToast({
-            title: `${target.name} 已进入下一轮周期`,
-            icon: 'success',
-            duration: 1500
-          });
-        } catch {
-          Taro.showToast({
-            title: '更新失败，请稍后重试',
-            icon: 'none',
-            duration: 1800
-          });
-        }
-      }
-    });
+    setDoneReminderId(id);
   };
 
   const renderUnifiedItem = (entry: UnifiedReminderItem) => {

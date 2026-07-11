@@ -10,6 +10,7 @@ import {
 } from '@/constants';
 import type { Medicine } from '@/types';
 import { today } from '@/utils/dateUtils';
+import InventorySection from './InventorySection';
 import {
   type DatePickerEvent,
   type InputEvent,
@@ -34,6 +35,13 @@ const FORM_LABELS = MEDICINE_FORM_OPTIONS.map((option) => option.label);
 const DOSAGE_LABELS = DOSAGE_UNIT_OPTIONS.map((option) => option);
 const SCHEDULE_LABELS = SCHEDULE_OPTIONS.map((option) => option);
 const BEFORE_LABELS = BEFORE_OPTIONS.map((value) => `${value} 天`);
+const DOSAGE_SHORTCUTS = [
+  { value: '0.25', label: '1/4' },
+  { value: '0.5', label: '1/2' },
+  { value: '1', label: '1' },
+  { value: '1.5', label: '1.5' },
+  { value: '2', label: '2' }
+];
 
 export default function MedicineComposer({
   medicineId,
@@ -44,20 +52,32 @@ export default function MedicineComposer({
   onSubmittingChange
 }: MedicineComposerProps) {
   const {
+    automaticInventoryAllowed,
     beforeIndex,
     calcText,
     dosageIndex,
+    dosageInput,
+    doseEffectiveDate,
     formIndex,
     handleCancel,
     handleDosageChange,
+    handleDosageUnitChange,
     handleIntervalChange,
+    handleInventoryModeChange,
+    handleInventoryQuantityChange,
+    handleInventoryTrackingChange,
     handleScheduleChange,
     handleSubmit,
     handleTimesChange,
     intervalInput,
+    inventoryQuantityInput,
+    inventoryUnitChanged,
     isEdit,
     scheduleIndex,
+    setDosageInput,
+    setDoseEffectiveDate,
     setField,
+    showDoseEffectiveDate,
     submitting,
     values
   } = useMedicineComposerForm({
@@ -162,7 +182,7 @@ export default function MedicineComposer({
             <View className="medicine-composer__input-row">
               <Input
                 className="medicine-composer__input"
-                value={String(values.dosagePerUse || '')}
+                value={dosageInput}
                 type="digit"
                 placeholder="例如：1"
                 onChange={handleDosageChange}
@@ -177,8 +197,7 @@ export default function MedicineComposer({
               range={DOSAGE_LABELS}
               value={dosageIndex}
               onChange={(e: SelectorPickerEvent) =>
-                setField(
-                  'dosageUnit',
+                handleDosageUnitChange(
                   DOSAGE_UNIT_OPTIONS[Number(e.detail.value)]
                 )
               }
@@ -191,6 +210,24 @@ export default function MedicineComposer({
             </Picker>
           </View>
         </View>
+
+        {values.dosageUnit === '片' || values.dosageUnit === '粒' ? (
+          <View className="medicine-composer__dose-shortcuts">
+            {DOSAGE_SHORTCUTS.map((option) => (
+              <View
+                key={option.value}
+                className={`medicine-composer__dose-shortcut${dosageInput === option.value ? ' medicine-composer__dose-shortcut--active' : ''}`}
+                role="button"
+                aria-label={`每次${option.label}${values.dosageUnit}`}
+                onClick={() => setDosageInput(option.value)}
+              >
+                <Text>
+                  {option.label} {values.dosageUnit}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
 
         <View className="medicine-composer__grid">
           <View className="medicine-composer__field">
@@ -242,6 +279,20 @@ export default function MedicineComposer({
           </View>
         ) : null}
       </View>
+
+      <InventorySection
+        automaticAllowed={automaticInventoryAllowed}
+        doseEffectiveDate={doseEffectiveDate}
+        inventoryQuantityInput={inventoryQuantityInput}
+        inventoryUnitChanged={inventoryUnitChanged}
+        showDoseEffectiveDate={showDoseEffectiveDate}
+        values={values}
+        onDoseEffectiveDateChange={setDoseEffectiveDate}
+        onModeChange={handleInventoryModeChange}
+        onQuantityChange={handleInventoryQuantityChange}
+        onTrackingChange={handleInventoryTrackingChange}
+        onBaseDateChange={(date) => setField('inventoryBaseDate', date)}
+      />
 
       <View className="medicine-composer__section">
         <View className="medicine-composer__switch-row">

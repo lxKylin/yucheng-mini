@@ -28,6 +28,10 @@ function App({ children }: PropsWithChildren<any>) {
     const profile = await login();
     if (!profile) {
       console.warn('[App] 登录失败，提醒数据无法从云端加载');
+      reminderStore.setState({
+        loading: false,
+        error: '登录失败，无法加载药箱'
+      });
       return;
     }
     console.log('User:', profile.openid, profile.nickName || '(未设置昵称)');

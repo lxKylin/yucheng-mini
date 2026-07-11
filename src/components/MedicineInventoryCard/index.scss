@@ -63,6 +63,75 @@
     margin-top: 8px;
   }
 
+  &__inventory {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 12px;
+    padding: 16px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+
+    &--automatic {
+      background: $primary-soft;
+    }
+
+    &--manual,
+    &--calibration {
+      background: $violet-soft;
+      border-color: rgba(95, 103, 184, 0.12);
+    }
+
+    &--low {
+      background: $warning-soft;
+      border-color: rgba(184, 108, 30, 0.14);
+    }
+
+    &--depleted {
+      background: $danger-soft;
+      border-color: rgba(202, 78, 65, 0.14);
+    }
+  }
+
+  &__inventory-copy {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+  }
+
+  &__inventory-title,
+  &__inventory-desc {
+    display: block;
+  }
+
+  &__inventory-title {
+    color: $ink-strong;
+    font-size: 23px;
+    font-weight: 900;
+    line-height: 1.4;
+  }
+
+  &__inventory-desc {
+    color: $muted;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  &__inventory-action {
+    flex-shrink: 0;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-radius: $radius-pill;
+    color: #fff;
+    background: $primary;
+    font-size: 20px;
+    font-weight: 900;
+  }
+
   &__pill {
     min-height: 44px;
     display: flex;

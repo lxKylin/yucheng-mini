@@ -1,5 +1,9 @@
 import { createStore } from 'zustand/vanilla';
-import type { DerivedMedicine, Medicine } from '@/types';
+import type {
+  DerivedMedicine,
+  InventoryEstimateMode,
+  Medicine
+} from '@/types';
 import {
   DEFAULT_REMIND_TIME,
   DEFAULT_INTERVAL,
@@ -22,14 +26,24 @@ import {
 } from '@/utils/dateUtils';
 
 import { genId } from '@/utils/commonUtils';
+import { deriveMedicineInventory, roundQuantity } from '@/utils/medicineInventory';
+import { persistMedicineChange } from './persistMedicineChange';
 
 type AddPayload = Partial<Omit<Medicine, 'id' | 'createdAt' | 'updatedAt'>> &
   Pick<Medicine, 'name'>;
+
+export interface MarkMedicineDoneOptions {
+  date?: string;
+  inventoryQuantity?: number;
+  inventoryLater?: boolean;
+}
 
 const DEFAULT_REMINDER_STATUS: Medicine['status'] = REMINDER_STATUS.ACTIVE;
 
 interface ReminderStore {
   reminders: Medicine[];
+  loading: boolean;
+  error: string;
 
   // ─── CRUD ───────────────────────────────────────────────────────
   addReminder: (payload: AddPayload) => Promise<void>;
@@ -38,7 +52,16 @@ interface ReminderStore {
 
   // ─── 业务操作 ────────────────────────────────────────────────────
   /** 标记已开药：更新最近开药日期，将本次记录日期插入 history 头部，最多保留 HISTORY_MAX 条 */
-  markDone: (id: string, date?: string) => Promise<void>;
+  markDone: (
+    id: string,
+    options?: string | MarkMedicineDoneOptions
+  ) => Promise<void>;
+  calibrateInventory: (id: string, quantity: number, date: string) => Promise<void>;
+  setInventoryEstimateMode: (
+    id: string,
+    mode: InventoryEstimateMode,
+    calibration?: { quantity: number; date: string }
+  ) => Promise<void>;
   /** 切换暂停/启用 */
   togglePause: (id: string) => Promise<void>;
 
@@ -53,6 +76,8 @@ interface ReminderStore {
 
 export const reminderStore = createStore<ReminderStore>((set, get) => ({
   reminders: [],
+  loading: true,
+  error: '',
 
   async addReminder(payload) {
     const now = new Date().toISOString();
@@ -68,6 +93,12 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
       timesPerDay: payload.timesPerDay ?? 1,
       scheduleTiming: payload.scheduleTiming || '饭后',
       scheduleTime: payload.scheduleTime || '',
+      inventoryTrackingEnabled: payload.inventoryTrackingEnabled ?? false,
+      inventoryEstimateMode: payload.inventoryEstimateMode || 'manual',
+      inventoryBaseQuantity: payload.inventoryBaseQuantity ?? 0,
+      inventoryBaseDate: payload.inventoryBaseDate || '',
+      inventoryNeedsCalibration: payload.inventoryNeedsCalibration ?? false,
+      inventoryUpdatedAt: payload.inventoryUpdatedAt || '',
       reminderEnabled: payload.reminderEnabled ?? true,
       currentPrescriptionDate: payload.currentPrescriptionDate || today(),
       remindTime: payload.remindTime || DEFAULT_REMIND_TIME,
@@ -93,13 +124,16 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
     }
 
     const nextPayload = { ...payload, updatedAt };
-    await updateReminderInCloud(id, nextPayload);
-
-    set((state) => ({
-      reminders: state.reminders.map((r) =>
-        r.id === id ? { ...r, ...nextPayload } : r
-      )
-    }));
+    await persistMedicineChange(
+      () => updateReminderInCloud(id, nextPayload),
+      () => {
+        set((state) => ({
+          reminders: state.reminders.map((r) =>
+            r.id === id ? { ...r, ...nextPayload } : r
+          )
+        }));
+      }
+    );
   },
 
   async deleteReminder(id) {
@@ -118,33 +152,95 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
     }));
   },
 
-  async markDone(id, date) {
+  async markDone(id, options) {
     const target = get().reminders.find((r) => r.id === id);
     if (!target) {
       throw new Error('药品不存在或已删除');
     }
 
+    const normalizedOptions =
+      typeof options === 'string' ? { date: options } : options ?? {};
     const doneDate =
-      date ?? calcNextDate(target.currentPrescriptionDate, target.intervalDays);
+      normalizedOptions.date ??
+      calcNextDate(target.currentPrescriptionDate, target.intervalDays);
 
     const updatedAt = new Date().toISOString();
     const prescriptionHistory = [doneDate, ...target.prescriptionHistory].slice(
       0,
       HISTORY_MAX
     );
-    const nextPayload = {
+    const nextPayload: Partial<Medicine> = {
       currentPrescriptionDate: doneDate,
       prescriptionHistory,
       updatedAt
     };
 
-    await updateReminderInCloud(id, nextPayload);
+    if (target.inventoryTrackingEnabled) {
+      if (normalizedOptions.inventoryLater) {
+        nextPayload.inventoryNeedsCalibration = true;
+        nextPayload.inventoryUpdatedAt = updatedAt;
+      } else if (normalizedOptions.inventoryQuantity !== undefined) {
+        nextPayload.inventoryBaseQuantity = roundQuantity(
+          Math.max(0, normalizedOptions.inventoryQuantity)
+        );
+        nextPayload.inventoryBaseDate = doneDate;
+        nextPayload.inventoryNeedsCalibration = false;
+        nextPayload.inventoryUpdatedAt = updatedAt;
+      } else {
+        nextPayload.inventoryNeedsCalibration = true;
+        nextPayload.inventoryUpdatedAt = updatedAt;
+      }
+    }
 
-    set((state) => ({
-      reminders: state.reminders.map((r) =>
-        r.id === id ? { ...r, ...nextPayload } : r
-      )
-    }));
+    await persistMedicineChange(
+      () => updateReminderInCloud(id, nextPayload),
+      () => {
+        set((state) => ({
+          reminders: state.reminders.map((r) =>
+            r.id === id ? { ...r, ...nextPayload } : r
+          )
+        }));
+      }
+    );
+  },
+
+  async calibrateInventory(id, quantity, date) {
+    await get().updateReminder(id, {
+      inventoryBaseQuantity: roundQuantity(Math.max(0, quantity)),
+      inventoryBaseDate: date,
+      inventoryNeedsCalibration: false,
+      inventoryUpdatedAt: new Date().toISOString()
+    });
+  },
+
+  async setInventoryEstimateMode(id, mode, calibration) {
+    const target = get().reminders.find((medicine) => medicine.id === id);
+    if (!target) throw new Error('药品不存在或已删除');
+
+    if (mode === 'automatic') {
+      if (!calibration) throw new Error('恢复自动估算前请重新盘点');
+      await get().updateReminder(id, {
+        inventoryEstimateMode: mode,
+        inventoryBaseQuantity: roundQuantity(
+          Math.max(0, calibration.quantity)
+        ),
+        inventoryBaseDate: calibration.date,
+        inventoryNeedsCalibration: false,
+        inventoryUpdatedAt: new Date().toISOString()
+      });
+      return;
+    }
+
+    const currentInventory = deriveMedicineInventory(target, today());
+    await get().updateReminder(id, {
+      inventoryEstimateMode: mode,
+      inventoryBaseQuantity:
+        currentInventory.estimatedRemainingQuantity ??
+        target.inventoryBaseQuantity,
+      inventoryBaseDate: today(),
+      inventoryNeedsCalibration: false,
+      inventoryUpdatedAt: new Date().toISOString()
+    });
   },
 
   async togglePause(id) {
@@ -185,7 +281,16 @@ export const reminderStore = createStore<ReminderStore>((set, get) => ({
   },
 
   async loadFromCloud() {
-    const cloudList = await fetchReminders();
-    set({ reminders: cloudList });
+    set({ loading: true, error: '' });
+    try {
+      const cloudList = await fetchReminders();
+      set({ reminders: cloudList, loading: false });
+    } catch (error) {
+      set({
+        loading: false,
+        error: error instanceof Error ? error.message : '药箱加载失败'
+      });
+      throw error;
+    }
   }
 }));

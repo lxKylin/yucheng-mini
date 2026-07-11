@@ -33,6 +33,11 @@ export function useAllDerivedMedicines() {
   return useMemo(() => deriveAllMedicines(reminders), [reminders]);
 }
 
+export function useMedicineLoadState() {
+  const { error, loading } = useReminderStore();
+  return { error, loading };
+}
+
 /** 获取单条派生数据 */
 export function useDerivedById(id: string) {
   const reminders = useReminderStore().reminders;
@@ -75,6 +80,8 @@ export function useReminderActions() {
       updateReminder: state.updateReminder,
       deleteReminder: state.deleteReminder,
       markDone: state.markDone,
+      calibrateInventory: state.calibrateInventory,
+      setInventoryEstimateMode: state.setInventoryEstimateMode,
       togglePause: state.togglePause
     }),
     [state]

@@ -23,7 +23,7 @@ import {
   type HomeRiskFeedItem,
   useHomeRiskFeed
 } from '@/hooks/useHomeRiskFeed';
-import { useDerivedList, useReminderActions } from '@/hooks/useReminders';
+import { useDerivedList } from '@/hooks/useReminders';
 import { useTabScrollToTop } from '@/hooks/useTabScrollToTop';
 import { useReminderSheet } from '@/hooks/useReminderSheet';
 import { withPageShare } from '@/utils/pageShare';
@@ -144,7 +144,6 @@ function Home() {
   const allItems = useDerivedList();
   const allCheckups = useDerivedCheckups();
   const riskFeed = useHomeRiskFeed({ limit: 3 });
-  const { markDone } = useReminderActions();
 
   const doneTarget =
     doneReminderId === null
@@ -192,38 +191,7 @@ function Home() {
       return;
     }
 
-    if (target.daysLeft < 0) {
-      setDoneReminderId(id);
-      return;
-    }
-
-    Taro.showModal({
-      title: '确认已开药',
-      content: `确认已完成「${target.name}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
-      confirmText: '确认',
-      cancelText: '取消',
-      confirmColor: '#157a66',
-      success: async (res) => {
-        if (!res.confirm) {
-          return;
-        }
-
-        try {
-          await markDone(id);
-          Taro.showToast({
-            title: `${target.name} 已进入下一轮周期`,
-            icon: 'success',
-            duration: 1500
-          });
-        } catch {
-          Taro.showToast({
-            title: '更新失败，请稍后重试',
-            icon: 'none',
-            duration: 1800
-          });
-        }
-      }
-    });
+    setDoneReminderId(id);
   };
 
   const handleViewAll = () => {

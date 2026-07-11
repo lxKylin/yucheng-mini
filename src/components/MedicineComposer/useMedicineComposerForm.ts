@@ -21,12 +21,20 @@ import { useDerivedById, useReminderActions } from '@/hooks/useReminders';
 import { useSubmissionGuard } from '@/hooks/useSubmissionGuard';
 import type {
   DosageUnit,
-  Medicine,
-  MedicineForm,
-  MedicineSchedule
+  InventoryEstimateMode,
+  Medicine
 } from '@/types';
 import { calcNextDate, calcRemindDate, today } from '@/utils/dateUtils';
-import { loadSettings } from '@/utils/storage';
+import { formatQuantity, settleInventoryForDosageChange } from '@/utils/medicineInventory';
+import {
+  DOSAGE_PATTERN,
+  findIndexOrZero,
+  makeDefaults,
+  type MedicineComposerValues,
+  normalizeRange,
+  QUANTITY_PATTERN,
+  sanitizeDecimalInput
+} from './formUtils';
 
 export interface MedicineComposerFormOptions {
   medicineId?: string;
@@ -36,72 +44,11 @@ export interface MedicineComposerFormOptions {
   onSubmittingChange?: (submitting: boolean) => void;
 }
 
-interface FormValues {
-  name: string;
-  spec: string;
-  form: MedicineForm;
-  expiryDate: string;
-  note: string;
-  dosagePerUse: number;
-  dosageUnit: DosageUnit;
-  timesPerDay: number;
-  scheduleTiming: MedicineSchedule;
-  scheduleTime: string;
-  reminderEnabled: boolean;
-  currentPrescriptionDate: string;
-  intervalDays: number;
-  remindAdvanceDays: number;
-  remindTime: string;
-}
-
 export type InputEvent = BaseEventOrig<{ value: string }>;
 export type TextareaEvent = BaseEventOrig<{ value: string }>;
 export type DatePickerEvent = BaseEventOrig<PickerDateProps.ChangeEventDetail>;
 export type SelectorPickerEvent = BaseEventOrig<PickerSelectorProps.ChangeEventDetail>;
 export type TimePickerEvent = BaseEventOrig<PickerTimeProps.ChangeEventDetail>;
-
-function makeDefaults(defaultReminderEnabled = false): FormValues {
-  const settings = loadSettings();
-
-  return {
-    name: '',
-    spec: '',
-    form: 'tablet',
-    expiryDate: '',
-    note: '',
-    dosagePerUse: 1,
-    dosageUnit: '片',
-    timesPerDay: 1,
-    scheduleTiming: '饭后',
-    scheduleTime: '08:00',
-    reminderEnabled: defaultReminderEnabled,
-    currentPrescriptionDate: today(),
-    intervalDays: DEFAULT_INTERVAL,
-    remindAdvanceDays: settings.defaultBefore || DEFAULT_BEFORE,
-    remindTime: settings.defaultTime || DEFAULT_REMIND_TIME
-  };
-}
-
-function findIndexOrZero<T extends readonly unknown[]>(
-  options: T,
-  value: unknown
-) {
-  const index = options.findIndex((option) => option === value);
-  return index >= 0 ? index : 0;
-}
-
-function normalizeRange(
-  value: number,
-  fallback: number,
-  min: number,
-  max: number
-) {
-  if (!Number.isFinite(value) || value < min || value > max) {
-    return fallback;
-  }
-
-  return value;
-}
 
 export function useMedicineComposerForm({
   medicineId,
@@ -115,9 +62,13 @@ export function useMedicineComposerForm({
   const { addReminder, updateReminder } = useReminderActions();
   const { submitting, runSubmission, isSubmitting } =
     useSubmissionGuard(onSubmittingChange);
-  const [values, setValues] = useState<FormValues>(() =>
+  const [values, setValues] = useState<MedicineComposerValues>(() =>
     makeDefaults(defaultReminderEnabled)
   );
+  const [dosageInput, setDosageInput] = useState('1');
+  const [inventoryQuantityInput, setInventoryQuantityInput] = useState('');
+  const [doseEffectiveDate, setDoseEffectiveDate] = useState(today());
+  const [inventoryUnitChanged, setInventoryUnitChanged] = useState(false);
   const [intervalInput, setIntervalInput] = useState(() =>
     String(DEFAULT_INTERVAL)
   );
@@ -130,17 +81,29 @@ export function useMedicineComposerForm({
         form: existingItem.form,
         expiryDate: existingItem.expiryDate,
         note: existingItem.note,
-        dosagePerUse: existingItem.dosagePerUse,
         dosageUnit: existingItem.dosageUnit,
         timesPerDay: existingItem.timesPerDay,
         scheduleTiming: existingItem.scheduleTiming,
         scheduleTime: existingItem.scheduleTime || '08:00',
+        inventoryTrackingEnabled: existingItem.inventoryTrackingEnabled,
+        inventoryEstimateMode:
+          existingItem.timesPerDay > 0 &&
+          existingItem.scheduleTiming !== '按医嘱'
+            ? existingItem.inventoryEstimateMode
+            : 'manual',
+        inventoryBaseDate: existingItem.inventoryBaseDate || today(),
         reminderEnabled: existingItem.reminderEnabled,
         currentPrescriptionDate: existingItem.currentPrescriptionDate,
         intervalDays: existingItem.intervalDays,
         remindAdvanceDays: existingItem.remindAdvanceDays,
         remindTime: existingItem.remindTime
       });
+      setDosageInput(formatQuantity(existingItem.dosagePerUse));
+      setInventoryQuantityInput(
+        formatQuantity(existingItem.inventoryBaseQuantity)
+      );
+      setDoseEffectiveDate(today());
+      setInventoryUnitChanged(false);
       setIntervalInput(String(existingItem.intervalDays));
       return;
     }
@@ -148,6 +111,10 @@ export function useMedicineComposerForm({
     if (!isEdit) {
       const defaults = makeDefaults(defaultReminderEnabled);
       setValues(defaults);
+      setDosageInput('1');
+      setInventoryQuantityInput('');
+      setDoseEffectiveDate(today());
+      setInventoryUnitChanged(false);
       setIntervalInput(String(defaults.intervalDays));
     }
   }, [defaultReminderEnabled, existingItem, isEdit]);
@@ -174,6 +141,24 @@ export function useMedicineComposerForm({
     () => findIndexOrZero(BEFORE_OPTIONS, values.remindAdvanceDays),
     [values.remindAdvanceDays]
   );
+  const automaticInventoryAllowed =
+    values.timesPerDay > 0 && values.scheduleTiming !== '按医嘱';
+  const parsedDosage = Number(dosageInput);
+  const dosageChanged = Boolean(
+    existingItem &&
+      Number.isFinite(parsedDosage) &&
+      (parsedDosage !== existingItem.dosagePerUse ||
+        values.timesPerDay !== existingItem.timesPerDay)
+  );
+  const showDoseEffectiveDate = Boolean(
+    existingItem?.inventoryTrackingEnabled &&
+      existingItem.inventoryEstimateMode === 'automatic' &&
+      !existingItem.inventoryNeedsCalibration &&
+      values.inventoryTrackingEnabled &&
+      values.inventoryEstimateMode === 'automatic' &&
+      dosageChanged &&
+      !inventoryUnitChanged
+  );
 
   const calcText = useMemo(() => {
     if (values.intervalDays < 1 || values.intervalDays > 365) {
@@ -193,39 +178,111 @@ export function useMedicineComposerForm({
     values.remindTime
   ]);
 
-  const setField = <K extends keyof FormValues>(
+  const setField = <K extends keyof MedicineComposerValues>(
     field: K,
-    value: FormValues[K]
-  ) => {
-    setValues((prev) => ({ ...prev, [field]: value }));
-  };
+    value: MedicineComposerValues[K]
+  ) => setValues((previous) => ({ ...previous, [field]: value }));
 
-  const handleScheduleChange = (e: SelectorPickerEvent) => {
-    const schedule = SCHEDULE_OPTIONS[Number(e.detail.value)];
-    setValues((prev) => ({
-      ...prev,
-      scheduleTiming: schedule,
+  const handleScheduleChange = (event: SelectorPickerEvent) => {
+    const scheduleTiming = SCHEDULE_OPTIONS[Number(event.detail.value)];
+    setValues((previous) => ({
+      ...previous,
+      scheduleTiming,
       scheduleTime:
-        schedule === '固定时间' && !prev.scheduleTime
+        scheduleTiming === '固定时间' && !previous.scheduleTime
           ? '08:00'
-          : prev.scheduleTime
+          : previous.scheduleTime,
+      inventoryEstimateMode:
+        previous.inventoryTrackingEnabled && scheduleTiming === '按医嘱'
+          ? 'manual'
+          : previous.inventoryEstimateMode
     }));
   };
 
-  const handleIntervalChange = (e: InputEvent) => {
-    const nextValue = e.detail.value.replace(/\D/g, '');
+  const handleIntervalChange = (event: InputEvent) => {
+    const nextValue = event.detail.value.replace(/\D/g, '');
     setIntervalInput(nextValue);
     setField('intervalDays', nextValue ? Number(nextValue) : 0);
   };
 
-  const handleDosageChange = (e: InputEvent) => {
-    const nextValue = e.detail.value.replace(/[^\d.]/g, '');
-    setField('dosagePerUse', nextValue ? Number(nextValue) : 0);
+  const handleDosageChange = (event: InputEvent) => {
+    setDosageInput(sanitizeDecimalInput(event.detail.value));
   };
 
-  const handleTimesChange = (e: InputEvent) => {
-    const nextValue = e.detail.value.replace(/\D/g, '');
-    setField('timesPerDay', nextValue ? Number(nextValue) : 0);
+  const handleTimesChange = (event: InputEvent) => {
+    const nextValue = event.detail.value.replace(/\D/g, '');
+    const timesPerDay = nextValue ? Number(nextValue) : 0;
+    setValues((previous) => ({
+      ...previous,
+      timesPerDay,
+      inventoryEstimateMode:
+        previous.inventoryTrackingEnabled && timesPerDay === 0
+          ? 'manual'
+          : previous.inventoryEstimateMode
+    }));
+  };
+
+  const handleDosageUnitChange = (dosageUnit: DosageUnit) => {
+    if (
+      existingItem?.inventoryTrackingEnabled &&
+      dosageUnit !== existingItem.dosageUnit
+    ) {
+      setInventoryUnitChanged(true);
+      setInventoryQuantityInput('');
+      setField('inventoryBaseDate', today());
+    } else {
+      setInventoryUnitChanged(false);
+      if (existingItem) {
+        setInventoryQuantityInput(
+          formatQuantity(existingItem.inventoryBaseQuantity)
+        );
+        setField(
+          'inventoryBaseDate',
+          existingItem.inventoryBaseDate || today()
+        );
+      }
+    }
+    setField('dosageUnit', dosageUnit);
+  };
+
+  const handleInventoryTrackingChange = (enabled: boolean) => {
+    setValues((previous) => ({
+      ...previous,
+      inventoryTrackingEnabled: enabled,
+      inventoryEstimateMode: automaticInventoryAllowed
+        ? previous.inventoryEstimateMode
+        : 'manual',
+      inventoryBaseDate: previous.inventoryBaseDate || today()
+    }));
+  };
+
+  const handleInventoryModeChange = (mode: InventoryEstimateMode) => {
+    if (mode === 'automatic' && !automaticInventoryAllowed) {
+      Taro.showToast({
+        title: '用量不固定，只能手动维护余量',
+        icon: 'none',
+        duration: 1800
+      });
+      return;
+    }
+
+    if (mode === values.inventoryEstimateMode) return;
+
+    if (mode === 'automatic') {
+      setInventoryQuantityInput('');
+      setField('inventoryBaseDate', today());
+    } else if (existingItem?.estimatedRemainingQuantity != null) {
+      setInventoryQuantityInput(
+        formatQuantity(existingItem?.estimatedRemainingQuantity ?? 0)
+      );
+      setField('inventoryBaseDate', today());
+    }
+
+    setField('inventoryEstimateMode', mode);
+  };
+
+  const handleInventoryQuantityChange = (event: InputEvent) => {
+    setInventoryQuantityInput(sanitizeDecimalInput(event.detail.value));
   };
 
   const handleSubmit = async () => {
@@ -236,11 +293,11 @@ export function useMedicineComposerForm({
       return;
     }
 
-    if (values.dosagePerUse <= 0) {
+    if (!DOSAGE_PATTERN.test(dosageInput) || parsedDosage <= 0) {
       Taro.showToast({
-        title: '每次用量需大于 0',
+        title: '每次用量需大于 0，且最多两位小数',
         icon: 'none',
-        duration: 1500
+        duration: 1800
       });
       return;
     }
@@ -254,6 +311,46 @@ export function useMedicineComposerForm({
       return;
     }
 
+    const inventoryQuantity = Number(inventoryQuantityInput);
+    if (values.inventoryTrackingEnabled) {
+      if (
+        !QUANTITY_PATTERN.test(inventoryQuantityInput) ||
+        !Number.isFinite(inventoryQuantity) ||
+        inventoryQuantity < 0
+      ) {
+        Taro.showToast({
+          title: '当前总量需不小于 0，且最多两位小数',
+          icon: 'none',
+          duration: 1800
+        });
+        return;
+      }
+      if (!values.inventoryBaseDate || values.inventoryBaseDate > today()) {
+        Taro.showToast({
+          title: '盘点日期不能晚于今天',
+          icon: 'none',
+          duration: 1800
+        });
+        return;
+      }
+    }
+
+    if (showDoseEffectiveDate) {
+      const baseDate = existingItem?.inventoryBaseDate || today();
+      if (
+        !doseEffectiveDate ||
+        doseEffectiveDate < baseDate ||
+        doseEffectiveDate > today()
+      ) {
+        Taro.showToast({
+          title: `剂量生效日期需在 ${baseDate} 至今天之间`,
+          icon: 'none',
+          duration: 2000
+        });
+        return;
+      }
+    }
+
     if (values.reminderEnabled) {
       if (values.intervalDays < 1 || values.intervalDays > 365) {
         Taro.showToast({
@@ -263,19 +360,9 @@ export function useMedicineComposerForm({
         });
         return;
       }
-
-      if (!values.currentPrescriptionDate) {
+      if (!values.currentPrescriptionDate || !values.remindTime) {
         Taro.showToast({
-          title: '请选择最近开药日期',
-          icon: 'none',
-          duration: 1500
-        });
-        return;
-      }
-
-      if (!values.remindTime) {
-        Taro.showToast({
-          title: '请选择提醒时刻',
+          title: '请完善最近开药日期和提醒时刻',
           icon: 'none',
           duration: 1500
         });
@@ -287,17 +374,28 @@ export function useMedicineComposerForm({
     const intervalDays = values.reminderEnabled
       ? values.intervalDays
       : normalizeRange(values.intervalDays, DEFAULT_INTERVAL, 1, 365);
-    const remindAdvanceDays = normalizeRange(
-      values.remindAdvanceDays,
-      DEFAULT_BEFORE,
-      0,
-      365
-    );
-    const remindTime = values.remindTime || DEFAULT_REMIND_TIME;
     const scheduleTime =
       values.scheduleTiming === '固定时间'
         ? values.scheduleTime || '08:00'
         : '';
+    const inventoryEstimateMode = automaticInventoryAllowed
+      ? values.inventoryEstimateMode
+      : 'manual';
+    let inventoryBaseQuantity = values.inventoryTrackingEnabled
+      ? inventoryQuantity
+      : existingItem?.inventoryBaseQuantity ?? 0;
+    let inventoryBaseDate = values.inventoryTrackingEnabled
+      ? values.inventoryBaseDate
+      : existingItem?.inventoryBaseDate ?? '';
+
+    if (showDoseEffectiveDate && existingItem) {
+      const settlement = settleInventoryForDosageChange(
+        existingItem,
+        doseEffectiveDate
+      );
+      inventoryBaseQuantity = settlement.inventoryBaseQuantity;
+      inventoryBaseDate = settlement.inventoryBaseDate;
+    }
 
     const payload = {
       name: values.name.trim(),
@@ -305,27 +403,36 @@ export function useMedicineComposerForm({
       form: values.form,
       expiryDate: values.expiryDate,
       note: values.note.trim(),
-      dosagePerUse: values.dosagePerUse,
+      dosagePerUse: parsedDosage,
       dosageUnit: values.dosageUnit,
       timesPerDay: values.timesPerDay,
       scheduleTiming: values.scheduleTiming,
       scheduleTime,
+      inventoryTrackingEnabled: values.inventoryTrackingEnabled,
+      inventoryEstimateMode,
+      inventoryBaseQuantity,
+      inventoryBaseDate,
+      inventoryNeedsCalibration: false,
+      inventoryUpdatedAt: values.inventoryTrackingEnabled
+        ? new Date().toISOString()
+        : existingItem?.inventoryUpdatedAt ?? '',
       reminderEnabled: values.reminderEnabled,
       currentPrescriptionDate,
       intervalDays,
-      remindAdvanceDays,
-      remindTime
+      remindAdvanceDays: normalizeRange(
+        values.remindAdvanceDays,
+        DEFAULT_BEFORE,
+        0,
+        365
+      ),
+      remindTime: values.remindTime || DEFAULT_REMIND_TIME
     };
 
     try {
       await runSubmission(async () => {
         if (isEdit && medicineId) {
           await updateReminder(medicineId, payload);
-          Taro.showToast({
-            title: '药品已更新',
-            icon: 'success',
-            duration: 1500
-          });
+          Taro.showToast({ title: '药品已更新', icon: 'success', duration: 1500 });
         } else {
           await addReminder({
             ...payload,
@@ -344,7 +451,6 @@ export function useMedicineComposerForm({
             duration: 1500
           });
         }
-
         onSuccess();
       });
     } catch {
@@ -357,26 +463,36 @@ export function useMedicineComposerForm({
   };
 
   const handleCancel = () => {
-    if (!isSubmitting()) {
-      onCancel();
-    }
+    if (!isSubmitting()) onCancel();
   };
 
   return {
+    automaticInventoryAllowed,
     beforeIndex,
     calcText,
     dosageIndex,
+    dosageInput,
+    doseEffectiveDate,
     formIndex,
     handleCancel,
     handleDosageChange,
+    handleDosageUnitChange,
     handleIntervalChange,
+    handleInventoryModeChange,
+    handleInventoryQuantityChange,
+    handleInventoryTrackingChange,
     handleScheduleChange,
     handleSubmit,
     handleTimesChange,
     intervalInput,
+    inventoryQuantityInput,
+    inventoryUnitChanged,
     isEdit,
     scheduleIndex,
+    setDosageInput,
+    setDoseEffectiveDate,
     setField,
+    showDoseEffectiveDate,
     submitting,
     values
   };

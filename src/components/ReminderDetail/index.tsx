@@ -25,7 +25,7 @@ export default function ReminderDetail({
   const [doneSheetOpen, setDoneSheetOpen] = useState(false);
   const item = useDerivedById(reminderId);
   const [displayItem, setDisplayItem] = useState(item);
-  const { markDone, togglePause, updateReminder } = useReminderActions();
+  const { togglePause, updateReminder } = useReminderActions();
 
   useEffect(() => {
     if (item) {
@@ -54,39 +54,7 @@ export default function ReminderDetail({
       return;
     }
 
-    if (displayItem.daysLeft < 0) {
-      setDoneSheetOpen(true);
-      return;
-    }
-
-    Taro.showModal({
-      title: '确认本次已开药',
-      content: `确认已完成「${displayItem.name}」本次开药吗？系统会更新最近一盒日期并推算下一次提醒。`,
-      confirmText: '确认',
-      cancelText: '取消',
-      confirmColor: '#157a66',
-      success: async (res) => {
-        if (!res.confirm) {
-          return;
-        }
-
-        try {
-          await markDone(displayItem.id);
-          Taro.showToast({
-            title: `${displayItem.name} 已进入下一轮周期`,
-            icon: 'success',
-            duration: 1500
-          });
-          onClose();
-        } catch {
-          Taro.showToast({
-            title: '更新失败，请稍后重试',
-            icon: 'none',
-            duration: 1800
-          });
-        }
-      }
-    });
+    setDoneSheetOpen(true);
   };
 
   const handleTogglePause = () => {

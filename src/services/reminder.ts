@@ -13,6 +13,7 @@ import type {
   MedicineSchedule
 } from '@/types';
 import { today } from '@/utils/dateUtils';
+import { isValidDateString, roundQuantity } from '@/utils/medicineInventory';
 import { getCollection } from './cloud';
 import { getUserId } from './auth';
 
@@ -79,6 +80,15 @@ function toArray(value: unknown): string[] {
   return Array.isArray(value) ? value : [];
 }
 
+function normalizeNonNegativeQuantity(value: unknown): number {
+  const next = Number(value);
+  return Number.isFinite(next) ? roundQuantity(Math.max(0, next)) : 0;
+}
+
+function normalizeInventoryDate(value: unknown): string {
+  return isValidDateString(value) ? value : '';
+}
+
 export function migrateMedicine(raw: any): Medicine {
   const id = raw.id ?? raw._id ?? '';
   const name = raw.name ?? raw.medicineName ?? '';
@@ -98,6 +108,18 @@ export function migrateMedicine(raw: any): Medicine {
     timesPerDay: toNumber(raw.timesPerDay, 1),
     scheduleTiming: normalizeScheduleTiming(raw.scheduleTiming ?? raw.timing),
     scheduleTime: raw.scheduleTime ?? raw.timingTime ?? '',
+    inventoryTrackingEnabled: raw.inventoryTrackingEnabled === true,
+    inventoryEstimateMode:
+      raw.inventoryEstimateMode === 'automatic' ? 'automatic' : 'manual',
+    inventoryBaseQuantity: normalizeNonNegativeQuantity(
+      raw.inventoryBaseQuantity
+    ),
+    inventoryBaseDate: normalizeInventoryDate(raw.inventoryBaseDate),
+    inventoryNeedsCalibration: raw.inventoryNeedsCalibration === true,
+    inventoryUpdatedAt:
+      typeof raw.inventoryUpdatedAt === 'string'
+        ? raw.inventoryUpdatedAt
+        : '',
     reminderEnabled: raw.reminderEnabled ?? true,
     currentPrescriptionDate,
     intervalDays: toNumber(raw.intervalDays, DEFAULT_INTERVAL),

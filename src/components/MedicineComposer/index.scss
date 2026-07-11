@@ -35,6 +35,79 @@
     font-weight: 900;
   }
 
+  &__inventory-fields {
+    display: grid;
+    gap: $spacing-4;
+  }
+
+  &__mode-options,
+  &__dose-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+  }
+
+  &__mode-option,
+  &__dose-shortcut {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 $spacing-4;
+    border: 1px solid $line-strong;
+    border-radius: $radius-pill;
+    color: $muted;
+    background: #fff;
+    font-size: $text-sm;
+    font-weight: 800;
+    transition:
+      transform 160ms ease,
+      background 160ms ease,
+      border-color 160ms ease;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &--active {
+      color: #fff;
+      background: $primary;
+      border-color: $primary;
+    }
+
+    &--disabled {
+      opacity: 0.45;
+    }
+  }
+
+  &__dose-shortcuts {
+    margin-top: -4px;
+  }
+
+  &__dose-shortcut {
+    min-height: 44px;
+    padding: 0 $spacing-3;
+  }
+
+  &__inventory-tip,
+  &__inventory-warning {
+    display: block;
+    padding: $spacing-3 $spacing-4;
+    border-radius: $radius;
+    font-size: $text-sm;
+    line-height: 1.6;
+  }
+
+  &__inventory-tip {
+    color: $primary-deep;
+    background: $primary-soft;
+  }
+
+  &__inventory-warning {
+    color: $warning;
+    background: $warning-soft;
+  }
+
   &__field {
     display: grid;
     gap: $spacing-2;
