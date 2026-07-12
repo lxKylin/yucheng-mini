@@ -3,6 +3,7 @@ import {
   canAutomaticallyEstimate,
   deriveMedicineInventory,
   formatDosage,
+  formatInventoryEstimate,
   formatQuantity,
   settleInventoryForDosageChange
 } from './medicineInventory';
@@ -49,6 +50,22 @@ export function verifyMedicineInventory() {
 
   const baseDay = deriveMedicineInventory(sampleMedicine, '2026-07-01');
   assert(baseDay.estimatedRemainingQuantity === 60, '基准日不应扣减');
+
+  const nextDay = deriveMedicineInventory(
+    {
+      ...sampleMedicine,
+      dosagePerUse: 1,
+      timesPerDay: 1,
+      inventoryBaseQuantity: 30,
+      inventoryBaseDate: '2026-07-11'
+    },
+    '2026-07-12'
+  );
+  assert(nextDay.estimatedRemainingQuantity === 29, '次日预计余量错误');
+  assert(
+    formatInventoryEstimate(29, '片') === '当前预计剩余 29片',
+    '当前预计余量文案错误'
+  );
 
   const afterTenDays = deriveMedicineInventory(sampleMedicine, '2026-07-11');
   assert(afterTenDays.plannedDailyDosage === 1, '每日计划用量错误');

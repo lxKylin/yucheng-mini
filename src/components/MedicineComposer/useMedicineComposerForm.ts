@@ -485,6 +485,8 @@ export function useMedicineComposerForm({
     handleSubmit,
     handleTimesChange,
     intervalInput,
+    inventoryEstimatedRemainingQuantity:
+      existingItem?.estimatedRemainingQuantity ?? null,
     inventoryQuantityInput,
     inventoryUnitChanged,
     isEdit,

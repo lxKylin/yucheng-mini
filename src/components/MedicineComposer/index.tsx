@@ -70,6 +70,7 @@ export default function MedicineComposer({
     handleSubmit,
     handleTimesChange,
     intervalInput,
+    inventoryEstimatedRemainingQuantity,
     inventoryQuantityInput,
     inventoryUnitChanged,
     isEdit,
@@ -283,6 +284,7 @@ export default function MedicineComposer({
       <InventorySection
         automaticAllowed={automaticInventoryAllowed}
         doseEffectiveDate={doseEffectiveDate}
+        estimatedRemainingQuantity={inventoryEstimatedRemainingQuantity}
         inventoryQuantityInput={inventoryQuantityInput}
         inventoryUnitChanged={inventoryUnitChanged}
         showDoseEffectiveDate={showDoseEffectiveDate}

@@ -3,12 +3,14 @@ import { Input, Switch } from '@taroify/core';
 
 import type { InventoryEstimateMode } from '@/types';
 import { today } from '@/utils/dateUtils';
+import { formatInventoryEstimate } from '@/utils/medicineInventory';
 import type { MedicineComposerValues } from './formUtils';
 import type { DatePickerEvent, InputEvent } from './useMedicineComposerForm';
 
 interface InventorySectionProps {
   automaticAllowed: boolean;
   doseEffectiveDate: string;
+  estimatedRemainingQuantity: number | null;
   inventoryQuantityInput: string;
   inventoryUnitChanged: boolean;
   showDoseEffectiveDate: boolean;
@@ -28,6 +30,7 @@ const MODE_OPTIONS: { value: InventoryEstimateMode; label: string }[] = [
 export default function InventorySection({
   automaticAllowed,
   doseEffectiveDate,
+  estimatedRemainingQuantity,
   inventoryQuantityInput,
   inventoryUnitChanged,
   showDoseEffectiveDate,
@@ -84,20 +87,23 @@ export default function InventorySection({
             }
           >
             {automaticAllowed
-              ? '自动估算按自然日计算，盘点当天不重复扣减；结果仅代表当前计划。'
+              ? values.inventoryEstimateMode === 'automatic' &&
+                estimatedRemainingQuantity !== null
+                ? `${formatInventoryEstimate(estimatedRemainingQuantity, values.dosageUnit)} · 按已保存计划估算；下方为最近一次盘点基准。`
+                : '自动估算按自然日计算，盘点当天不重复扣减；结果仅代表当前计划。'
               : '当前用量不固定，需手动更新余量，不展示预计可用天数。'}
           </Text>
 
           {inventoryUnitChanged ? (
             <Text className="medicine-composer__inventory-warning">
-              用量单位已变化，请按新单位重新填写当前实际总量，旧库存基准不会沿用。
+              用量单位已变化，请按新单位重新填写盘点时实际总量，旧库存基准不会沿用。
             </Text>
           ) : null}
 
           <View className="medicine-composer__grid">
             <View className="medicine-composer__field">
               <Text className="medicine-composer__label">
-                当前实际总量
+                盘点时实际总量
                 <Text className="medicine-composer__required">*</Text>
               </Text>
               <View className="medicine-composer__input-row">

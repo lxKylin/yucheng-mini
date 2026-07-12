@@ -22,6 +22,10 @@ export function formatQuantity(value: number): string {
   return String(roundQuantity(value));
 }
 
+export function formatInventoryEstimate(value: number, unit: string): string {
+  return `当前预计剩余 ${formatQuantity(value)}${unit}`;
+}
+
 export function formatDosage(value: number, unit: string): string {
   if (unit === '片' && value === 0.25) return '1/4 片';
   if (unit === '片' && value === 0.5) return '1/2 片';
