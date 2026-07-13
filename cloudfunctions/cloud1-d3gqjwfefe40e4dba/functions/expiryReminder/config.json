@@ -6,7 +6,7 @@
     {
       "name": "expiryReminderTrigger",
       "type": "timer",
-      "config": "0 0 9 * * 3 *"
+      "config": "0 */30 * * * * *"
     }
   ]
 }

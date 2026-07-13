@@ -1,5 +1,6 @@
 const axios = require('axios');
 const cloud = require('wx-server-sdk');
+const { isExpiryReminderDue } = require('./expiryReminderDue');
 
 const APP_ID = (process.env.ENV_APP_ID || '').trim();
 const APP_SECRET = (process.env.ENV_APP_SECRET || '').trim();
@@ -47,40 +48,10 @@ function formatTime(date = new Date()) {
 }
 
 /**
- * 日期加天数
- */
-function addDays(dateStr, days) {
-  const date = new Date(`${dateStr}T00:00:00+08:00`);
-  date.setDate(date.getDate() + Number(days || 0));
-  return formatDate(date);
-}
-
-/**
  * 获取 openid
  */
 function getOpenId(medicine) {
   return medicine._openid || medicine.userId || '';
-}
-
-/**
- * 判断当前时间是否命中提醒时间
- * 默认允许 +/-30 分钟误差
- */
-function isTimeMatched(remindTime, toleranceMinutes = 30) {
-  if (!remindTime) return false;
-
-  const now = new Date();
-
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const [hour, minute] = remindTime.split(':').map(Number);
-
-  if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
-    return false;
-  }
-
-  const targetMinutes = hour * 60 + minute;
-
-  return Math.abs(currentMinutes - targetMinutes) <= toleranceMinutes;
 }
 
 /**
@@ -226,13 +197,13 @@ async function sendExpirySubscribeMessage({ openId, medicine, expiryDate }) {
 /**
  * 更新药品过期提醒状态
  */
-async function updateExpiryReminderStatus(id, today) {
+async function updateExpiryReminderStatus(id, reminderDate) {
   return db
     .collection('medicines')
     .doc(id)
     .update({
       data: {
-        lastWechatExpiryReminderDate: today,
+        lastWechatExpiryReminderDate: reminderDate,
         lastWechatExpiryReminderAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
@@ -274,14 +245,13 @@ async function updateUserSubscriptionStatus(openId, status, cache) {
 }
 
 exports.main = async () => {
-  const today = formatDate();
-  const currentTime = formatTime();
-  // 提前 N 天提醒：今天只扫描过期日期等于 today + N 的药品。
-  const targetExpiryDate = addDays(today, EXPIRY_ADVANCE_DAYS);
+  const now = new Date();
+  const today = formatDate(now);
+  const currentTime = formatTime(now);
   const userCache = new Map();
 
   console.log(
-    `[expiryReminder] 开始执行，today=${today} currentTime=${currentTime} targetExpiryDate=${targetExpiryDate}`
+    `[expiryReminder] 开始执行，today=${today} currentTime=${currentTime}`
   );
 
   try {
@@ -294,14 +264,17 @@ exports.main = async () => {
   const results = {
     sent: 0,
     failed: 0,
-    skipped: 0
+    skipped: 0,
+    dateMismatch: 0,
+    timeMismatch: 0,
+    invalidInput: 0,
+    duplicate: 0
   };
 
   try {
     const { data: medicines } = await db
       .collection('medicines')
       .where({
-        expiryDate: targetExpiryDate,
         status: 'active'
       })
       .limit(1000)
@@ -314,8 +287,31 @@ exports.main = async () => {
       let openId = '';
 
       try {
-        if (medicine.lastWechatExpiryReminderDate === today) {
+        const reminderDecision = isExpiryReminderDue({
+          now,
+          expiryDate: medicine.expiryDate,
+          advanceDays: EXPIRY_ADVANCE_DAYS,
+          remindTime: getExpiryReminderTime(medicine)
+        });
+
+        if (!reminderDecision.due) {
+          if (reminderDecision.reason === 'date_mismatch') {
+            results.dateMismatch++;
+          } else if (reminderDecision.reason === 'time_mismatch') {
+            results.timeMismatch++;
+          } else {
+            results.invalidInput++;
+          }
+          results.skipped++;
+          continue;
+        }
+
+        if (
+          medicine.lastWechatExpiryReminderDate ===
+          reminderDecision.reminderDate
+        ) {
           console.log(`[expiryReminder] 跳过重复发送 medicine=${medicineName}`);
+          results.duplicate++;
           results.skipped++;
           continue;
         }
@@ -341,21 +337,16 @@ exports.main = async () => {
           continue;
         }
 
-        const remindTime = getExpiryReminderTime(medicine);
-
-        if (!isTimeMatched(remindTime)) {
-          console.log(`[expiryReminder] 时间未命中 remindTime=${remindTime}`);
-          results.skipped++;
-          continue;
-        }
-
         await sendExpirySubscribeMessage({
           openId,
           medicine,
           expiryDate: medicine.expiryDate
         });
 
-        await updateExpiryReminderStatus(medicine._id, today);
+        await updateExpiryReminderStatus(
+          medicine._id,
+          reminderDecision.reminderDate
+        );
         await updateUserSubscriptionStatus(
           openId,
           USER_WECHAT_SUBSCRIPTION_STATUS.CONSUMED,
@@ -390,7 +381,7 @@ exports.main = async () => {
   }
 
   console.log(
-    `[expiryReminder] 执行完成 sent=${results.sent} failed=${results.failed} skipped=${results.skipped}`
+    `[expiryReminder] 执行完成 sent=${results.sent} failed=${results.failed} skipped=${results.skipped} dateMismatch=${results.dateMismatch} timeMismatch=${results.timeMismatch} invalidInput=${results.invalidInput} duplicate=${results.duplicate}`
   );
 
   return results;
