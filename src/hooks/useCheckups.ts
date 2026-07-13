@@ -52,7 +52,8 @@ export function useCheckupActions() {
       updateCheckup: state.updateCheckup,
       deleteCheckup: state.deleteCheckup,
       togglePause: state.togglePause,
-      completeCheckup: state.completeCheckup
+      completeCheckup: state.completeCheckup,
+      restartCheckup: state.restartCheckup
     }),
     [state]
   );

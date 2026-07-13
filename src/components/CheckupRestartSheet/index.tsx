@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Picker, Text, View } from '@tarojs/components';
 import type {
   BaseEventOrig,
@@ -17,8 +17,11 @@ import {
   DEFAULT_REMIND_TIME
 } from '@/constants';
 import { useCheckupActions } from '@/hooks/useCheckups';
+import { useSubmissionGuard } from '@/hooks/useSubmissionGuard';
+import { CheckupMutationConflictError } from '@/services/checkup';
 import type { DerivedCheckupReminder } from '@/types';
 import { calcCheckupRemindDate } from '@/utils/checkupUtils';
+import { genId } from '@/utils/commonUtils';
 import { addDays, today } from '@/utils/dateUtils';
 
 import './index.scss';
@@ -59,21 +62,39 @@ export default function CheckupRestartSheet({
   onClose,
   onSuccess
 }: CheckupRestartSheetProps) {
-  const { updateCheckup } = useCheckupActions();
+  const { restartCheckup } = useCheckupActions();
+  const { submitting, runSubmission, isSubmitting } = useSubmissionGuard();
   const [targetDate, setTargetDate] = useState(addDays(today(), 30));
   const [remindAdvanceDays, setRemindAdvanceDays] =
     useState<number>(DEFAULT_BEFORE);
   const [remindTime, setRemindTime] = useState(DEFAULT_REMIND_TIME);
+  const openedItemIdRef = useRef<string | null>(null);
+  const mutationIdRef = useRef<string | null>(null);
+
+  const ensureMutationId = () => {
+    if (!mutationIdRef.current) {
+      mutationIdRef.current = genId();
+    }
+    return mutationIdRef.current;
+  };
 
   useEffect(() => {
     if (!open || !item) {
+      openedItemIdRef.current = null;
+      mutationIdRef.current = null;
       return;
     }
 
+    if (openedItemIdRef.current === item.id) {
+      return;
+    }
+
+    openedItemIdRef.current = item.id;
+    mutationIdRef.current = genId();
     setTargetDate(buildDefaultTargetDate(item));
     setRemindAdvanceDays(item.remindAdvanceDays ?? DEFAULT_BEFORE);
     setRemindTime(item.remindTime || DEFAULT_REMIND_TIME);
-  }, [item, open]);
+  }, [item?.id, open]);
 
   const beforeIndex = useMemo(
     () => findBeforeIndex(remindAdvanceDays),
@@ -89,6 +110,10 @@ export default function CheckupRestartSheet({
   }
 
   const handleSubmit = async () => {
+    if (isSubmitting()) {
+      return;
+    }
+
     if (targetDate < today()) {
       Taro.showToast({
         title: '下次检查日期不能早于今天',
@@ -108,32 +133,40 @@ export default function CheckupRestartSheet({
     }
 
     try {
-      await updateCheckup(item.id, {
-        status: CHECKUP_STATUS.ACTIVE,
-        targetDate,
-        remindAdvanceDays,
-        remindTime,
-        lastWechatReminderDate: '',
-        lastWechatReminderAt: ''
+      await runSubmission(async () => {
+        await restartCheckup(item.id, {
+          targetDate,
+          remindAdvanceDays,
+          remindTime,
+          mutationId: ensureMutationId()
+        });
+        Taro.showToast({
+          title: '已重新安排检查',
+          icon: 'success',
+          duration: 1500
+        });
+        onClose();
+        onSuccess?.();
       });
+    } catch (error) {
       Taro.showToast({
-        title: '已重新安排检查',
-        icon: 'success',
-        duration: 1500
-      });
-      onClose();
-      onSuccess?.();
-    } catch {
-      Taro.showToast({
-        title: '保存失败，请稍后重试',
+        title:
+          error instanceof CheckupMutationConflictError
+            ? '记录已更新，请确认后重试'
+            : '保存失败，输入已保留，请重试',
         icon: 'none',
-        duration: 1800
+        duration: 2000
       });
     }
   };
 
   return (
-    <BottomSheet open={open} title="重新安排检查" onClose={onClose}>
+    <BottomSheet
+      open={open}
+      title="重新安排检查"
+      closeDisabled={submitting}
+      onClose={onClose}
+    >
       <View className="checkup-restart-sheet">
         <View className="checkup-restart-sheet__notice">
           <Text className="checkup-restart-sheet__notice-title">
@@ -212,12 +245,15 @@ export default function CheckupRestartSheet({
         <View className="checkup-restart-sheet__actions">
           <Button
             className="checkup-restart-sheet__btn checkup-restart-sheet__btn--ghost"
+            disabled={submitting}
             onClick={onClose}
           >
             取消
           </Button>
           <Button
             className="checkup-restart-sheet__btn checkup-restart-sheet__btn--primary"
+            loading={submitting}
+            disabled={submitting}
             onClick={handleSubmit}
           >
             恢复提醒

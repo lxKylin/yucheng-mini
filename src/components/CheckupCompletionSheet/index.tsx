@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Picker, Text, View } from '@tarojs/components';
 import type { BaseEventOrig, PickerDateProps } from '@tarojs/components';
 import Taro from '@tarojs/taro';
@@ -6,7 +6,10 @@ import { Button, Textarea } from '@taroify/core';
 
 import BottomSheet from '@/components/BottomSheet';
 import { useCheckupActions } from '@/hooks/useCheckups';
+import { useSubmissionGuard } from '@/hooks/useSubmissionGuard';
+import { CheckupMutationConflictError } from '@/services/checkup';
 import type { DerivedCheckupReminder } from '@/types';
+import { genId } from '@/utils/commonUtils';
 import { addDays, today } from '@/utils/dateUtils';
 
 import './index.scss';
@@ -42,19 +45,37 @@ export default function CheckupCompletionSheet({
   onSuccess
 }: CheckupCompletionSheetProps) {
   const { completeCheckup } = useCheckupActions();
+  const { submitting, runSubmission, isSubmitting } = useSubmissionGuard();
   const [doneDate, setDoneDate] = useState(today());
   const [nextTargetDate, setNextTargetDate] = useState(addDays(today(), 30));
   const [doneNote, setDoneNote] = useState('');
+  const openedItemIdRef = useRef<string | null>(null);
+  const mutationIdRef = useRef<string | null>(null);
+
+  const ensureMutationId = () => {
+    if (!mutationIdRef.current) {
+      mutationIdRef.current = genId();
+    }
+    return mutationIdRef.current;
+  };
 
   useEffect(() => {
     if (!open || !item) {
+      openedItemIdRef.current = null;
+      mutationIdRef.current = null;
       return;
     }
 
+    if (openedItemIdRef.current === item.id) {
+      return;
+    }
+
+    openedItemIdRef.current = item.id;
+    mutationIdRef.current = genId();
     setDoneDate(today());
     setNextTargetDate(buildInitialNextDate(item));
     setDoneNote('');
-  }, [item, open]);
+  }, [item?.id, open]);
 
   const doneStartDate = useMemo(() => {
     if (!item) {
@@ -85,6 +106,10 @@ export default function CheckupCompletionSheet({
   };
 
   const handleComplete = async (withNextDate: boolean) => {
+    if (isSubmitting()) {
+      return;
+    }
+
     if (!validateDoneDate()) {
       return;
     }
@@ -99,29 +124,40 @@ export default function CheckupCompletionSheet({
     }
 
     try {
-      await completeCheckup(item.id, {
-        doneDate,
-        nextTargetDate: withNextDate ? nextTargetDate : undefined,
-        note: doneNote.trim()
+      await runSubmission(async () => {
+        await completeCheckup(item.id, {
+          doneDate,
+          nextTargetDate: withNextDate ? nextTargetDate : undefined,
+          note: doneNote.trim(),
+          mutationId: ensureMutationId()
+        });
+        Taro.showToast({
+          title: withNextDate ? '已安排下一次检查' : '检查已完成',
+          icon: 'success',
+          duration: 1500
+        });
+        onClose();
+        onSuccess?.();
       });
+    } catch (error) {
       Taro.showToast({
-        title: withNextDate ? '已安排下一次检查' : '检查已完成',
-        icon: 'success',
-        duration: 1500
-      });
-      onClose();
-      onSuccess?.();
-    } catch {
-      Taro.showToast({
-        title: '更新失败，请稍后重试',
+        title:
+          error instanceof CheckupMutationConflictError
+            ? '记录已更新，请确认后重试'
+            : '更新失败，输入已保留，请重试',
         icon: 'none',
-        duration: 1800
+        duration: 2000
       });
     }
   };
 
   return (
-    <BottomSheet open={open} title="完成检查" onClose={onClose}>
+    <BottomSheet
+      open={open}
+      title="完成检查"
+      closeDisabled={submitting}
+      onClose={onClose}
+    >
       <View className="checkup-completion-sheet">
         <View
           className={`checkup-completion-sheet__notice${overdue ? ' checkup-completion-sheet__notice--danger' : ''}`}
@@ -222,12 +258,15 @@ export default function CheckupCompletionSheet({
         <View className="checkup-completion-sheet__actions">
           <Button
             className="checkup-completion-sheet__btn checkup-completion-sheet__btn--ghost"
+            disabled={submitting}
             onClick={() => handleComplete(false)}
           >
             完成不设下次
           </Button>
           <Button
             className="checkup-completion-sheet__btn checkup-completion-sheet__btn--primary"
+            loading={submitting}
+            disabled={submitting}
             onClick={() => handleComplete(true)}
           >
             完成并设下次

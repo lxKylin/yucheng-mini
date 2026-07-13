@@ -9,7 +9,7 @@ import {
 import type { CheckupReminder, CheckupType } from '@/types';
 import { today } from '@/utils/dateUtils';
 import { getUserId } from './auth';
-import { getCollection } from './cloud';
+import { callCloudFn, getCollection } from './cloud';
 
 const COL = 'checkups';
 const QUERYABLE_CHECKUP_STATUSES = [
@@ -42,7 +42,8 @@ function normalizeHistory(value: unknown): CheckupReminder['completionHistory'] 
     .map((item: any) => ({
       date: item.date || item.completedDate || today(),
       note: item.note || '',
-      createdAt: item.createdAt || ''
+      createdAt: item.createdAt || '',
+      eventId: typeof item.eventId === 'string' ? item.eventId : undefined
     }));
 }
 
@@ -66,9 +67,75 @@ export function migrateCheckup(raw: any): CheckupReminder {
     completionHistory: normalizeHistory(raw.completionHistory),
     lastWechatReminderDate: raw.lastWechatReminderDate ?? '',
     lastWechatReminderAt: raw.lastWechatReminderAt ?? '',
+    version: Math.max(0, Math.floor(toNumber(raw.version, 0))),
     createdAt: raw.createdAt ?? now,
     updatedAt: raw.updatedAt ?? raw.createdAt ?? now
   };
+}
+
+export class CheckupMutationConflictError extends Error {
+  constructor(public readonly checkup: CheckupReminder) {
+    super('检查提醒已在其他设备更新');
+    this.name = 'CheckupMutationConflictError';
+  }
+}
+
+export interface CompleteCheckupMutationPayload {
+  checkupId: string;
+  mutationId: string;
+  expectedVersion: number;
+  doneDate: string;
+  nextTargetDate?: string;
+  note?: string;
+}
+
+export interface RestartCheckupMutationPayload {
+  checkupId: string;
+  mutationId: string;
+  expectedVersion: number;
+  targetDate: string;
+  remindAdvanceDays: number;
+  remindTime: string;
+}
+
+interface CheckupMutationResponse {
+  status: 'applied' | 'duplicate' | 'conflict';
+  checkup: unknown;
+}
+
+async function mutateCheckup(
+  payload: CompleteCheckupMutationPayload | RestartCheckupMutationPayload,
+  action: 'complete' | 'restart'
+): Promise<CheckupReminder> {
+  const result = await callCloudFn<CheckupMutationResponse>('checkupMutation', {
+    action,
+    ...payload
+  });
+  if (!result || !result.checkup) {
+    throw new Error('[checkupService] 检查提醒状态更新未返回记录');
+  }
+  const checkup = migrateCheckup(result.checkup);
+
+  if (result.status === 'conflict') {
+    throw new CheckupMutationConflictError(checkup);
+  }
+  if (result.status !== 'applied' && result.status !== 'duplicate') {
+    throw new Error('[checkupService] 检查提醒状态更新结果无效');
+  }
+
+  return checkup;
+}
+
+export function completeCheckupInCloud(
+  payload: CompleteCheckupMutationPayload
+): Promise<CheckupReminder> {
+  return mutateCheckup(payload, 'complete');
+}
+
+export function restartCheckupInCloud(
+  payload: RestartCheckupMutationPayload
+): Promise<CheckupReminder> {
+  return mutateCheckup(payload, 'restart');
 }
 
 async function queryUserCheckups(field: '_openid' | 'userId', userId: string) {

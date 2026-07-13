@@ -3,13 +3,15 @@ import { createStore } from 'zustand/vanilla';
 import {
   CHECKUP_STATUS,
   DEFAULT_BEFORE,
-  DEFAULT_REMIND_TIME,
-  HISTORY_MAX
+  DEFAULT_REMIND_TIME
 } from '@/constants';
 import {
   addCheckupToCloud,
+  CheckupMutationConflictError,
+  completeCheckupInCloud,
   deleteCheckupInCloud,
   fetchCheckups,
+  restartCheckupInCloud,
   updateCheckupInCloud
 } from '@/services/checkup';
 import type { CheckupReminder, Medicine } from '@/types';
@@ -23,9 +25,17 @@ type AddPayload = Partial<
   Pick<CheckupReminder, 'title'>;
 
 interface CompleteOptions {
-  doneDate?: string;
+  doneDate: string;
   nextTargetDate?: string;
   note?: string;
+  mutationId: string;
+}
+
+interface RestartOptions {
+  targetDate: string;
+  remindAdvanceDays: number;
+  remindTime: string;
+  mutationId: string;
 }
 
 interface CheckupStore {
@@ -37,7 +47,8 @@ interface CheckupStore {
   ) => Promise<void>;
   deleteCheckup: (id: string) => Promise<void>;
   togglePause: (id: string) => Promise<void>;
-  completeCheckup: (id: string, options?: CompleteOptions) => Promise<void>;
+  completeCheckup: (id: string, options: CompleteOptions) => Promise<void>;
+  restartCheckup: (id: string, options: RestartOptions) => Promise<void>;
   getDerivedList: (
     medicines?: Medicine[]
   ) => ReturnType<typeof deriveAllCheckups>;
@@ -67,6 +78,7 @@ export const checkupStore = createStore<CheckupStore>((set, get) => ({
       completionHistory: payload.completionHistory || [],
       lastWechatReminderDate: payload.lastWechatReminderDate || '',
       lastWechatReminderAt: payload.lastWechatReminderAt || '',
+      version: payload.version ?? 0,
       createdAt: now,
       updatedAt: now
     };
@@ -121,46 +133,68 @@ export const checkupStore = createStore<CheckupStore>((set, get) => ({
     await get().updateCheckup(id, { status });
   },
 
-  async completeCheckup(id, options = {}) {
+  async completeCheckup(id, options) {
     const target = get().checkups.find((item) => item.id === id);
     if (!target) {
       throw new Error('检查提醒不存在或已删除');
     }
 
-    const now = new Date().toISOString();
-    const doneDate = options.doneDate || today();
+    try {
+      const updated = await completeCheckupInCloud({
+        checkupId: id,
+        mutationId: options.mutationId,
+        expectedVersion: target.version,
+        doneDate: options.doneDate,
+        nextTargetDate: options.nextTargetDate,
+        note: options.note
+      });
+      set((state) => ({
+        checkups: state.checkups.map((item) =>
+          item.id === id ? updated : item
+        )
+      }));
+    } catch (error) {
+      if (error instanceof CheckupMutationConflictError) {
+        set((state) => ({
+          checkups: state.checkups.map((item) =>
+            item.id === id ? error.checkup : item
+          )
+        }));
+      }
+      throw error;
+    }
+  },
 
-    if (doneDate > today()) {
-      throw new Error('Done date cannot be later than today');
+  async restartCheckup(id, options) {
+    const target = get().checkups.find((item) => item.id === id);
+    if (!target) {
+      throw new Error('检查提醒不存在或已删除');
     }
 
-    if (options.nextTargetDate && options.nextTargetDate <= doneDate) {
-      throw new Error('Next target date must be later than done date');
+    try {
+      const updated = await restartCheckupInCloud({
+        checkupId: id,
+        mutationId: options.mutationId,
+        expectedVersion: target.version,
+        targetDate: options.targetDate,
+        remindAdvanceDays: options.remindAdvanceDays,
+        remindTime: options.remindTime
+      });
+      set((state) => ({
+        checkups: state.checkups.map((item) =>
+          item.id === id ? updated : item
+        )
+      }));
+    } catch (error) {
+      if (error instanceof CheckupMutationConflictError) {
+        set((state) => ({
+          checkups: state.checkups.map((item) =>
+            item.id === id ? error.checkup : item
+          )
+        }));
+      }
+      throw error;
     }
-
-    const completionHistory = [
-      {
-        date: doneDate,
-        note: options.note || '',
-        createdAt: now
-      },
-      ...target.completionHistory
-    ].slice(0, HISTORY_MAX);
-    const nextPayload: Partial<CheckupReminder> = {
-      completionHistory,
-      status: options.nextTargetDate
-        ? CHECKUP_STATUS.ACTIVE
-        : CHECKUP_STATUS.DONE,
-      targetDate: options.nextTargetDate || target.targetDate,
-      lastWechatReminderDate: options.nextTargetDate
-        ? ''
-        : target.lastWechatReminderDate,
-      lastWechatReminderAt: options.nextTargetDate
-        ? ''
-        : target.lastWechatReminderAt
-    };
-
-    await get().updateCheckup(id, nextPayload);
   },
 
   getDerivedList(medicines = []) {

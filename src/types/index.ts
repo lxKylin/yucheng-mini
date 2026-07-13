@@ -123,6 +123,7 @@ export interface CheckupCompletionRecord {
   date: string; // YYYY-MM-DD
   note: string;
   createdAt: string;
+  eventId?: string;
 }
 
 /** 独立检查/复诊提醒主体 */
@@ -140,6 +141,7 @@ export interface CheckupReminder {
   completionHistory: CheckupCompletionRecord[];
   lastWechatReminderDate: string;
   lastWechatReminderAt: string;
+  version: number;
   createdAt: string;
   updatedAt: string;
 }
