@@ -11,3 +11,4 @@ database/
 ui*/
 project.config.json
 project.private.config.json
+graphify-out

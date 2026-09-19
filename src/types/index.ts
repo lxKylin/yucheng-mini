@@ -262,6 +262,41 @@ export interface HealthMetricSummary {
   recordCount: number;
 }
 
+export type HealthTimelineEventType =
+  | 'diagnosis'
+  | 'condition_change'
+  | 'test_result'
+  | 'visit'
+  | 'treatment'
+  | 'hospitalization'
+  | 'milestone'
+  | 'other';
+
+export interface HealthTimelineEvent {
+  id: string;
+  eventType: HealthTimelineEventType;
+  title: string;
+  occurredAt: string;
+  note: string;
+  relatedMedicineIds: string[];
+  relatedCheckupIds: string[];
+  endedAt: string;
+  isOngoing: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface HealthTimelineEventForm {
+  eventType: HealthTimelineEventType;
+  title: string;
+  occurredAt: string;
+  note: string;
+  relatedMedicineIds: string[];
+  relatedCheckupIds: string[];
+  endedAt: string;
+  isOngoing: boolean;
+}
+
 /** 历史开药记录（为后续云开发扩展预留） */
 export interface PrescriptionRecord {
   id: string;

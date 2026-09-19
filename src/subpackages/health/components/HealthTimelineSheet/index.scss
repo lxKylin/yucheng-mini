@@ -1,0 +1,226 @@
+@use '@/assets/styles/variables' as *;
+
+.health-timeline-sheet {
+  display: grid;
+  gap: $spacing-5;
+  padding-bottom: 136px;
+
+  &__notice,
+  &__field {
+    display: grid;
+    gap: $spacing-2;
+    min-width: 0;
+  }
+
+  &__notice {
+    padding: $spacing-4;
+    border: 1px solid rgba(21, 122, 102, 0.12);
+    border-radius: $radius;
+    background: $primary-soft;
+  }
+
+  &__notice-title,
+  &__label {
+    color: $ink-strong;
+    font-size: $text-md;
+    font-weight: 900;
+    line-height: 1.4;
+  }
+
+  &__notice-desc,
+  &__empty {
+    color: $muted;
+    font-size: $text-sm;
+    line-height: 1.55;
+  }
+
+  &__required,
+  &__error {
+    color: $danger;
+  }
+
+  &__error {
+    display: block;
+    font-size: $text-sm;
+    font-weight: 800;
+    line-height: 1.45;
+  }
+
+  &__input,
+  &__picker,
+  &__toggle {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid $line-strong;
+    border-radius: $radius;
+    background: #fff;
+    color: $ink;
+  }
+
+  &__input,
+  &__picker {
+    min-height: 76px;
+    padding: 0 $spacing-4;
+    font-size: $text-md;
+  }
+
+  &__input {
+    display: block;
+  }
+
+  &__picker,
+  &__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+  }
+
+  &__picker-value {
+    min-width: 0;
+    color: $ink-strong;
+    font-weight: 800;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__picker-hint {
+    flex-shrink: 0;
+    color: $primary-deep;
+    font-size: $text-sm;
+    font-weight: 800;
+  }
+
+  &__textarea {
+    width: 100%;
+    max-width: 100%;
+    min-height: 112px;
+    padding: $spacing-3 $spacing-4;
+    border: 1px solid $line-strong;
+    border-radius: $radius;
+    box-sizing: border-box;
+    display: grid;
+    background: #fff;
+
+    .taroify-textarea__wrapper {
+      display: grid;
+      gap: $spacing-2;
+      min-height: 80px;
+    }
+
+    .taroify-textarea__limit {
+      margin-top: 0;
+      color: $quiet;
+      font-size: $text-xs;
+      line-height: 1.4;
+    }
+  }
+
+  &__textarea-inner {
+    width: 100%;
+    min-height: 72px !important;
+    height: 80px !important;
+    max-height: 120px !important;
+    display: block;
+    overflow-y: auto;
+    color: $ink;
+    background: transparent;
+    font-size: $text-md;
+    line-height: 1.6;
+    padding: 0;
+    margin: 0;
+    resize: none;
+  }
+
+  &__treatment {
+    padding: $spacing-4;
+    border: 1px solid rgba(184, 108, 30, 0.22);
+    border-radius: $radius;
+    background: rgba(255, 241, 222, 0.46);
+  }
+
+  &__toggle {
+    min-height: 60px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: $text-md;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+  }
+
+  &__chip {
+    min-height: 52px;
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 $spacing-4;
+    box-sizing: border-box;
+    border: 1px solid $line-soft;
+    border-radius: $radius-pill;
+    background: #fff;
+    color: $muted;
+    font-size: $text-base;
+    font-weight: 800;
+    line-height: 1.2;
+    word-break: break-all;
+    transition:
+      background $duration ease-out,
+      border-color $duration ease-out,
+      transform $duration ease-out;
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  &__chip--active {
+    border-color: $primary;
+    background: $primary;
+    color: #fff;
+  }
+
+  &__actions {
+    position: fixed;
+    right: $spacing-8;
+    bottom: 0;
+    left: $spacing-8;
+    z-index: 1030;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: $spacing-3;
+    padding: $spacing-4 0 calc(#{$spacing-2} + env(safe-area-inset-bottom));
+    background: linear-gradient(
+      180deg,
+      rgba(248, 252, 250, 0),
+      $paper 22%,
+      $paper 100%
+    );
+  }
+
+  &__cancel,
+  &__submit {
+    min-height: 52px !important;
+    border-radius: $radius-pill !important;
+    font-size: $text-md !important;
+    font-weight: 900 !important;
+  }
+
+  &__cancel {
+    border: 1px solid $line-strong !important;
+    background: #fff !important;
+    color: $muted !important;
+  }
+
+  &__submit {
+    border: none !important;
+    background: $primary !important;
+    color: #fff !important;
+  }
+}

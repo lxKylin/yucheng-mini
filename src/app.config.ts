@@ -12,7 +12,8 @@ export default defineAppConfig({
       root: 'subpackages/health',
       pages: [
         'pages/health-status-records/index',
-        'pages/health-metrics/index'
+        'pages/health-metrics/index',
+        'pages/health-timeline/index'
       ]
     }
   ],

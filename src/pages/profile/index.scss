@@ -222,6 +222,10 @@
     width: 100%;
     text-align: left;
     box-sizing: border-box;
+
+    &--link:active {
+      background: $primary-soft;
+    }
   }
 
   &__menu-copy {

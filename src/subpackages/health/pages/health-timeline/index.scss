@@ -1,0 +1,45 @@
+@use '@/assets/styles/variables' as *;
+
+.health-timeline-page {
+  min-height: 100vh;
+  padding: $spacing-4 $spacing-4 132px;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  background: $bg;
+
+  &__hero, &__filters, &__status, &__event-card {
+    box-sizing: border-box;
+    border: 1px solid $line-soft;
+    background: $surface-raised;
+    box-shadow: $shadow-card;
+  }
+
+  &__hero { display: flex; gap: $spacing-4; align-items: center; justify-content: space-between; padding: $spacing-5; border-radius: $radius-lg; }
+  &__hero-copy { min-width: 0; display: grid; gap: 4px; }
+  &__eyebrow, &__desc, &__status-desc, &__note, &__related { display: block; color: $muted; font-size: $text-sm; line-height: 1.6; word-break: break-word; }
+  &__eyebrow { color: $primary-deep; font-size: $text-xs; font-weight: 900; }
+  &__title { display: block; color: $ink-strong; font-size: $text-xl; font-weight: 900; line-height: 1.25; }
+  &__create, &__action { min-width: 118px; min-height: 64px; padding: 0 $spacing-4; display: flex; align-items: center; justify-content: center; border-radius: $radius-pill; background: $primary-deep; color: #fff; font-size: $text-md; font-weight: 900; flex-shrink: 0; }
+  &__filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: $spacing-3; padding: $spacing-3; margin-top: $spacing-4; border-radius: $radius; }
+  &__filter { min-height: 56px; padding: 0 $spacing-3; display: flex; gap: $spacing-2; align-items: center; justify-content: space-between; border: 1px solid $line-soft; border-radius: $radius; color: $ink; font-size: $text-sm; min-width: 0; }
+  &__status { display: grid; gap: $spacing-3; padding: $spacing-6; margin-top: $spacing-4; border-radius: $radius-lg; }
+  &__status-title { display: block; color: $ink-strong; font-size: $text-md; font-weight: 900; line-height: 1.4; }
+  &__action { width: fit-content; min-height: 56px; font-size: $text-sm; }
+  &__text-action { min-height: 48px; display: inline-flex; align-items: center; color: $primary-deep; font-size: $text-sm; font-weight: 900; }
+  &__timeline { display: grid; gap: $spacing-4; margin-top: $spacing-5; }
+  &__event { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); min-width: 0; }
+  &__rail { position: relative; display: flex; justify-content: center; }
+  &__rail::after { content: ''; position: absolute; top: 30px; bottom: -28px; width: 2px; background: rgba(21, 122, 102, 0.18); }
+  &__event:last-child &__rail::after { display: none; }
+  &__dot { z-index: 1; width: 16px; height: 16px; margin-top: $spacing-5; border: 5px solid $primary-soft; border-radius: 50%; background: $primary; }
+  &__event-card { display: grid; gap: $spacing-3; min-width: 0; padding: $spacing-5; border-radius: $radius; }
+  &__event-meta { display: flex; flex-wrap: wrap; gap: $spacing-2; align-items: center; min-width: 0; }
+  &__date { color: $primary-deep; font-size: $text-sm; font-weight: 900; line-height: 1.4; }
+  &__type, &__ongoing { width: fit-content; padding: 4px $spacing-2; border-radius: $radius-pill; background: $primary-soft; color: $primary-deep; font-size: $text-xs; font-weight: 900; line-height: 1.35; }
+  &__ongoing { background: $warning-soft; color: $warning; }
+  &__event-content { display: grid; gap: $spacing-2; min-width: 0; }
+  &__event-title { display: block; color: $ink-strong; font-size: $text-md; font-weight: 900; line-height: 1.45; word-break: break-word; }
+  &__event-actions { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: $spacing-3; padding-top: $spacing-2; border-top: 1px solid $line-soft; color: $quiet; font-size: $text-xs; line-height: 1.4; }
+  &__event-delete { min-width: 72px; min-height: 48px; display: inline-flex; align-items: center; justify-content: flex-end; color: $danger; font-weight: 900; flex-shrink: 0; }
+  &__more { margin-top: $spacing-5; color: $primary-deep; background: transparent; border: 1px solid $line-strong; border-radius: $radius-pill; font-size: $text-sm; font-weight: 900; }
+}

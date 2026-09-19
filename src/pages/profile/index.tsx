@@ -311,6 +311,12 @@ function Profile() {
     });
   };
 
+  const handleOpenHealthTimeline = () => {
+    Taro.navigateTo({
+      url: '/subpackages/health/pages/health-timeline/index'
+    });
+  };
+
   return (
     <View className="profile-page">
       <View className="profile-page__content">
@@ -368,6 +374,23 @@ function Profile() {
         </View>
 
         <ProfileHealthSummary />
+
+        <View
+          className="profile-page__menu-item profile-page__menu-item--link"
+          onClick={handleOpenHealthTimeline}
+          role="button"
+          aria-label="打开健康历程，记录确诊、检查、治疗与重要变化"
+        >
+          <View className="profile-page__menu-copy">
+            <Text className="profile-page__menu-label">健康历程</Text>
+            <Text className="profile-page__menu-desc">
+              记录确诊、检查、治疗与重要变化
+            </Text>
+          </View>
+          <Text className="profile-page__menu-value" aria-hidden="true">
+            进入
+          </Text>
+        </View>
 
         {/* <View className="profile-page__metrics">
           <View className="profile-page__metric">
